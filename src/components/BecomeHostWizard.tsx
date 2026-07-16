@@ -55,13 +55,6 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
   };
 
   const handleSubmit = () => {
-    const spaceTypeName =
-      spaceType === 'entire'
-        ? 'Entire place'
-        : spaceType === 'room'
-        ? 'Private room'
-        : 'Shared room';
-
     // Normalize location to match valid listing locations
     const normalizedLocation = (['Paris', 'Watford', 'London'].find(
       (loc) => loc.toLowerCase() === location.trim().toLowerCase()
