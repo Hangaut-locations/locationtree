@@ -1,0 +1,451 @@
+import type { Listing } from "../types/listing";
+
+// Stays Listings Collection (Location Tab)
+export const locationListings: Listing[] = [
+  // Paris Stays
+  {
+    id: 'stay-paris-1',
+    title: 'Grand Hotel Du Palais Royal',
+    location: 'Paris',
+    category: 'Rooftops',
+    images: [
+      'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80'
+    ],
+    rating: 4.9,
+    reviewsCount: 128,
+    guestsCount: 10,
+    price: 120,
+    priceUnit: 'hour',
+    bedroomsCount: 3,
+    bedsCount: 5
+  },
+  {
+    id: 'stay-paris-2',
+    title: 'Hotel Esprit Saint Germain',
+    location: 'Paris',
+    category: 'Studio',
+    images: [
+      'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1468817814611-b7edd94b5d6a?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=800&q=80'
+    ],
+    rating: 4.8,
+    reviewsCount: 96,
+    guestsCount: 30,
+    price: 350,
+    priceUnit: 'hour',
+    bedroomsCount: 8,
+    bedsCount: 12
+  },
+  {
+    id: 'stay-paris-3',
+    title: 'Cadet Resident',
+    location: 'Paris',
+    category: 'Amazing Views',
+    images: [
+      'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80'
+    ],
+    rating: 4.9,
+    reviewsCount: 68,
+    guestsCount: 10,
+    price: 85,
+    priceUnit: 'hour',
+    bedroomsCount: 4,
+    bedsCount: 6
+  },
+  {
+    id: 'stay-paris-4',
+    title: 'La Reserve Paris',
+    location: 'Paris',
+    category: 'Mansions',
+    images: [
+      'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1445019980597-93fa8acb246c?auto=format&fit=crop&w=800&q=80'
+    ],
+    rating: 4.9,
+    reviewsCount: 90,
+    guestsCount: 20,
+    price: 1100,
+    priceUnit: 'hour',
+    bedroomsCount: 6,
+    bedsCount: 10
+  },
+
+  // Watford Stays
+  {
+    id: 'stay-watford-1',
+    title: 'Guest suite in Sydenham',
+    location: 'Watford',
+    category: 'Studio',
+    images: [
+      'https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=800&q=80'
+    ],
+    rating: 4.9,
+    reviewsCount: 128,
+    guestsCount: 2,
+    price: 120,
+    priceUnit: '2 nights',
+    bedroomsCount: 1,
+    bedsCount: 2
+  },
+  {
+    id: 'stay-watford-2',
+    title: 'Cabin in Holmer Green',
+    location: 'Watford',
+    category: 'Cabin',
+    images: [
+      'https://images.unsplash.com/photo-1449034446853-66c86144b0ad?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1475855581690-80accde3ae2b?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=800&q=80'
+    ],
+    rating: 4.8,
+    reviewsCount: 96,
+    guestsCount: 5,
+    price: 350,
+    priceUnit: '2 nights',
+    bedroomsCount: 2,
+    bedsCount: 3
+  },
+  {
+    id: 'stay-watford-3',
+    title: 'Guesthouse in Hertford',
+    location: 'Watford',
+    category: 'Tree House',
+    images: [
+      'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1554995207-c18c203602cb?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=800&q=80'
+    ],
+    rating: 4.7,
+    reviewsCount: 68,
+    guestsCount: 8,
+    price: 185,
+    priceUnit: 'night',
+    bedroomsCount: 3,
+    bedsCount: 5
+  },
+  {
+    id: 'stay-watford-4',
+    title: 'Room in Watford',
+    location: 'Watford',
+    category: 'Cabin',
+    images: [
+      'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1598928636135-d146006ff4be?auto=format&fit=crop&w=800&q=80'
+    ],
+    rating: 4.9,
+    reviewsCount: 90,
+    guestsCount: 1,
+    price: 140,
+    priceUnit: 'night',
+    bedroomsCount: 1,
+    bedsCount: 1
+  },
+
+  // London Stays
+  {
+    id: 'stay-london-1',
+    title: 'Apartment in Le Chesnay',
+    location: 'London',
+    category: 'Rooftops',
+    images: [
+      'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=800&q=80'
+    ],
+    rating: 4.8,
+    reviewsCount: 128,
+    guestsCount: 7,
+    price: 120,
+    priceUnit: '2 nights',
+    bedroomsCount: 2,
+    bedsCount: 4
+  },
+  {
+    id: 'stay-london-2',
+    title: 'Apartment in London',
+    location: 'London',
+    category: 'Amazing Views',
+    images: [
+      'https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1501183007986-d0d080b147f9?auto=format&fit=crop&w=800&q=80'
+    ],
+    rating: 4.8,
+    reviewsCount: 90,
+    guestsCount: 10,
+    price: 350,
+    priceUnit: 'night',
+    bedroomsCount: 4,
+    bedsCount: 6
+  },
+  {
+    id: 'stay-london-3',
+    title: 'Condo in Lewisham',
+    location: 'London',
+    category: 'Houseboat',
+    images: [
+      'https://images.unsplash.com/photo-1527030280862-64139fbe04ca?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80'
+    ],
+    rating: 4.7,
+    reviewsCount: 58,
+    guestsCount: 12,
+    price: 185,
+    priceUnit: 'hour',
+    bedroomsCount: 5,
+    bedsCount: 8
+  },
+  {
+    id: 'stay-london-4',
+    title: 'Room in London',
+    location: 'London',
+    category: 'Castles',
+    images: [
+      'https://images.unsplash.com/photo-1505693395321-883724634266?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1554995207-c18c203602cb?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80'
+    ],
+    rating: 4.8,
+    reviewsCount: 85,
+    guestsCount: 1,
+    price: 200,
+    priceUnit: 'hour',
+    bedroomsCount: 1,
+    bedsCount: 1
+  }
+];
+
+// Event & Planning Listings Collection (Planning Tab)
+export const planningListings: Listing[] = [
+  // London stays (Places in London section — identical to Location stays)
+  {
+    id: 'plan-london-1',
+    title: 'Apartment in Le Chesnay',
+    location: 'London',
+    category: 'Rooftops',
+    images: [
+      'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=800&q=80'
+    ],
+    rating: 4.8,
+    reviewsCount: 128,
+    guestsCount: 7,
+    price: 120,
+    priceUnit: '2 nights',
+    bedroomsCount: 2,
+    bedsCount: 4
+  },
+  {
+    id: 'plan-london-2',
+    title: 'Apartment in London',
+    location: 'London',
+    category: 'Amazing Views',
+    images: [
+      'https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1501183007986-d0d080b147f9?auto=format&fit=crop&w=800&q=80'
+    ],
+    rating: 4.8,
+    reviewsCount: 90,
+    guestsCount: 10,
+    price: 350,
+    priceUnit: 'night',
+    bedroomsCount: 4,
+    bedsCount: 6
+  },
+  {
+    id: 'plan-london-3',
+    title: 'Condo in Lewisham',
+    location: 'London',
+    category: 'Houseboat',
+    images: [
+      'https://images.unsplash.com/photo-1527030280862-64139fbe04ca?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80'
+    ],
+    rating: 4.7,
+    reviewsCount: 58,
+    guestsCount: 12,
+    price: 185,
+    priceUnit: 'hour',
+    bedroomsCount: 5,
+    bedsCount: 8
+  },
+  {
+    id: 'plan-london-4',
+    title: 'Room in London',
+    location: 'London',
+    category: 'Castles',
+    images: [
+      'https://images.unsplash.com/photo-1505693395321-883724634266?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1554995207-c18c203602cb?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80'
+    ],
+    rating: 4.8,
+    reviewsCount: 85,
+    guestsCount: 1,
+    price: 200,
+    priceUnit: 'hour',
+    bedroomsCount: 1,
+    bedsCount: 1
+  },
+
+  // Paris Events (Locations Available in Paris section)
+  {
+    id: 'plan-paris-1',
+    title: 'Corsica Studios',
+    location: 'Paris',
+    category: 'Rooftops',
+    images: [
+      'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=800&q=80', // concert crowd
+      'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80'
+    ],
+    rating: 4.9,
+    reviewsCount: 128,
+    guestsCount: 100, // 100 guests!
+    price: 120,
+    priceUnit: 'hour',
+    bedroomsCount: 12,
+    bedsCount: 20
+  },
+  {
+    id: 'plan-paris-2',
+    title: 'Hotel Esprit saint German',
+    location: 'Paris',
+    category: 'Studio',
+    images: [
+      'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80', // DJ decks/lights
+      'https://images.unsplash.com/photo-1468817814611-b7edd94b5d6a?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=800&q=80'
+    ],
+    rating: 4.8,
+    reviewsCount: 96,
+    guestsCount: 30,
+    price: 350,
+    priceUnit: 'hour',
+    bedroomsCount: 8,
+    bedsCount: 15
+  },
+  {
+    id: 'plan-paris-3',
+    title: 'Cadet Resident',
+    location: 'Paris',
+    category: 'Amazing Views',
+    images: [
+      'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=800&q=80', // festival dance
+      'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80'
+    ],
+    rating: 4.7, // changed rating to 4.7
+    reviewsCount: 88, // changed reviews count
+    guestsCount: 15, // changed capacity
+    price: 85,
+    priceUnit: 'hour',
+    bedroomsCount: 4,
+    bedsCount: 8
+  },
+  {
+    id: 'plan-paris-4',
+    title: 'La Reserve Paris',
+    location: 'Paris',
+    category: 'Mansions',
+    images: [
+      'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1445019980597-93fa8acb246c?auto=format&fit=crop&w=800&q=80'
+    ],
+    rating: 4.8, // changed rating
+    reviewsCount: 85, // changed reviews
+    guestsCount: 20,
+    price: 1100,
+    priceUnit: 'hour',
+    bedroomsCount: 6,
+    bedsCount: 10
+  },
+
+  // Paris Gardens/Patios (Location in Paris section)
+  {
+    id: 'plan-paris-garden-1',
+    title: 'Le Petit Pré',
+    location: 'Paris',
+    category: 'Studio',
+    images: [
+      'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=800&q=80', // festive lights gathering
+      'https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=800&q=80'
+    ],
+    rating: 4.9,
+    reviewsCount: 125, // 125 reviews
+    guestsCount: 370, // 370 capacity!
+    price: 120,
+    priceUnit: '2 nights',
+    bedroomsCount: 15,
+    bedsCount: 30
+  },
+  {
+    id: 'plan-paris-garden-2',
+    title: 'Le Jardin Suspendu',
+    location: 'Paris',
+    category: 'Cabin',
+    images: [
+      'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?auto=format&fit=crop&w=800&q=80', // sunset rooftop party
+      'https://images.unsplash.com/photo-1475855581690-80accde3ae2b?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=800&q=80'
+    ],
+    rating: 4.8,
+    reviewsCount: 95, // 95 reviews
+    guestsCount: 170, // 170 capacity!
+    price: 350,
+    priceUnit: '2 nights',
+    bedroomsCount: 10,
+    bedsCount: 20
+  },
+  {
+    id: 'plan-paris-garden-3',
+    title: 'Guesthouse in Hertford',
+    location: 'Paris', // set location to Paris for section mapping
+    category: 'Tree House',
+    images: [
+      'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1554995207-c18c203602cb?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=800&q=80'
+    ],
+    rating: 4.7,
+    reviewsCount: 68,
+    guestsCount: 8,
+    price: 185,
+    priceUnit: 'night',
+    bedroomsCount: 3,
+    bedsCount: 5
+  },
+  {
+    id: 'plan-paris-garden-4',
+    title: 'Room in Watford',
+    location: 'Paris', // set location to Paris for section mapping
+    category: 'Cabin',
+    images: [
+      'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1598928636135-d146006ff4be?auto=format&fit=crop&w=800&q=80'
+    ],
+    rating: 4.8, // changed rating
+    reviewsCount: 95, // changed reviews count
+    guestsCount: 1,
+    price: 140,
+    priceUnit: 'night',
+    bedroomsCount: 1,
+    bedsCount: 1
+  }
+];
