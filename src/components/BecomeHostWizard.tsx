@@ -22,7 +22,7 @@ interface BecomeHostWizardProps {
   onAddListing: (newListing: Listing) => void
 }
 
-type WizardStep = 1 | 2 | 3 | 4 | 5
+type WizardStep = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12
 
 export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing }) => {
   const [step, setStep] = useState<WizardStep>(1)
@@ -36,6 +36,19 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
   const [bedrooms, setBedrooms] = useState<number>(1)
   const [beds, setBeds] = useState<number>(1)
   const [bathrooms, setBathrooms] = useState<number>(1)
+  const [title, setTitle] = useState<string>("Charming rooftop retreat")
+  const [description, setDescription] = useState<string>(
+    "A stylish space designed for memorable stays, calm mornings, and easy hosting.",
+  )
+  const [photos] = useState<string[]>([
+    "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1460317442991-0ec209397118?auto=format&fit=crop&w=900&q=80",
+  ])
+  const [bookingSetting, setBookingSetting] = useState<"approve-first" | "instant">("approve-first")
+  const [basePrice, setBasePrice] = useState<number>(75)
+  const [amenities, setAmenities] = useState<Set<string>>(new Set())
 
   const categories = [
     { name: "Rooftops", icon: Building },
@@ -50,7 +63,7 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
   ]
 
   const handleNext = () => {
-    if (step < 5) {
+    if (step < 12) {
       setStep((prev) => (prev + 1) as WizardStep)
     } else {
       handleSubmit()
@@ -69,6 +82,15 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
     }
   }
 
+  const toggleAmenity = (name: string) => {
+    setAmenities((prev) => {
+      const next = new Set(prev)
+      if (next.has(name)) next.delete(name)
+      else next.add(name)
+      return next
+    })
+  }
+
   const handleSubmit = () => {
     // Normalize location to match valid listing locations
     const normalizedLocation = (["Paris", "Watford", "London"].find(
@@ -76,18 +98,17 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
     ) || "Watford") as "Paris" | "Watford" | "London"
 
     // Mock create a new listing object
+    const finalTitle = title.trim() || `Charming ${category} Stay`
+
     const newListing: Listing = {
       id: `mock-listing-${Date.now()}`,
-      title: `Charming ${category} Stay`,
+      title: finalTitle,
       location: normalizedLocation,
-      price: 150 + Math.floor(Math.random() * 200),
+      price: basePrice, // was: 150 + Math.floor(Math.random() * 200)
       priceUnit: "night",
       rating: 5.0,
       reviewsCount: 1,
-      images: [
-        "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80",
-        "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=600&q=80",
-      ],
+      images: photos.slice(0, 2),
       category: category,
       guestsCount: guests,
       bedroomsCount: bedrooms,
@@ -106,6 +127,10 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
     if (step === 4) {
       return ["paris", "watford", "london"].includes(location.trim().toLowerCase())
     }
+    if (step === 7) return photos.length > 0
+    if (step === 8) return title.trim().length > 0
+    if (step === 9) return description.trim().length > 0
+    if (step === 12) return basePrice > 0
     return true
   }
 
@@ -139,7 +164,7 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
     <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300">
       {/* Wizard Header */}
       <header className="sticky top-0 z-45 w-full border-b border-border bg-background/95 backdrop-blur-md px-4 py-4 md:px-8 flex items-center justify-between">
-        <div className="flex items-center h-12 max-w-[150px] cursor-pointer" onClick={() => navigate("/")}>
+        <div className="flex items-center h-12 max-w-37.5 cursor-pointer" onClick={() => navigate("/")}>
           <img src="logo.png" alt="Hangout Logo" className="h-full w-full object-contain" />
         </div>
         <div className="flex items-center gap-3">
@@ -164,12 +189,12 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
       <div className="w-full bg-muted h-1">
         <div
           className="bg-purple-950 dark:bg-purple-650 h-full transition-all duration-300"
-          style={{ width: `${(step / 5) * 100}%` }}
+          style={{ width: `${(step / 12) * 100}%` }}
         />
       </div>
 
       {/* Wizard Body Container */}
-      <main className="flex-grow flex items-center justify-center px-4 md:px-8 py-12">
+      <main className="grow flex items-center justify-center px-4 md:px-8 py-12">
         <div className="w-full max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
           {/* Step 1: Introduction */}
           {step === 1 && (
@@ -182,7 +207,7 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
               </h1>
               <p className="text-base font-semibold text-muted-foreground leading-relaxed max-w-xl">
                 In this step, we’ll ask you what type of space you’re listing and whether guests will book the whole
-                place or room. Then tell us the location and how many people it can accommodate.
+                place or room. Then tell us the location and how many people it can accommodate
               </p>
             </div>
           )}
@@ -358,6 +383,292 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
               </div>
             </div>
           )}
+
+          {/* Step 6: Amenities */}
+          {step === 6 && (
+            <div className="space-y-8">
+              <div className="space-y-1.5">
+                <h2 className="text-xl sm:text-2xl font-black text-foreground tracking-tight">
+                  Tell guests what your place has to offer
+                </h2>
+                <p className="text-xs font-semibold text-muted-foreground">
+                  You can add more amenities after you publish your listing.
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <p className="text-sm font-black text-foreground">What about these guest favorites?</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                  {[
+                    "Wifi",
+                    "TV",
+                    "Kitchen",
+                    "Washer",
+                    "Free parking on premises",
+                    "Paid parking on premises",
+                    "Air conditioning",
+                    "Dedicated workspace",
+                  ].map((item) => (
+                    <button
+                      key={item}
+                      type="button"
+                      onClick={() => toggleAmenity(item)}
+                      className={`text-left p-5 border rounded-2xl transition-[border-color,background-color,transform] duration-160 ease-out cursor-pointer hover:border-gray-400 active:scale-97 ${
+                        amenities.has(item) ? "border-foreground border-2" : "border-border/80 bg-card"
+                      }`}
+                    >
+                      <span className="text-sm font-semibold text-foreground">{item}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <p className="text-sm font-black text-foreground">Do you have any standout amenities?</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                  {[
+                    "Pool",
+                    "Hot tub",
+                    "Patio",
+                    "BBQ gril",
+                    "Fire pit",
+                    "Outdor dining area",
+                    "Pool table",
+                    "Indoor fireplace",
+                    "Piano",
+                    "Exercise equipment",
+                    "Lake access",
+                    "Beach access",
+                    "Ski-in/Ski-out",
+                    "Outdoor shower",
+                  ].map((item) => (
+                    <button
+                      key={item}
+                      type="button"
+                      onClick={() => toggleAmenity(item)}
+                      className={`text-left p-5 border rounded-2xl transition-[border-color,background-color,transform] duration-160 ease-out cursor-pointer hover:border-gray-400 active:scale-97 ${
+                        amenities.has(item) ? "border-foreground border-2" : "border-border/80 bg-card"
+                      }`}
+                    >
+                      <span className="text-sm font-semibold text-foreground">{item}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <p className="text-sm font-black text-foreground">Do you have any of these safety items?</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                  {["Smoke alarm", "First aid kit", "Carbon monoxide alarm", "Fire extinguisher"].map((item) => (
+                    <button
+                      key={item}
+                      type="button"
+                      onClick={() => toggleAmenity(item)}
+                      className={`text-left p-5 border rounded-2xl transition-[border-color,background-color,transform] duration-160 ease-out cursor-pointer hover:border-gray-400 active:scale-97 ${
+                        amenities.has(item) ? "border-foreground border-2" : "border-border/80 bg-card"
+                      }`}
+                    >
+                      <span className="text-sm font-semibold text-foreground">{item}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Step 6: Add Photos */}
+          {step === 7 && (
+            <div className="space-y-6">
+              <div className="space-y-1.5 text-center mb-6">
+                <span className="text-sm font-black text-purple-950 dark:text-purple-300 uppercase tracking-widest block">
+                  Step 6
+                </span>
+                <h2 className="text-xl sm:text-2xl font-black text-foreground tracking-tight">
+                  Add some photos of your place
+                </h2>
+                <p className="text-xs font-semibold text-muted-foreground">
+                  Showcase the atmosphere, layout, and highlights in a polished gallery.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                {photos.map((photo, index) => (
+                  <div
+                    key={photo}
+                    className="group relative overflow-hidden rounded-3xl border border-border bg-card shadow-sm"
+                  >
+                    <img src={photo} alt={`Preview ${index + 1}`} className="aspect-4/3 w-full object-cover" />
+                    <div className="absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-transparent" />
+                    <span className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-foreground">
+                      Photo {index + 1}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                className="flex items-center justify-center gap-2 rounded-full border border-dashed border-border bg-card px-5 py-3 text-sm font-black text-foreground hover:bg-muted transition-colors cursor-pointer"
+              >
+                <Plus className="h-4 w-4" />
+                Add a photo
+              </button>
+            </div>
+          )}
+
+          {/* Step 7: Title */}
+          {step === 8 && (
+            <div className="space-y-6">
+              <div className="space-y-1.5 text-center mb-6">
+                <span className="text-sm font-black text-purple-950 uppercase tracking-widest block">Step 7</span>
+                <h2 className="text-xl sm:text-2xl font-black text-foreground tracking-tight">
+                  Now, let's give your apartment a title
+                </h2>
+                <p className="text-xs font-semibold text-muted-foreground">
+                  Keep it short and sweet! Pick a fun title—you can always tweak it later.
+                </p>
+              </div>
+              <div className="w-full max-w-2xl mx-auto">
+                <textarea
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  rows={4}
+                  maxLength={32}
+                  className="w-full min-h-52 resize-none border-2 border-foreground px-4 py-3 outline-none placeholder:text-muted-foreground/40 focus:ring-2 focus:ring-purple-600/10 rounded-2xl"
+                  placeholder="Input title"
+                />
+                <p className="mt-2 text-right text-xs font-semibold text-muted-foreground">{title.length}/32</p>
+              </div>
+            </div>
+          )}
+          {/* Step 8: Description */}
+          {step === 9 && (
+            <div className="space-y-6">
+              <div className="space-y-1.5 text-center mb-6">
+                <span className="text-sm font-black text-purple-950 uppercase tracking-widest block">Step 8</span>
+                <h2 className="text-xl sm:text-2xl font-black text-foreground tracking-tight">
+                  Give a precise description of your apartment.
+                </h2>
+                <p className="text-xs font-semibold text-muted-foreground">
+                  Keep it short and sweet! Pick a fun title—you can always tweak it later.
+                </p>
+              </div>
+              <div className="">
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={4}
+                  maxLength={32}
+                  className="w-full min-h-52 resize-none border-2 border-foreground px-4 py-3 outline-none placeholder:text-muted-foreground/40 focus:ring-2 focus:ring-purple-600/10 rounded-2xl"
+                  placeholder="Input description"
+                />
+                <p className="mt-2 text-right text-xs font-semibold text-muted-foreground">{description.length}/32</p>
+              </div>
+            </div>
+          )}
+
+          {/* Step 10: Finish Up Intro */}
+          {step === 10 && (
+            <div className="space-y-6">
+              <span className="text-sm font-black text-purple-950 dark:text-purple-300 uppercase tracking-widest block">
+                Step 10
+              </span>
+              <h1 className="text-2xl sm:text-4xl font-black text-foreground tracking-tight leading-tight">
+                Finish up and publish
+              </h1>
+              <p className="text-base font-semibold text-muted-foreground leading-relaxed max-w-xl">
+                In the final step, you'll select your booking preferences, set your prices, and hit "Publish" to send
+                your listing live for guests to see.
+              </p>
+            </div>
+          )}
+          {/* Step 11: Booking Setting */}
+          {step === 11 && (
+            <div className="space-y-6">
+              <div className="space-y-1.5 mb-6">
+                <span className="text-sm font-black text-purple-950 dark:text-purple-300 uppercase tracking-widest block">
+                  Step 11
+                </span>
+                <h2 className="text-xl sm:text-2xl font-black text-foreground tracking-tight">
+                  Choose your booking setting
+                </h2>
+                <p className="text-xs font-semibold text-muted-foreground">You can change this at anytime</p>
+              </div>
+
+              <div className="space-y-4 max-w-xl mx-auto">
+                <button
+                  type="button"
+                  onClick={() => setBookingSetting("approve-first")}
+                  className={`w-full text-left p-5 sm:p-6 border rounded-2xl transition-[border-color,background-color,transform] duration-160 ease-out cursor-pointer hover:border-gray-400 active:scale-97 block ${
+                    bookingSetting === "approve-first"
+                      ? "border-purple-950 dark:border-purple-600 bg-gray-50 dark:bg-muted/40 shadow-sm"
+                      : "border-border/80 bg-card"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-base font-black text-foreground">Start by Approving Your First 5 Bookings</h4>
+                    <Calendar className="h-5 w-5 text-foreground shrink-0" />
+                  </div>
+                  <p className="mt-2 text-xs font-black text-purple-950 dark:text-purple-300">Recommended</p>
+                  <p className="mt-1 text-sm font-semibold text-muted-foreground">
+                    Stay in control early on. After a few guests, switch to Instant Book to let bookings happen
+                    automatically
+                  </p>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setBookingSetting("instant")}
+                  className={`w-full text-left p-5 sm:p-6 border rounded-2xl transition-[border-color,background-color,transform] duration-160 ease-out cursor-pointer hover:border-gray-400 active:scale-97 block ${
+                    bookingSetting === "instant"
+                      ? "border-purple-950 dark:border-purple-600 bg-gray-50 dark:bg-muted/40 shadow-sm"
+                      : "border-border/80 bg-card"
+                  }`}
+                >
+                  <h4 className="text-base font-black text-foreground">Allow instant booking</h4>
+                  <p className="mt-1 text-sm font-semibold text-muted-foreground">
+                    Guests book automatically without needing approval.
+                  </p>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 12: Base Price & Publish (final step) */}
+          {step === 12 && (
+            <div className="space-y-8 text-center">
+              <div className="space-y-1.5">
+                <span className="text-sm font-black text-purple-950 dark:text-purple-300 uppercase tracking-widest block">
+                  Step 12
+                </span>
+                <h2 className="text-xl sm:text-2xl font-black text-foreground tracking-tight">
+                  Set your base price for the spot
+                </h2>
+                <p className="text-xs font-semibold text-muted-foreground">
+                  For example <span className="font-black text-foreground">$75</span>
+                </p>
+              </div>
+
+              <div className="flex items-center justify-center gap-3">
+                <span className="text-6xl sm:text-7xl font-black text-foreground">$</span>
+                <input
+                  type="number"
+                  min={1}
+                  value={basePrice}
+                  onChange={(e) => setBasePrice(Number(e.target.value) || 0)}
+                  className="w-40 border-r border-border/60 bg-transparent text-center text-6xl sm:text-7xl font-black text-foreground outline-none"
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={handleSubmit}
+                className="rounded-full bg-purple-950 hover:bg-purple-900 dark:bg-purple-800 dark:hover:bg-purple-750 text-white font-bold py-3 px-8 text-sm shadow-md active:scale-97 transition-[transform,background-color] duration-160 ease-out cursor-pointer"
+              >
+                Publish now
+              </button>
+            </div>
+          )}
         </div>
       </main>
 
@@ -372,15 +683,14 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
           >
             Back
           </button>
-
           <button
             type="button"
             onClick={handleNext}
             disabled={!isStepValid()}
             className="rounded-full bg-purple-950 hover:bg-purple-900 dark:bg-purple-800 dark:hover:bg-purple-750 text-white font-bold py-3 px-6 text-sm shadow-md active:scale-97 transition-[transform,background-color] duration-160 ease-out disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
           >
-            {step === 5 ? "Submit" : "Next"}
-          </button>
+            {step === 12 ? "Publish" : "Next"}
+          </button>{" "}
         </div>
       </footer>
     </div>

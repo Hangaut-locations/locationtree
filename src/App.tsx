@@ -15,12 +15,6 @@ import { locationListings, planningListings } from "./data/listings"
 import type { Listing } from "./types/listing"
 
 function App() {
-  const [darkMode, setDarkMode] = useState<boolean>(() => {
-    const saved = localStorage.getItem("theme")
-    if (saved) return saved === "dark"
-    return window.matchMedia("(prefers-color-scheme: dark)").matches
-  })
-
   const [activeTab, setActiveTab] = useState<"location" | "planning">("location")
   const [activeCategory, setActiveCategory] = useState<string>("Rooftops")
   const [searchQuery, setSearchQuery] = useState<string>("")
@@ -54,17 +48,6 @@ function App() {
     const saved = localStorage.getItem("wishlist")
     return saved ? JSON.parse(saved) : []
   })
-
-  // Handle dark mode side effects
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add("dark")
-      localStorage.setItem("theme", "dark")
-    } else {
-      document.documentElement.classList.remove("dark")
-      localStorage.setItem("theme", "light")
-    }
-  }, [darkMode])
 
   // Persist wishlist
   useEffect(() => {
@@ -111,7 +94,7 @@ function App() {
     navigate("/")
 
     // Reset filters to default state for the selected view context
-    setActiveCategory("Rooftops")
+    setActiveCategory(tab === "planning" ? "Amazing Views" : "Rooftops")
     setSearchQuery("")
     setCheckIn("")
     setCheckOut("")
@@ -134,7 +117,7 @@ function App() {
   const handleResetFilters = () => {
     setIsLoading(true)
     navigate("/")
-    setActiveCategory("Rooftops")
+    setActiveCategory(activeTab === "planning" ? "Amazing Views" : "Rooftops")
     setSearchQuery("")
     setCheckIn("")
     setCheckOut("")
@@ -264,8 +247,6 @@ function App() {
     <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300">
       {/* Navigation Header */}
       <Navbar
-        darkMode={darkMode}
-        setDarkMode={setDarkMode}
         activeTab={activeTab}
         setActiveTab={handleTabChange}
         onLoginClick={() => setIsAuthOpen(true)}
@@ -288,7 +269,11 @@ function App() {
                 />
 
                 {/* Accommodations horizontal category bar */}
-                <CategorySlider activeCategory={activeCategory} onSelectCategory={handleCategorySelect} />
+                <CategorySlider
+                  activeCategory={activeCategory}
+                  activeTab={activeTab}
+                  onSelectCategory={handleCategorySelect}
+                />
 
                 {/* Listings listings grid */}
                 <ListingGrid

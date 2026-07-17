@@ -19,7 +19,7 @@ interface Category {
   icon: React.ComponentType<{ className?: string }>
 }
 
-const categories: Category[] = [
+const locationCategories: Category[] = [
   { id: "Rooftops", name: "Rooftops", icon: Building2 },
   { id: "Tree House", name: "Tree House", icon: Trees },
   { id: "Beach front", name: "Beach front", icon: Palmtree },
@@ -31,13 +31,27 @@ const categories: Category[] = [
   { id: "Cabin", name: "Cabin", icon: Tent },
 ]
 
+const planningCategories: Category[] = [
+  { id: "Rooftops", name: "Rooftops", icon: Building2 },
+  { id: "Amazing Views", name: "Amazing Views", icon: Mountain },
+  { id: "Studio", name: "Studio", icon: Video },
+  { id: "Mansions", name: "Mansions", icon: Building },
+  { id: "Houseboat", name: "Houseboat", icon: Ship },
+  { id: "Cabin", name: "Cabin", icon: Tent },
+  { id: "Tree House", name: "Tree House", icon: Trees },
+  { id: "Beach front", name: "Beach front", icon: Palmtree },
+  { id: "Castles", name: "Castles", icon: Castle },
+]
+
 interface CategorySliderProps {
   activeCategory: string
+  activeTab: "location" | "planning"
   onSelectCategory: (category: string) => void
 }
 
-export const CategorySlider: React.FC<CategorySliderProps> = ({ activeCategory, onSelectCategory }) => {
+export const CategorySlider: React.FC<CategorySliderProps> = ({ activeCategory, activeTab, onSelectCategory }) => {
   const containerRef = React.useRef<HTMLDivElement>(null)
+  const categories = activeTab === "planning" ? planningCategories : locationCategories
 
   const scroll = (direction: "left" | "right") => {
     if (containerRef.current) {
