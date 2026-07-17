@@ -55,10 +55,10 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
   const isDateInvalid = checkIn && checkOut && new Date(checkOut) < new Date(checkIn);
 
   return (
-    <div className="mx-auto my-6 w-full max-w-4xl px-6">
+    <div className="mx-auto my-6 w-full max-w-4xl px-4 sm:px-6">
       <form
         onSubmit={handleSearchSubmit}
-        className="relative flex flex-col md:flex-row items-stretch gap-0 rounded-3xl md:rounded-full border border-border bg-card p-2.5 md:p-2 shadow-lg shadow-purple-950/5 transition-all duration-300 hover:shadow-xl focus-within:ring-2 focus-within:ring-purple-600/20"
+        className="relative flex flex-col md:flex-row items-stretch gap-0 rounded-3xl md:rounded-full border border-border bg-card p-2.5 md:p-2 shadow-lg shadow-purple-950/5 transition-[box-shadow,border-color] duration-200 ease-out hover:shadow-xl focus-within:ring-2 focus-within:ring-purple-600/20"
       >
         {/* Where Input */}
         <div
@@ -84,7 +84,7 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
               <button
                 type="button"
                 onClick={clearDestination}
-                className="rounded-full p-1 hover:bg-muted text-muted-foreground transition-colors cursor-pointer"
+                className="rounded-full p-2 md:p-1.5 hover:bg-muted text-muted-foreground transition-colors cursor-pointer"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -93,7 +93,7 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
 
           {/* Autocomplete Dropdown */}
           {showDropdown && (
-            <div className="absolute left-0 right-0 md:right-auto md:w-80 top-[105%] z-50 mt-1.5 rounded-2xl border border-border bg-card p-2 shadow-xl animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="absolute left-0 right-0 md:right-auto md:w-80 top-[105%] z-50 mt-1.5 rounded-2xl border border-border bg-card p-2 shadow-xl origin-top animate-in fade-in zoom-in-95 slide-in-from-top-2 duration-150 ease-out">
               <div className="text-[11px] font-bold text-muted-foreground px-3 py-1.5 uppercase tracking-wider">
                 Suggested Locations
               </div>
@@ -104,7 +104,7 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
                     key={loc}
                     type="button"
                     onClick={() => handleLocationSelect(loc)}
-                    className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
+                    className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 md:py-2 text-left text-sm font-medium text-foreground hover:bg-muted transition-colors duration-160 ease-out cursor-pointer"
                   >
                     <MapPin className="h-4 w-4 text-purple-600" />
                     <span>{loc}</span>
@@ -164,7 +164,7 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
           <button
             type="button"
             onClick={onFilterClick}
-            className="flex items-center justify-center gap-1.5 rounded-full bg-purple-900/10 dark:bg-purple-300/15 hover:bg-purple-900/20 dark:hover:bg-purple-300/25 text-purple-950 dark:text-purple-200 font-semibold py-2.5 px-4 text-sm transition-all active:scale-95 duration-150 cursor-pointer flex-1 md:flex-initial"
+            className="flex items-center justify-center gap-1.5 rounded-full bg-purple-900/10 dark:bg-purple-300/15 hover:bg-purple-900/20 dark:hover:bg-purple-300/25 text-purple-950 dark:text-purple-200 font-semibold py-2.5 px-4 text-sm transition-[background-color,transform] duration-160 ease-out active:scale-97 cursor-pointer flex-1 md:flex-initial"
           >
             <SlidersHorizontal className="h-4 w-4" />
             <span>Filter</span>
@@ -174,7 +174,7 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
           <button
             type="submit"
             disabled={!!isDateInvalid}
-            className="flex h-11 w-11 items-center justify-center rounded-full bg-purple-950 dark:bg-purple-750 text-white shadow-md shadow-purple-900/20 hover:bg-purple-900 hover:scale-105 active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none cursor-pointer flex-initial"
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-purple-950 dark:bg-purple-750 text-white shadow-md shadow-purple-900/20 hover:bg-purple-900 hover:md:scale-105 active:scale-97 transition-[transform,background-color] duration-160 ease-out disabled:opacity-50 disabled:pointer-events-none cursor-pointer flex-initial"
             aria-label="Search listings"
           >
             <Search className="h-5 w-5" />

@@ -91,18 +91,18 @@ export const FilterModal: React.FC<FilterModalProps> = ({
             type="button"
             onClick={() => onChange(Math.max(min, value - 1))}
             disabled={value <= min}
-            className="h-6 w-6 rounded-full border border-gray-400 dark:border-gray-500 flex items-center justify-center text-gray-500 hover:bg-muted active:scale-95 disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-all"
+            className="h-9 w-9 rounded-full border border-gray-400 dark:border-gray-500 flex items-center justify-center text-gray-500 hover:bg-muted active:scale-97 disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-[transform,background-color] duration-160 ease-out"
           >
-            <Minus className="h-3.5 w-3.5" />
+            <Minus className="h-4 w-4" />
           </button>
           <span className="text-sm font-black text-gray-900 dark:text-white w-4 text-center">{value}</span>
           <button
             type="button"
             onClick={() => onChange(Math.min(max, value + 1))}
             disabled={value >= max}
-            className="h-6 w-6 rounded-full border border-gray-400 dark:border-gray-500 flex items-center justify-center text-gray-500 hover:bg-muted active:scale-95 disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-all"
+            className="h-9 w-9 rounded-full border border-gray-400 dark:border-gray-500 flex items-center justify-center text-gray-500 hover:bg-muted active:scale-97 disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-[transform,background-color] duration-160 ease-out"
           >
-            <Plus className="h-3.5 w-3.5" />
+            <Plus className="h-4 w-4" />
           </button>
         </div>
       </div>
@@ -112,7 +112,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       {/* Dialog matches the compact square layout shown in the screenshot */}
-<DialogContent className="!max-w-[680px] w-[calc(100%-2rem)] overflow-hidden rounded-[32px] border border-border bg-card p-0 shadow-2xl animate-in zoom-in-95 duration-200">        
+<DialogContent className="w-full max-w-full sm:max-w-[680px] h-full sm:h-auto rounded-none sm:rounded-[32px] border-t sm:border border-border bg-card p-0 shadow-2xl animate-in fade-in sm:zoom-in-95 duration-200 top-0 left-0 sm:top-1/2 sm:left-1/2 translate-x-0 translate-y-0 sm:-translate-x-1/2 sm:-translate-y-1/2 overflow-hidden">        
         {/* Title Header */}
         <div className="flex items-center justify-center border-b border-border/60 py-5">
           <DialogTitle className="text-lg font-black text-foreground tracking-tight">
@@ -121,12 +121,12 @@ export const FilterModal: React.FC<FilterModalProps> = ({
         </div>
 
         {/* Content Body */}
-<div className="px-10 py-8 space-y-8 overflow-y-auto max-h-[75vh] scrollbar-none">          {/* Place Type segmented tab */}
+        <div className="px-5 py-6 sm:px-10 sm:py-8 space-y-8 overflow-y-auto max-h-[calc(100vh-130px)] sm:max-h-[70vh] scrollbar-none">          {/* Place Type segmented tab */}
   <div className="rounded-full border border-gray-300 dark:border-border p-1.5 bg-white dark:bg-muted/10 flex items-center w-full">
     <button
       type="button"
       onClick={() => setPlaceType('any')}
-      className={`flex-grow py-4 text-center text-base font-black rounded-full transition-all cursor-pointer ${
+      className={`flex-grow py-4 text-center text-base font-black rounded-full transition-[background-color,color,transform] duration-160 ease-out active:scale-97 cursor-pointer ${
         placeType === 'any'
           ? 'bg-purple-950 text-white shadow-sm dark:bg-purple-800'
           : 'text-purple-950 dark:text-purple-300 hover:bg-muted/30'
@@ -136,7 +136,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({
     </button>            <button
               type="button"
               onClick={() => setPlaceType('room')}
-              className={`flex-grow py-3 text-center text-sm font-black rounded-[20px] transition-all cursor-pointer ${
+              className={`flex-grow py-3 text-center text-sm font-black rounded-[20px] transition-[background-color,color,transform] duration-160 ease-out active:scale-97 cursor-pointer ${
                 placeType === 'room'
                   ? 'bg-purple-950 text-white shadow-sm dark:bg-purple-800'
                   : 'text-purple-950 dark:text-purple-300 hover:bg-muted/30'
@@ -147,7 +147,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({
             <button
               type="button"
               onClick={() => setPlaceType('entire')}
-              className={`flex-grow py-3 text-center text-sm font-black rounded-[20px] transition-all cursor-pointer ${
+              className={`flex-grow py-3 text-center text-sm font-black rounded-[20px] transition-[background-color,color,transform] duration-160 ease-out active:scale-97 cursor-pointer ${
                 placeType === 'entire'
                   ? 'bg-purple-950 text-white shadow-sm dark:bg-purple-800'
                   : 'text-purple-950 dark:text-purple-300 hover:bg-muted/30'
@@ -237,7 +237,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({
         </div>
 
         {/* Footer actions aligned to design screenshot */}
-        <div className="flex items-center justify-between border-t border-border/60 px-8 py-5 bg-card mt-auto rounded-b-[32px]">
+        <div className="flex items-center justify-between border-t border-border/60 px-5 sm:px-8 py-4 sm:py-5 bg-card mt-auto sm:rounded-b-[32px] rounded-none">
           <button
             type="button"
             onClick={handleClearAll}
@@ -249,7 +249,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({
           <button
             type="button"
             onClick={handleApply}
-            className="rounded-full bg-purple-950 hover:bg-purple-900 dark:bg-purple-800 dark:hover:bg-purple-750 text-white font-bold py-3.5 px-7 text-sm shadow-md transition-all duration-150 active:scale-95 cursor-pointer"
+            className="rounded-full bg-purple-950 hover:bg-purple-900 dark:bg-purple-800 dark:hover:bg-purple-750 text-white font-bold py-3.5 px-7 text-sm shadow-md transition-[transform,background-color] duration-160 ease-out active:scale-97 cursor-pointer"
           >
             Show all {filteredCount}+ places
           </button>

@@ -48,11 +48,11 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
   // Render skeleton loaders
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-7xl px-6 md:px-8 py-8 space-y-12">
+      <div className="mx-auto max-w-7xl px-4 md:px-8 py-8 space-y-12">
         {[1, 2].map((sectionIndex) => (
           <div key={sectionIndex} className="space-y-6">
             <Skeleton className="h-8 w-48 rounded-lg" />
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
               {[1, 2, 3, 4].map((cardIndex) => (
                 <div key={cardIndex} className="space-y-4 rounded-3xl border border-border p-4">
                   <Skeleton className="aspect-[4/3] w-full rounded-2xl" />
@@ -74,7 +74,7 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
   // Render empty state if no listings match filters
   if (listings.length === 0) {
     return (
-      <div className="mx-auto max-w-7xl px-6 md:px-8 py-16 text-center flex flex-col items-center justify-center">
+      <div className="mx-auto max-w-7xl px-4 md:px-8 py-16 text-center flex flex-col items-center justify-center">
         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-purple-900/10 dark:bg-purple-300/15 text-purple-950 dark:text-purple-200 mb-6">
           <Compass className="h-8 w-8 animate-bounce" />
         </div>
@@ -98,17 +98,18 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
     if (items.length === 0) return null;
     return (
       <section className="space-y-6">
-        <h2 className="text-2xl font-black text-purple-950 dark:text-purple-300 tracking-tight">
+        <h2 className="text-xl md:text-2xl font-black text-purple-950 dark:text-purple-300 tracking-tight">
           {title}
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {items.map((item) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          {items.map((item, idx) => (
             <ListingCard
               key={item.id}
               listing={item}
               isWishlisted={wishlist.includes(item.id)}
               onWishlistToggle={onWishlistToggle}
               onListingClick={onListingClick}
+              index={idx}
             />
           ))}
         </div>
@@ -121,17 +122,18 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
     if (items.length === 0) return null;
     return Array.from({ length: repeatCount }).map((_, index) => (
       <section key={`${title}-${index}`} className="space-y-6">
-        <h2 className="text-2xl font-black text-purple-950 dark:text-purple-300 tracking-tight">
+        <h2 className="text-xl md:text-2xl font-black text-purple-950 dark:text-purple-300 tracking-tight">
           {title}
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {items.map((item) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          {items.map((item, idx) => (
             <ListingCard
               key={`${item.id}-dup-${index}`}
               listing={item}
               isWishlisted={wishlist.includes(item.id)}
               onWishlistToggle={onWishlistToggle}
               onListingClick={onListingClick}
+              index={idx}
             />
           ))}
         </div>
@@ -142,7 +144,7 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
   // If filtering, show standard rows without duplication to prevent clutter
   if (isFiltering) {
     return (
-      <div className="mx-auto max-w-7xl px-6 md:px-8 py-8 space-y-12">
+      <div className="mx-auto max-w-7xl px-4 md:px-8 py-8 space-y-12">
         {isPlanning ? (
           <>
             {renderListingRow('Places in London', londonListings)}
@@ -162,7 +164,7 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
 
   // Default homepage view (no active filters) matching the mockup exactly
   return (
-    <div className="mx-auto max-w-7xl px-6 md:px-8 py-8 space-y-12">
+    <div className="mx-auto max-w-7xl px-4 md:px-8 py-8 space-y-12">
       {isPlanning ? (
         <>
           {renderListingRow('Places in London', londonListings)}

@@ -53,11 +53,11 @@ export const CategorySlider: React.FC<CategorySliderProps> = ({
   };
 
   return (
-    <div className="relative mx-auto w-full max-w-7xl px-6 md:px-8 my-4 flex items-center group">
+    <div className="relative mx-auto w-full max-w-7xl px-4 md:px-8 my-4 flex items-center group">
       {/* Left scroll button */}
       <button
         onClick={() => scroll('left')}
-        className="absolute left-1 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-border bg-card shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-muted"
+        className="absolute left-1 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-muted"
         aria-label="Scroll left"
       >
         <ChevronLeft className="h-4 w-4" />
@@ -76,14 +76,14 @@ export const CategorySlider: React.FC<CategorySliderProps> = ({
             <button
               key={cat.id}
               onClick={() => onSelectCategory(cat.id)}
-              className={`flex flex-col items-center gap-2 cursor-pointer transition-all duration-300 relative py-2 px-3 rounded-xl focus:outline-none ${
+              className={`flex flex-col items-center gap-2 cursor-pointer transition-[background-color,color,transform] duration-160 ease-out active:scale-97 relative py-2 px-3 rounded-xl focus:outline-none ${
                 isActive
                   ? 'bg-purple-900/10 dark:bg-purple-300/15 text-purple-950 dark:text-purple-200'
                   : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
               }`}
             >
               <div
-                className={`flex h-11 w-11 items-center justify-center rounded-full transition-all duration-300 ${
+                className={`flex h-11 w-11 items-center justify-center rounded-full transition-[background-color,color,transform] duration-160 ease-out ${
                   isActive
                     ? 'bg-purple-950 dark:bg-purple-800 text-white scale-110 shadow-md shadow-purple-900/10'
                     : 'bg-muted dark:bg-muted/60 text-muted-foreground'
@@ -103,7 +103,7 @@ export const CategorySlider: React.FC<CategorySliderProps> = ({
       {/* Right scroll button */}
       <button
         onClick={() => scroll('right')}
-        className="absolute right-1 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-border bg-card shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-muted"
+        className="absolute right-1 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-muted"
         aria-label="Scroll right"
       >
         <ChevronRight className="h-4 w-4" />

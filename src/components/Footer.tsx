@@ -9,7 +9,7 @@ import {
 export const Footer: React.FC = () => {
   return (
     <footer className="w-full border-t border-border bg-muted/30 pt-12 pb-8 transition-colors duration-300">
-      <div className="mx-auto max-w-7xl px-6 md:px-8">
+      <div className="mx-auto max-w-7xl px-4 md:px-8">
         {/* Sitemap Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 pb-8 border-b border-border/60">
           {/* Support */}
@@ -91,13 +91,13 @@ export const Footer: React.FC = () => {
 
             {/* Social Icons */}
             <div className="flex items-center gap-4">
-              <a href="#" className="hover:text-foreground transition-all hover:scale-110" aria-label="Facebook">
+              <a href="#" className="hover:text-foreground social-icon-link" aria-label="Facebook">
                 <SiFacebook className="h-4 w-4" />
               </a>
-              <a href="#" className="hover:text-foreground transition-all hover:scale-110" aria-label="Twitter">
+              <a href="#" className="hover:text-foreground social-icon-link" aria-label="Twitter">
                 <SiX className="h-4 w-4" />
               </a>
-              <a href="#" className="hover:text-foreground transition-all hover:scale-110" aria-label="Instagram">
+              <a href="#" className="hover:text-foreground social-icon-link" aria-label="Instagram">
                 <SiInstagram className="h-4 w-4" />
               </a>
             </div>

@@ -108,7 +108,7 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
             type="button"
             onClick={() => onChange(Math.max(min, value - 1))}
             disabled={value <= min}
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted active:scale-95 disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-all"
+            className="flex h-10 w-10 md:h-8 md:w-8 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted active:scale-97 disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-[transform,background-color] duration-160 ease-out"
           >
             <Minus className="h-4.5 w-4.5" />
           </button>
@@ -116,7 +116,7 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
           <button
             type="button"
             onClick={() => onChange(value + 1)}
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted active:scale-95 cursor-pointer transition-all"
+            className="flex h-10 w-10 md:h-8 md:w-8 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted active:scale-97 cursor-pointer transition-[transform,background-color] duration-160 ease-out"
           >
             <Plus className="h-4.5 w-4.5" />
           </button>
@@ -129,21 +129,22 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
     <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300">
       
       {/* Wizard Header */}
-      <header className="sticky top-0 z-45 w-full border-b border-border bg-background/95 backdrop-blur-md px-6 py-4 sm:px-8 flex items-center justify-between">
+      <header className="sticky top-0 z-45 w-full border-b border-border bg-background/95 backdrop-blur-md px-4 py-4 md:px-8 flex items-center justify-between">
         <div className="flex items-center h-12 max-w-[150px] cursor-pointer" onClick={() => navigate('/')}>
           <img src="logo.png" alt="Hangout Logo" className="h-full w-full object-contain" />
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={() => alert('Support line matches available agents.')}
-            className="flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-xs font-black text-foreground hover:bg-muted transition-all cursor-pointer"
+            className="flex h-10 w-10 sm:h-auto sm:w-auto items-center justify-center gap-1.5 rounded-full border border-border sm:px-4 sm:py-2 text-xs font-black text-foreground hover:bg-muted transition-all cursor-pointer"
+            aria-label="Help"
           >
-            <HelpCircle className="h-4 w-4" />
-            <span>Questions?</span>
+            <HelpCircle className="h-4.5 w-4.5" />
+            <span className="hidden sm:inline">Questions?</span>
           </button>
           <button
             onClick={handleExit}
-            className="flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-xs font-black text-foreground hover:bg-muted transition-all cursor-pointer"
+            className="flex items-center gap-1.5 rounded-full border border-border px-4 py-2.5 md:py-2 text-xs md:text-sm font-black text-foreground hover:bg-muted transition-all cursor-pointer"
           >
             <span>Save & Exit</span>
           </button>
@@ -159,8 +160,8 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
       </div>
 
       {/* Wizard Body Container */}
-      <main className="flex-grow flex items-center justify-center px-6 py-12 sm:px-8">
-        <div className="w-full max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
+      <main className="flex-grow flex items-center justify-center px-4 md:px-8 py-12">
+        <div className="w-full max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
           
           {/* Step 1: Introduction */}
           {step === 1 && (
@@ -168,7 +169,7 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
               <span className="text-sm font-black text-purple-950 dark:text-purple-300 uppercase tracking-widest block">
                 Step 1
               </span>
-              <h1 className="text-4xl font-black text-foreground tracking-tight leading-tight">
+              <h1 className="text-2xl sm:text-4xl font-black text-foreground tracking-tight leading-tight">
                 Tell us about your place
               </h1>
               <p className="text-base font-semibold text-muted-foreground leading-relaxed max-w-xl">
@@ -182,7 +183,7 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
           {/* Step 2: Category Selector */}
           {step === 2 && (
             <div className="space-y-6">
-              <h2 className="text-2xl font-black text-foreground tracking-tight text-center mb-8">
+              <h2 className="text-xl sm:text-2xl font-black text-foreground tracking-tight text-center mb-8">
                 Which of these best describes your place?
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -193,7 +194,7 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
                     <button
                       key={cat.name}
                       onClick={() => setCategory(cat.name)}
-                      className={`flex flex-col items-center justify-center p-6 border rounded-2xl transition-all cursor-pointer hover:border-gray-400 active:scale-95 ${
+                      className={`flex flex-col items-center justify-center p-4 sm:p-6 border rounded-2xl transition-[border-color,background-color,transform] duration-160 ease-out cursor-pointer hover:border-gray-400 active:scale-97 ${
                         isSelected
                           ? 'border-purple-950 dark:border-purple-600 bg-gray-100 dark:bg-muted/40 shadow-sm'
                           : 'border-border/80 bg-card'
@@ -211,7 +212,7 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
           {/* Step 3: Space Type */}
           {step === 3 && (
             <div className="space-y-6">
-              <h2 className="text-2xl font-black text-foreground tracking-tight text-center mb-8">
+              <h2 className="text-xl sm:text-2xl font-black text-foreground tracking-tight text-center mb-8">
                 What type of place will guests have?
               </h2>
               <div className="space-y-4">
@@ -219,7 +220,7 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
                 <button
                   type="button"
                   onClick={() => setSpaceType('entire')}
-                  className={`w-full text-left p-6 border rounded-2xl transition-all cursor-pointer hover:border-gray-400 active:scale-[0.99] block ${
+                  className={`w-full text-left p-4 sm:p-6 border rounded-2xl transition-[border-color,background-color,transform] duration-160 ease-out cursor-pointer hover:border-gray-400 active:scale-97 block ${
                     spaceType === 'entire'
                       ? 'border-purple-950 dark:border-purple-600 bg-purple-950/5 dark:bg-purple-800/10'
                       : 'border-border/80 bg-card'
@@ -235,7 +236,7 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
                 <button
                   type="button"
                   onClick={() => setSpaceType('room')}
-                  className={`w-full text-left p-6 border rounded-2xl transition-all cursor-pointer hover:border-gray-400 active:scale-[0.99] block ${
+                  className={`w-full text-left p-4 sm:p-6 border rounded-2xl transition-[border-color,background-color,transform] duration-160 ease-out cursor-pointer hover:border-gray-400 active:scale-97 block ${
                     spaceType === 'room'
                       ? 'border-purple-950 dark:border-purple-600 bg-purple-950/5 dark:bg-purple-800/10'
                       : 'border-border/80 bg-card'
@@ -251,7 +252,7 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
                 <button
                   type="button"
                   onClick={() => setSpaceType('shared')}
-                  className={`w-full text-left p-6 border rounded-2xl transition-all cursor-pointer hover:border-gray-400 active:scale-[0.99] block ${
+                  className={`w-full text-left p-4 sm:p-6 border rounded-2xl transition-[border-color,background-color,transform] duration-160 ease-out cursor-pointer hover:border-gray-400 active:scale-97 block ${
                     spaceType === 'shared'
                       ? 'border-purple-950 dark:border-purple-600 bg-purple-950/5 dark:bg-purple-800/10'
                       : 'border-border/80 bg-card'
@@ -270,7 +271,7 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
           {step === 4 && (
             <div className="space-y-6">
               <div className="space-y-1.5 text-center mb-6">
-                <h2 className="text-2xl font-black text-foreground tracking-tight">
+                <h2 className="text-xl sm:text-2xl font-black text-foreground tracking-tight">
                   Where's your place located?
                 </h2>
                 <p className="text-xs font-semibold text-muted-foreground">
@@ -298,7 +299,7 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
                       key={loc}
                       type="button"
                       onClick={() => setLocation(loc)}
-                      className={`px-4 py-2 rounded-full border text-xs font-bold transition-all cursor-pointer ${
+                      className={`px-4 py-2.5 rounded-full border text-xs font-bold transition-all cursor-pointer ${
                         location.toLowerCase() === loc.toLowerCase()
                           ? 'bg-purple-950 text-white border-purple-950 dark:bg-purple-800 dark:border-purple-800 shadow-sm'
                           : 'bg-card text-foreground border-border hover:bg-muted hover:border-gray-400'
@@ -328,7 +329,7 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
           {step === 5 && (
             <div className="space-y-6">
               <div className="space-y-1.5 text-center mb-6">
-                <h2 className="text-2xl font-black text-foreground tracking-tight">
+                <h2 className="text-xl sm:text-2xl font-black text-foreground tracking-tight">
                   Share some basics about your place
                 </h2>
                 <p className="text-xs font-semibold text-muted-foreground">
@@ -356,7 +357,7 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
             type="button"
             onClick={handleBack}
             disabled={step === 1}
-            className="rounded-xl border border-border px-6 py-2.5 text-sm font-black text-foreground hover:bg-muted disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors"
+            className="rounded-xl border border-border px-6 py-2.5 text-sm font-black text-foreground hover:bg-muted disabled:opacity-30 disabled:pointer-events-none cursor-pointer active:scale-97 transition-[transform,background-color] duration-160 ease-out"
           >
             Back
           </button>
@@ -365,7 +366,7 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
             type="button"
             onClick={handleNext}
             disabled={!isStepValid()}
-            className="rounded-full bg-purple-950 hover:bg-purple-900 dark:bg-purple-800 dark:hover:bg-purple-750 text-white font-bold py-3 px-6 text-sm shadow-md transition-all duration-150 active:scale-95 disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
+            className="rounded-full bg-purple-950 hover:bg-purple-900 dark:bg-purple-800 dark:hover:bg-purple-750 text-white font-bold py-3 px-6 text-sm shadow-md active:scale-97 transition-[transform,background-color] duration-160 ease-out disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
           >
             {step === 5 ? 'Submit' : 'Next'}
           </button>

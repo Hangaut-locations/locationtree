@@ -101,9 +101,9 @@ export const PlannerWizard: React.FC<PlannerWizardProps> = ({
   });
 
   return (
-    <div className="mx-auto max-w-5xl px-6 md:px-8 py-8 animate-in fade-in duration-300">
+    <div className="mx-auto max-w-5xl px-4 md:px-8 py-8 animate-in fade-in duration-300">
       {/* Wizard Card Container */}
-      <div className="w-full rounded-3xl border border-border bg-card shadow-lg p-6 md:p-10 space-y-8">
+      <div className="w-full rounded-3xl border border-border bg-card shadow-lg p-4 sm:p-6 md:p-10 space-y-8">
         
         {/* Progress Header */}
         <div className="flex items-center justify-between border-b border-border/60 pb-6">
@@ -145,7 +145,7 @@ export const PlannerWizard: React.FC<PlannerWizardProps> = ({
                 <button
                   key={event.id}
                   onClick={() => handleSelectEvent(event)}
-                  className="flex flex-col items-start text-left p-6 rounded-2xl border border-border bg-card hover:bg-muted/40 transition-all duration-200 hover:-translate-y-1 hover:shadow-md cursor-pointer group active:scale-[0.98]"
+                  className="flex flex-col items-start text-left p-4 sm:p-6 rounded-2xl border border-border bg-card cursor-pointer group planner-card hover:bg-muted/40"
                 >
                   <span className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-200">{event.emoji}</span>
                   <h3 className="text-base font-bold text-purple-950 dark:text-purple-300">{event.name}</h3>
@@ -195,7 +195,7 @@ export const PlannerWizard: React.FC<PlannerWizardProps> = ({
                       type="button"
                       onClick={() => setGuestCount(Math.max(1, guestCount - 1))}
                       disabled={guestCount <= 1}
-                      className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card font-bold hover:bg-muted active:scale-90 transition-all disabled:opacity-30 cursor-pointer"
+                      className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card font-bold hover:bg-muted active:scale-97 transition-[transform,background-color] duration-160 ease-out disabled:opacity-30 cursor-pointer"
                     >
                       -
                     </button>
@@ -204,7 +204,7 @@ export const PlannerWizard: React.FC<PlannerWizardProps> = ({
                       type="button"
                       onClick={() => setGuestCount(Math.min(30, guestCount + 1))}
                       disabled={guestCount >= 30}
-                      className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card font-bold hover:bg-muted active:scale-90 transition-all disabled:opacity-30 cursor-pointer"
+                      className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card font-bold hover:bg-muted active:scale-97 transition-[transform,background-color] duration-160 ease-out disabled:opacity-30 cursor-pointer"
                     >
                       +
                     </button>
@@ -245,7 +245,7 @@ export const PlannerWizard: React.FC<PlannerWizardProps> = ({
             <div className="flex justify-end pt-4">
               <button
                 onClick={handleGeneratePlan}
-                className="flex items-center gap-2 rounded-full bg-purple-950 hover:bg-purple-900 dark:bg-purple-800 dark:hover:bg-purple-750 text-white font-semibold py-3 px-8 shadow-md hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
+                className="flex items-center gap-2 rounded-full bg-purple-950 hover:bg-purple-900 dark:bg-purple-800 dark:hover:bg-purple-750 text-white font-semibold py-3 px-8 shadow-md hover:md:scale-105 active:scale-97 transition-[transform,background-color] duration-160 ease-out cursor-pointer"
               >
                 <span>Generate Recommendations</span>
                 <Sparkles className="h-4.5 w-4.5 animate-pulse" />
@@ -281,12 +281,13 @@ export const PlannerWizard: React.FC<PlannerWizardProps> = ({
             {/* Recommendations Grid */}
             {recommendations.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {recommendations.map((rec) => (
+                {recommendations.map((rec, idx) => (
                   <ListingCard
                     key={rec.id}
                     listing={rec}
                     isWishlisted={wishlist.includes(rec.id)}
                     onWishlistToggle={onWishlistToggle}
+                    index={idx}
                   />
                 ))}
               </div>
@@ -301,7 +302,7 @@ export const PlannerWizard: React.FC<PlannerWizardProps> = ({
                 </p>
                 <button
                   onClick={handleRestart}
-                  className="mt-6 text-xs font-bold uppercase tracking-wider text-white bg-purple-950 hover:bg-purple-900 py-2.5 px-6 rounded-full transition-all duration-150 active:scale-95 shadow cursor-pointer"
+                  className="mt-6 text-xs font-bold uppercase tracking-wider text-white bg-purple-950 hover:bg-purple-900 py-2.5 px-6 rounded-full transition-[transform,background-color] duration-160 ease-out active:scale-97 shadow cursor-pointer"
                 >
                   Change criteria
                 </button>

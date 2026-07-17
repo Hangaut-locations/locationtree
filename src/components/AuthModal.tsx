@@ -97,7 +97,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       {/* Dialog content is set to a wide horizontal aspect ratio on desktop (3xl/4xl) but remains responsive on mobile */}
-<DialogContent className="sm:max-w-md w-[calc(100%-2rem)] overflow-hidden border border-border bg-card p-6 sm:p-9 md:p-12 shadow-2xl animate-in zoom-in-95 duration-200">        
+<DialogContent className="w-full max-w-full sm:max-w-md h-full sm:h-auto rounded-none sm:rounded-[32px] border-t sm:border border-border bg-card p-5 sm:p-9 md:p-12 shadow-2xl animate-in fade-in sm:zoom-in-95 duration-200 top-0 left-0 sm:top-1/2 sm:left-1/2 translate-x-0 translate-y-0 sm:-translate-x-1/2 sm:-translate-y-1/2 overflow-y-auto">        
         {/* Screen 1: Welcome Back (Login) */}
         {screen === 'login' && (
   <form onSubmit={handleLoginSubmit} className="w-full space-y-6">
@@ -149,7 +149,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
             {/* Action Submit Button */}
             <button
               type="submit"
-              className="w-full rounded-full bg-purple-950 hover:bg-purple-900 dark:bg-purple-800 dark:hover:bg-purple-750 text-white font-bold py-3.5 px-6 shadow-md transition-all duration-150 active:scale-95 cursor-pointer text-base text-center"
+              className="w-full rounded-full bg-purple-950 hover:bg-purple-900 dark:bg-purple-800 dark:hover:bg-purple-750 text-white font-bold py-3.5 px-6 shadow-md transition-[transform,background-color] duration-160 ease-out active:scale-97 cursor-pointer text-base text-center"
             >
               Sign Up
             </button>
@@ -258,7 +258,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
               <button
                 type="submit"
                 disabled={code.some((v) => !v)}
-                className="w-full rounded-full bg-purple-950 hover:bg-purple-900 dark:bg-purple-800 dark:hover:bg-purple-750 text-white font-bold py-3.5 px-6 shadow-md transition-all duration-150 active:scale-95 disabled:opacity-50 disabled:pointer-events-none cursor-pointer text-base text-center"
+                className="w-full rounded-full bg-purple-950 hover:bg-purple-900 dark:bg-purple-800 dark:hover:bg-purple-750 text-white font-bold py-3.5 px-6 shadow-md transition-[transform,background-color] duration-160 ease-out active:scale-97 disabled:opacity-50 disabled:pointer-events-none cursor-pointer text-base text-center"
               >
                 Verify
               </button>
@@ -329,7 +329,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
             {/* Submit Reset Button */}
             <button
               type="submit"
-              className="w-full rounded-full bg-purple-950 hover:bg-purple-900 dark:bg-purple-800 dark:hover:bg-purple-750 text-white font-bold py-3.5 px-6 shadow-md transition-all duration-150 active:scale-95 cursor-pointer text-base text-center"
+              className="w-full rounded-full bg-purple-950 hover:bg-purple-900 dark:bg-purple-800 dark:hover:bg-purple-750 text-white font-bold py-3.5 px-6 shadow-md transition-[transform,background-color] duration-160 ease-out active:scale-97 cursor-pointer text-base text-center"
             >
               Reset
             </button>
@@ -348,7 +348,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
             <button
               type="button"
               onClick={handleSuccessClick}
-              className="w-full rounded-full bg-purple-950 hover:bg-purple-900 dark:bg-purple-800 dark:hover:bg-purple-750 text-white font-bold py-3.5 px-6 shadow-md transition-all duration-150 active:scale-95 cursor-pointer text-base text-center"
+              className="w-full rounded-full bg-purple-950 hover:bg-purple-900 dark:bg-purple-800 dark:hover:bg-purple-750 text-white font-bold py-3.5 px-6 shadow-md transition-[transform,background-color] duration-160 ease-out active:scale-97 cursor-pointer text-base text-center"
             >
               Reset
             </button>

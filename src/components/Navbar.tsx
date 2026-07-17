@@ -23,7 +23,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur-md transition-colors duration-300">
-      <div className="mx-auto flex flex-col md:flex-row md:h-20 max-w-7xl items-center justify-between px-6 py-4 md:py-0 sm:px-8 gap-4 md:gap-0">
+      <div className="mx-auto flex flex-col md:flex-row md:h-20 max-w-7xl items-center justify-between px-4 md:px-8 py-4 md:py-0 gap-4 md:gap-0">
         {/* Top Row for Mobile (Logo + Controls) / Left Column for Desktop */}
         <div className="flex w-full md:w-auto items-center justify-between md:justify-start gap-4">
           {/* Logo */}
@@ -36,7 +36,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Dark Mode Toggle */}
             <button
               onClick={() => setDarkMode(!darkMode)}
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-foreground hover:bg-muted transition-colors shadow-sm focus:outline-none"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-foreground hover:bg-muted transition-colors shadow-sm focus:outline-none"
               aria-label="Toggle dark mode"
             >
               {darkMode ? (
@@ -51,18 +51,18 @@ export const Navbar: React.FC<NavbarProps> = ({
               <>
                 <button
                   onClick={onBecomeHostClick}
-                  className="flex items-center gap-1.5 rounded-full bg-purple-950 text-white font-semibold py-1.5 px-3.5 text-xs shadow-md active:scale-95 transition-all cursor-pointer whitespace-nowrap"
+                  className="flex items-center gap-1.5 rounded-full bg-purple-950 text-white font-semibold py-2.5 px-4 text-xs shadow-md active:scale-97 transition-all cursor-pointer whitespace-nowrap"
                 >
                   Become a Host
                 </button>
-                <div className="h-8.5 w-8.5 rounded-full border border-border overflow-hidden bg-muted flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95 transition-all">
+                <div className="h-10 w-10 rounded-full border border-border overflow-hidden bg-muted flex items-center justify-center cursor-pointer hover:scale-105 active:scale-97 transition-all">
                   <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&q=80" alt="User avatar" className="h-full w-full object-cover" />
                 </div>
               </>
             ) : (
               <button
                 onClick={onLoginClick}
-                className="flex items-center gap-1.5 rounded-full bg-purple-950 text-white font-semibold py-1.5 px-4 text-xs shadow-md active:scale-95 transition-all cursor-pointer"
+                className="flex items-center gap-1.5 rounded-full bg-purple-950 text-white font-semibold py-2.5 px-4 text-xs shadow-md active:scale-97 transition-all cursor-pointer"
               >
                 <LogIn className="h-3.5 w-3.5" />
                 <span>Log In</span>

@@ -46,7 +46,7 @@ export const ListingDetail: React.FC<ListingDetailProps> = ({
   ];
 
   return (
-    <div className="mx-auto max-w-7xl px-6 py-8 sm:px-8 transition-colors duration-300">
+    <div className="mx-auto max-w-7xl px-4 md:px-8 py-8 transition-colors duration-300">
       
       {/* Back button and actions header */}
       <div className="flex items-center justify-between mb-6">
@@ -59,13 +59,13 @@ export const ListingDetail: React.FC<ListingDetailProps> = ({
         </button>
 
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-xs font-black text-foreground hover:bg-muted transition-all cursor-pointer">
+          <button className="flex items-center gap-1.5 rounded-full border border-border px-4 py-2.5 md:py-2 text-xs md:text-sm font-black text-foreground hover:bg-muted transition-all cursor-pointer">
             <Share2 className="h-3.5 w-3.5" />
             <span>Share</span>
           </button>
           <button
             onClick={() => onWishlistToggle(listing.id)}
-            className="flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-xs font-black text-foreground hover:bg-muted transition-all cursor-pointer"
+            className="flex items-center gap-1.5 rounded-full border border-border px-4 py-2.5 md:py-2 text-xs md:text-sm font-black text-foreground hover:bg-muted transition-all cursor-pointer"
           >
             <Heart className={`h-3.5 w-3.5 ${isWishlisted ? 'fill-red-500 text-red-500' : 'text-foreground'}`} />
             <span>{isWishlisted ? 'Saved' : 'Save'}</span>
@@ -74,7 +74,7 @@ export const ListingDetail: React.FC<ListingDetailProps> = ({
       </div>
 
       {/* Title block */}
-      <h1 className="text-3xl font-black text-foreground tracking-tight mb-6">
+      <h1 className="text-2xl md:text-3xl font-black text-foreground tracking-tight mb-6">
         {listing.title}
       </h1>
 
@@ -101,7 +101,7 @@ export const ListingDetail: React.FC<ListingDetailProps> = ({
       <div className="flex items-center gap-3 border-b border-border/60 pb-4 mb-8">
         <button
           onClick={() => setActiveSubTab('overview')}
-          className={`py-2 px-5 rounded-full text-sm font-black transition-all cursor-pointer ${
+          className={`py-2.5 md:py-2 px-5 rounded-full text-sm font-black transition-all cursor-pointer ${
             activeSubTab === 'overview'
               ? 'bg-purple-950 text-white dark:bg-purple-800'
               : 'bg-muted/15 text-purple-950 dark:text-purple-300 hover:bg-muted/30'
@@ -111,7 +111,7 @@ export const ListingDetail: React.FC<ListingDetailProps> = ({
         </button>
         <button
           onClick={() => setActiveSubTab('facilities')}
-          className={`py-2 px-5 rounded-full text-sm font-black transition-all cursor-pointer ${
+          className={`py-2.5 md:py-2 px-5 rounded-full text-sm font-black transition-all cursor-pointer ${
             activeSubTab === 'facilities'
               ? 'bg-purple-950 text-white dark:bg-purple-800'
               : 'bg-muted/15 text-purple-950 dark:text-purple-300 hover:bg-muted/30'
@@ -121,7 +121,7 @@ export const ListingDetail: React.FC<ListingDetailProps> = ({
         </button>
         <button
           onClick={() => setActiveSubTab('reviews')}
-          className={`py-2 px-5 rounded-full text-sm font-black transition-all cursor-pointer ${
+          className={`py-2.5 md:py-2 px-5 rounded-full text-sm font-black transition-all cursor-pointer ${
             activeSubTab === 'reviews'
               ? 'bg-purple-950 text-white dark:bg-purple-800'
               : 'bg-muted/15 text-purple-950 dark:text-purple-300 hover:bg-muted/30'
@@ -137,7 +137,7 @@ export const ListingDetail: React.FC<ListingDetailProps> = ({
       </div>
 
       {/* Layout details grid: Details on Left, Booking card on Right */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mb-16">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-12 mb-16">
         
         {/* Left Columns details */}
         <div className="lg:col-span-2 space-y-8">
@@ -329,7 +329,7 @@ export const ListingDetail: React.FC<ListingDetailProps> = ({
           </div>
         </div>
 
-        <button className="rounded-full border border-border px-5 py-2.5 text-xs font-black text-foreground hover:bg-muted transition-colors cursor-pointer">
+        <button className="rounded-full border border-border px-5 py-2.5 text-sm font-black text-foreground hover:bg-muted transition-colors cursor-pointer">
           Show all amenities
         </button>
       </div>
@@ -376,7 +376,7 @@ export const ListingDetail: React.FC<ListingDetailProps> = ({
           ))}
         </div>
 
-        <button className="rounded-full border border-border px-5 py-2.5 text-xs font-black text-foreground hover:bg-muted transition-colors cursor-pointer">
+        <button className="rounded-full border border-border px-5 py-2.5 text-sm font-black text-foreground hover:bg-muted transition-colors cursor-pointer">
           Show all reviews
         </button>
       </div>
