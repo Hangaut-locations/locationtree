@@ -1,10 +1,8 @@
-import { LogIn, Moon, Sun } from "lucide-react"
+import { LogIn } from "lucide-react"
 import type React from "react"
 import { Tabs, TabsList, TabsTrigger } from "../../components/ui/tabs"
 
 interface NavbarProps {
-  darkMode: boolean
-  setDarkMode: (dark: boolean) => void
   activeTab: "location" | "planning"
   setActiveTab: (tab: "location" | "planning") => void
   onLoginClick: () => void
@@ -13,8 +11,6 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
-  darkMode,
-  setDarkMode,
   activeTab,
   setActiveTab,
   onLoginClick,
@@ -33,19 +29,6 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Right Controls (Mobile Only) */}
           <div className="flex md:hidden items-center gap-2">
-            {/* Dark Mode Toggle */}
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-foreground hover:bg-muted transition-colors shadow-sm focus:outline-none"
-              aria-label="Toggle dark mode"
-            >
-              {darkMode ? (
-                <Sun className="h-4.5 w-4.5 text-yellow-500 animate-pulse" />
-              ) : (
-                <Moon className="h-4.5 w-4.5 text-purple-950" />
-              )}
-            </button>
-
             {/* Login Button */}
             {isLoggedIn ? (
               <>
@@ -101,19 +84,6 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
         {/* Right Controls (Desktop Only) */}
         <div className="hidden md:flex items-center gap-4">
-          {/* Dark Mode Toggle */}
-          <button
-            onClick={() => setDarkMode(!darkMode)}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-foreground hover:bg-muted transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-600"
-            aria-label="Toggle dark mode"
-          >
-            {darkMode ? (
-              <Sun className="h-5 w-5 text-yellow-500 animate-pulse" />
-            ) : (
-              <Moon className="h-5 w-5 text-purple-950 dark:text-purple-300" />
-            )}
-          </button>
-
           {/* Login Button */}
           {isLoggedIn ? (
             <>
