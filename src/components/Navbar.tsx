@@ -1,15 +1,15 @@
-import React from 'react';
-import { Sun, Moon, LogIn } from 'lucide-react';
-import { Tabs, TabsList, TabsTrigger } from "../../components/ui/tabs";
+import { LogIn, Moon, Sun } from "lucide-react"
+import type React from "react"
+import { Tabs, TabsList, TabsTrigger } from "../../components/ui/tabs"
 
 interface NavbarProps {
-  darkMode: boolean;
-  setDarkMode: (dark: boolean) => void;
-  activeTab: 'location' | 'planning';
-  setActiveTab: (tab: 'location' | 'planning') => void;
-  onLoginClick: () => void;
-  isLoggedIn: boolean;
-  onBecomeHostClick: () => void;
+  darkMode: boolean
+  setDarkMode: (dark: boolean) => void
+  activeTab: "location" | "planning"
+  setActiveTab: (tab: "location" | "planning") => void
+  onLoginClick: () => void
+  isLoggedIn: boolean
+  onBecomeHostClick: () => void
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -56,7 +56,11 @@ export const Navbar: React.FC<NavbarProps> = ({
                   Become a Host
                 </button>
                 <div className="h-10 w-10 rounded-full border border-border overflow-hidden bg-muted flex items-center justify-center cursor-pointer hover:scale-105 active:scale-97 transition-all">
-                  <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&q=80" alt="User avatar" className="h-full w-full object-cover" />
+                  <img
+                    src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&q=80"
+                    alt="User avatar"
+                    className="h-full w-full object-cover"
+                  />
                 </div>
               </>
             ) : (
@@ -72,29 +76,29 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Center Tabs Control */}
-<div className="flex w-full items-center justify-center md:w-auto">
-  <Tabs
-    value={activeTab}
-    onValueChange={(v) => setActiveTab(v as "location" | "planning")}
-    className="w-full md:w-[320px]"
-  >
-    <TabsList className="grid w-full grid-cols-2 bg-transparent p-0">
-      <TabsTrigger
-        value="location"
-        className="cursor-pointer py-2.5 text-center text-sm font-semibold tracking-tight transition-all hover:bg-muted/40 data-active:bg-transparent data-active:text-foreground"
-      >
-        Location
-      </TabsTrigger>
+        <div className="flex w-full items-center justify-center md:w-auto">
+          <Tabs
+            value={activeTab}
+            onValueChange={(v) => setActiveTab(v as "location" | "planning")}
+            className="w-full md:w-[320px]"
+          >
+            <TabsList className="grid w-full grid-cols-2 bg-transparent p-0">
+              <TabsTrigger
+                value="location"
+                className="cursor-pointer py-2.5 text-center text-sm font-semibold tracking-tight transition-all hover:bg-muted/40 data-active:bg-transparent data-active:text-foreground"
+              >
+                Location
+              </TabsTrigger>
 
-      <TabsTrigger
-        value="planning"
-        className="cursor-pointer py-2.5 text-center text-sm font-semibold tracking-tight transition-all hover:bg-muted/40 data-active:bg-transparent data-active:text-foreground"
-      >
-        Planning something?
-      </TabsTrigger>
-    </TabsList>
-  </Tabs>
-</div>
+              <TabsTrigger
+                value="planning"
+                className="cursor-pointer py-2.5 text-center text-sm font-semibold tracking-tight transition-all hover:bg-muted/40 data-active:bg-transparent data-active:text-foreground"
+              >
+                Planning something?
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
         {/* Right Controls (Desktop Only) */}
         <div className="hidden md:flex items-center gap-4">
           {/* Dark Mode Toggle */}
@@ -120,7 +124,11 @@ export const Navbar: React.FC<NavbarProps> = ({
                 Become a Host
               </button>
               <div className="h-10 w-10 rounded-full border border-border overflow-hidden bg-muted flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95 transition-all">
-                <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80" alt="User avatar" className="h-full w-full object-cover" />
+                <img
+                  src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80"
+                  alt="User avatar"
+                  className="h-full w-full object-cover"
+                />
               </div>
             </>
           ) : (
@@ -135,5 +143,5 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       </div>
     </header>
-  );
-};
+  )
+}

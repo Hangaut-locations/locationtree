@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
-import { Star, Heart, ChevronLeft, ChevronRight } from 'lucide-react';
-import type { Listing } from "../types/listing";
-import { motion, useMotionValue, useSpring, useTransform, useReducedMotion } from 'framer-motion';
+import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion"
+import { ChevronLeft, ChevronRight, Heart, Star } from "lucide-react"
+import type React from "react"
+import { useState } from "react"
+import type { Listing } from "../types/listing"
 
 interface ListingCardProps {
-  listing: Listing;
-  isWishlisted: boolean;
-  onWishlistToggle: (id: string) => void;
-  onListingClick?: (listing: Listing) => void;
-  index?: number;
+  listing: Listing
+  isWishlisted: boolean
+  onWishlistToggle: (id: string) => void
+  onListingClick?: (listing: Listing) => void
+  index?: number
 }
 
 export const ListingCard: React.FC<ListingCardProps> = ({
@@ -18,61 +19,60 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   onListingClick,
   index,
 }) => {
-  const [currentIdx, setCurrentIdx] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
+  const [currentIdx, setCurrentIdx] = useState(0)
+  const [isHovered, setIsHovered] = useState(false)
 
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
 
-  const springConfig = { damping: 25, stiffness: 200, mass: 0.5 };
-  const springX = useSpring(x, springConfig);
-  const springY = useSpring(y, springConfig);
+  const springConfig = { damping: 25, stiffness: 200, mass: 0.5 }
+  const springX = useSpring(x, springConfig)
+  const springY = useSpring(y, springConfig)
 
-  const rotateX = useTransform(springY, [-0.5, 0.5], [6, -6]);
-  const rotateY = useTransform(springX, [-0.5, 0.5], [-6, 6]);
+  const rotateX = useTransform(springY, [-0.5, 0.5], [6, -6])
+  const rotateY = useTransform(springX, [-0.5, 0.5], [-6, 6])
 
-  const prefersReduced = useReducedMotion();
+  const prefersReduced = useReducedMotion()
 
-  const transform = useTransform(
-    [rotateX, rotateY],
-    ([rX, rY]) => prefersReduced ? 'none' : `perspective(1000px) rotateX(${rX}deg) rotateY(${rY}deg)`
-  );
+  const transform = useTransform([rotateX, rotateY], ([rX, rY]) =>
+    prefersReduced ? "none" : `perspective(1000px) rotateX(${rX}deg) rotateY(${rY}deg)`,
+  )
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (prefersReduced) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-    const mouseX = e.clientX - rect.left - width / 2;
-    const mouseY = e.clientY - rect.top - height / 2;
-    x.set(mouseX / width);
-    y.set(mouseY / height);
-  };
+    if (prefersReduced) return
+    const rect = e.currentTarget.getBoundingClientRect()
+    const width = rect.width
+    const height = rect.height
+    const mouseX = e.clientX - rect.left - width / 2
+    const mouseY = e.clientY - rect.top - height / 2
+    x.set(mouseX / width)
+    y.set(mouseY / height)
+  }
 
   const handleMouseLeave = () => {
-    setIsHovered(false);
-    x.set(0);
-    y.set(0);
-  };
+    setIsHovered(false)
+    x.set(0)
+    y.set(0)
+  }
 
   const handlePrev = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    setCurrentIdx((prev) => (prev === 0 ? listing.images.length - 1 : prev - 1));
-  };
+    e.stopPropagation()
+    e.preventDefault()
+    setCurrentIdx((prev) => (prev === 0 ? listing.images.length - 1 : prev - 1))
+  }
 
   const handleNext = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    setCurrentIdx((prev) => (prev === listing.images.length - 1 ? 0 : prev + 1));
-  };
+    e.stopPropagation()
+    e.preventDefault()
+    setCurrentIdx((prev) => (prev === listing.images.length - 1 ? 0 : prev + 1))
+  }
 
   return (
     <div
       onClick={() => onListingClick?.(listing)}
       className="group relative flex flex-col rounded-3xl border border-border/50 bg-card overflow-hidden shadow-sm cursor-pointer card-interactive animate-listing-entrance"
       style={{
-        animationDelay: index !== undefined ? `${Math.min(index * 30, 300)}ms` : '0ms'
+        animationDelay: index !== undefined ? `${Math.min(index * 30, 300)}ms` : "0ms",
       }}
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
@@ -82,13 +82,16 @@ export const ListingCard: React.FC<ListingCardProps> = ({
         className="flex flex-col h-full w-full"
         style={{
           transform,
-          transformStyle: 'preserve-3d',
+          transformStyle: "preserve-3d",
         }}
       >
         {/* Image Carousel Container */}
         <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
           {/* Images */}
-          <div className="absolute inset-0 flex transition-transform duration-300 ease-in-out" style={{ transform: `translateX(-${currentIdx * 100}%)` }}>
+          <div
+            className="absolute inset-0 flex transition-transform duration-300 ease-in-out"
+            style={{ transform: `translateX(-${currentIdx * 100}%)` }}
+          >
             {listing.images.map((img, index) => (
               <img
                 key={index}
@@ -103,9 +106,9 @@ export const ListingCard: React.FC<ListingCardProps> = ({
           {/* Wishlist Button */}
           <button
             onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              onWishlistToggle(listing.id);
+              e.stopPropagation()
+              e.preventDefault()
+              onWishlistToggle(listing.id)
             }}
             className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/80 dark:bg-black/40 backdrop-blur-md text-foreground transition-[transform,background-color] duration-160 ease-out hover:bg-white dark:hover:bg-black/60 shadow-md active:scale-97 focus:outline-none cursor-pointer"
             aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
@@ -113,8 +116,8 @@ export const ListingCard: React.FC<ListingCardProps> = ({
             <Heart
               className={`h-5 w-5 transition-[transform,colors] duration-200 ease-out ${
                 isWishlisted
-                  ? 'fill-red-500 text-red-500 scale-110 drop-shadow-[0_0_4px_rgba(239,68,68,0.5)]'
-                  : 'text-gray-700 dark:text-gray-300'
+                  ? "fill-red-500 text-red-500 scale-110 drop-shadow-[0_0_4px_rgba(239,68,68,0.5)]"
+                  : "text-gray-700 dark:text-gray-300"
               }`}
             />
           </button>
@@ -125,7 +128,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
               <button
                 onClick={handlePrev}
                 className={`absolute left-3 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 dark:bg-black/60 backdrop-blur-sm text-foreground shadow-md transition-[transform,background-color,opacity] duration-160 ease-out hover:scale-105 active:scale-97 cursor-pointer ${
-                  isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2 pointer-events-none'
+                  isHovered ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2 pointer-events-none"
                 } md:block`}
                 aria-label="Previous image"
               >
@@ -134,7 +137,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
               <button
                 onClick={handleNext}
                 className={`absolute right-3 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 dark:bg-black/60 backdrop-blur-sm text-foreground shadow-md transition-[transform,background-color,opacity] duration-160 ease-out hover:scale-105 active:scale-97 cursor-pointer ${
-                  isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2 pointer-events-none'
+                  isHovered ? "opacity-100 translate-x-0" : "opacity-0 translate-x-2 pointer-events-none"
                 } md:block`}
                 aria-label="Next image"
               >
@@ -150,12 +153,12 @@ export const ListingCard: React.FC<ListingCardProps> = ({
                 <button
                   key={index}
                   onClick={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    setCurrentIdx(index);
+                    e.stopPropagation()
+                    e.preventDefault()
+                    setCurrentIdx(index)
                   }}
                   className={`h-1.5 rounded-full transition-[width,background-color] duration-200 ease-out cursor-pointer ${
-                    currentIdx === index ? 'w-3 bg-white' : 'w-1.5 bg-white/50'
+                    currentIdx === index ? "w-3 bg-white" : "w-1.5 bg-white/50"
                   }`}
                   aria-label={`Go to slide ${index + 1}`}
                 />
@@ -179,9 +182,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
           </h3>
 
           {/* Guests details */}
-          <p className="mt-1 text-sm font-medium text-muted-foreground">
-            {listing.guestsCount} guests
-          </p>
+          <p className="mt-1 text-sm font-medium text-muted-foreground">{listing.guestsCount} guests</p>
 
           {/* Divider */}
           <div className="mt-4 mb-3 border-t border-border/40" />
@@ -196,5 +197,5 @@ export const ListingCard: React.FC<ListingCardProps> = ({
         </div>
       </motion.div>
     </div>
-  );
-};
+  )
+}

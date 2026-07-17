@@ -1,58 +1,55 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Search, SlidersHorizontal, Calendar, MapPin, X } from 'lucide-react';
+import { Calendar, MapPin, Search, SlidersHorizontal, X } from "lucide-react"
+import type React from "react"
+import { useEffect, useRef, useState } from "react"
 
 interface SearchHeaderProps {
-  onSearch: (filters: { destination: string; checkIn: string; checkOut: string }) => void;
-  onFilterClick: () => void;
-  activeSearch: { destination: string; checkIn: string; checkOut: string };
+  onSearch: (filters: { destination: string; checkIn: string; checkOut: string }) => void
+  onFilterClick: () => void
+  activeSearch: { destination: string; checkIn: string; checkOut: string }
 }
 
-export const SearchHeader: React.FC<SearchHeaderProps> = ({
-  onSearch,
-  onFilterClick,
-  activeSearch,
-}) => {
-  const [destination, setDestination] = useState(activeSearch.destination);
-  const [checkIn, setCheckIn] = useState(activeSearch.checkIn);
-  const [checkOut, setCheckOut] = useState(activeSearch.checkOut);
-  const [showDropdown, setShowDropdown] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+export const SearchHeader: React.FC<SearchHeaderProps> = ({ onSearch, onFilterClick, activeSearch }) => {
+  const [destination, setDestination] = useState(activeSearch.destination)
+  const [checkIn, setCheckIn] = useState(activeSearch.checkIn)
+  const [checkOut, setCheckOut] = useState(activeSearch.checkOut)
+  const [showDropdown, setShowDropdown] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
-  const locations = ['Paris', 'Watford', 'London'];
+  const locations = ["Paris", "Watford", "London"]
 
   // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setShowDropdown(false);
+        setShowDropdown(false)
       }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
 
   useEffect(() => {
-    setDestination(activeSearch.destination);
-    setCheckIn(activeSearch.checkIn);
-    setCheckOut(activeSearch.checkOut);
-  }, [activeSearch]);
+    setDestination(activeSearch.destination)
+    setCheckIn(activeSearch.checkIn)
+    setCheckOut(activeSearch.checkOut)
+  }, [activeSearch])
 
   const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSearch({ destination, checkIn, checkOut });
-    setShowDropdown(false);
-  };
+    e.preventDefault()
+    onSearch({ destination, checkIn, checkOut })
+    setShowDropdown(false)
+  }
 
   const handleLocationSelect = (loc: string) => {
-    setDestination(loc);
-    setShowDropdown(false);
-  };
+    setDestination(loc)
+    setShowDropdown(false)
+  }
 
   const clearDestination = () => {
-    setDestination('');
-  };
+    setDestination("")
+  }
 
-  const isDateInvalid = checkIn && checkOut && new Date(checkOut) < new Date(checkIn);
+  const isDateInvalid = checkIn && checkOut && new Date(checkOut) < new Date(checkIn)
 
   return (
     <div className="mx-auto my-6 w-full max-w-4xl px-4 sm:px-6">
@@ -74,8 +71,8 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
               placeholder="Search Destination"
               value={destination}
               onChange={(e) => {
-                setDestination(e.target.value);
-                setShowDropdown(true);
+                setDestination(e.target.value)
+                setShowDropdown(true)
               }}
               onFocus={() => setShowDropdown(true)}
               className="w-full bg-transparent text-sm font-medium text-foreground placeholder-muted-foreground outline-none border-none p-0 focus:ring-0"
@@ -111,9 +108,7 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
                   </button>
                 ))}
               {locations.filter((loc) => loc.toLowerCase().includes(destination.toLowerCase())).length === 0 && (
-                <div className="px-3 py-2 text-sm text-muted-foreground italic">
-                  No matches found
-                </div>
+                <div className="px-3 py-2 text-sm text-muted-foreground italic">No matches found</div>
               )}
             </div>
           )}
@@ -147,7 +142,7 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
               value={checkOut}
               onChange={(e) => setCheckOut(e.target.value)}
               className={`w-full bg-transparent pl-6 text-sm font-medium placeholder-muted-foreground outline-none border-none p-0 focus:ring-0 cursor-pointer [color-scheme:light-dark] ${
-                isDateInvalid ? 'text-red-500 font-bold' : 'text-foreground'
+                isDateInvalid ? "text-red-500 font-bold" : "text-foreground"
               }`}
             />
           </div>
@@ -182,5 +177,5 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
         </div>
       </form>
     </div>
-  );
-};
+  )
+}

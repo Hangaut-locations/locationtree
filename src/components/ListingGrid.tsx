@@ -1,19 +1,19 @@
-import React from 'react';
-import type { Listing } from "../types/listing";
-import { ListingCard } from './ListingCard';
-import { Skeleton } from '../../components/ui/skeleton';
-import { Compass, RefreshCw } from 'lucide-react';
+import { Compass, RefreshCw } from "lucide-react"
+import type React from "react"
+import { Skeleton } from "../../components/ui/skeleton"
+import type { Listing } from "../types/listing"
+import { ListingCard } from "./ListingCard"
 
 interface ListingGridProps {
-  listings: Listing[];
-  isLoading: boolean;
-  wishlist: string[];
-  onWishlistToggle: (id: string) => void;
-  onResetFilters: () => void;
-  activeDestination: string;
-  activeCategory: string;
-  activeTab: 'location' | 'planning';
-  onListingClick: (listing: Listing) => void;
+  listings: Listing[]
+  isLoading: boolean
+  wishlist: string[]
+  onWishlistToggle: (id: string) => void
+  onResetFilters: () => void
+  activeDestination: string
+  activeCategory: string
+  activeTab: "location" | "planning"
+  onListingClick: (listing: Listing) => void
 }
 
 export const ListingGrid: React.FC<ListingGridProps> = ({
@@ -28,22 +28,18 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
   onListingClick,
 }) => {
   // Check if any filter is active
-  const isFiltering = activeDestination !== '' || activeCategory !== 'Rooftops';
+  const isFiltering = activeDestination !== "" || activeCategory !== "Rooftops"
 
-  const isPlanning = activeTab === 'planning';
+  const isPlanning = activeTab === "planning"
 
   // Group listings by location & tab contexts
-  const parisListings = listings.filter((l) => l.location === 'Paris');
-  const watfordListings = listings.filter((l) => l.location === 'Watford');
-  const londonListings = listings.filter((l) => l.location === 'London');
+  const parisListings = listings.filter((l) => l.location === "Paris")
+  const watfordListings = listings.filter((l) => l.location === "Watford")
+  const londonListings = listings.filter((l) => l.location === "London")
 
   // Separated Paris lists for Planning Event vs Garden collections
-  const parisEventListings = listings.filter(
-    (l) => l.location === 'Paris' && !l.id.includes('garden')
-  );
-  const parisGardenListings = listings.filter(
-    (l) => l.location === 'Paris' && l.id.includes('garden')
-  );
+  const parisEventListings = listings.filter((l) => l.location === "Paris" && !l.id.includes("garden"))
+  const parisGardenListings = listings.filter((l) => l.location === "Paris" && l.id.includes("garden"))
 
   // Render skeleton loaders
   if (isLoading) {
@@ -68,7 +64,7 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
           </div>
         ))}
       </div>
-    );
+    )
   }
 
   // Render empty state if no listings match filters
@@ -80,7 +76,8 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
         </div>
         <h3 className="text-xl font-bold text-foreground">No listings found</h3>
         <p className="text-muted-foreground mt-2 max-w-md">
-          We couldn't find any listings matching your search parameters. Try adjusting your destination, dates, guests count, or category.
+          We couldn't find any listings matching your search parameters. Try adjusting your destination, dates, guests
+          count, or category.
         </p>
         <button
           onClick={onResetFilters}
@@ -90,17 +87,15 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
           <span>Reset Filters</span>
         </button>
       </div>
-    );
+    )
   }
 
   // Render listing row helper
   const renderListingRow = (title: string, items: Listing[]) => {
-    if (items.length === 0) return null;
+    if (items.length === 0) return null
     return (
       <section className="space-y-6">
-        <h2 className="text-xl md:text-2xl font-black text-purple-950 dark:text-purple-300 tracking-tight">
-          {title}
-        </h2>
+        <h2 className="text-xl md:text-2xl font-black text-purple-950 dark:text-purple-300 tracking-tight">{title}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
           {items.map((item, idx) => (
             <ListingCard
@@ -114,17 +109,15 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
           ))}
         </div>
       </section>
-    );
-  };
+    )
+  }
 
   // Render duplicated rows helper
   const renderDuplicatedListingRow = (title: string, items: Listing[], repeatCount: number) => {
-    if (items.length === 0) return null;
+    if (items.length === 0) return null
     return Array.from({ length: repeatCount }).map((_, index) => (
       <section key={`${title}-${index}`} className="space-y-6">
-        <h2 className="text-xl md:text-2xl font-black text-purple-950 dark:text-purple-300 tracking-tight">
-          {title}
-        </h2>
+        <h2 className="text-xl md:text-2xl font-black text-purple-950 dark:text-purple-300 tracking-tight">{title}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
           {items.map((item, idx) => (
             <ListingCard
@@ -138,8 +131,8 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
           ))}
         </div>
       </section>
-    ));
-  };
+    ))
+  }
 
   // If filtering, show standard rows without duplication to prevent clutter
   if (isFiltering) {
@@ -147,19 +140,19 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
       <div className="mx-auto max-w-7xl px-4 md:px-8 py-8 space-y-12">
         {isPlanning ? (
           <>
-            {renderListingRow('Places in London', londonListings)}
-            {renderListingRow('Locations Available in Paris', parisEventListings)}
-            {renderListingRow('Location in Paris', parisGardenListings)}
+            {renderListingRow("Places in London", londonListings)}
+            {renderListingRow("Locations Available in Paris", parisEventListings)}
+            {renderListingRow("Location in Paris", parisGardenListings)}
           </>
         ) : (
           <>
-            {renderListingRow('Locations Available in Paris', parisListings)}
-            {renderListingRow('Homes in Watford', watfordListings)}
-            {renderListingRow('Places in London', londonListings)}
+            {renderListingRow("Locations Available in Paris", parisListings)}
+            {renderListingRow("Homes in Watford", watfordListings)}
+            {renderListingRow("Places in London", londonListings)}
           </>
         )}
       </div>
-    );
+    )
   }
 
   // Default homepage view (no active filters) matching the mockup exactly
@@ -167,17 +160,17 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
     <div className="mx-auto max-w-7xl px-4 md:px-8 py-8 space-y-12">
       {isPlanning ? (
         <>
-          {renderListingRow('Places in London', londonListings)}
-          {renderListingRow('Locations Available in Paris', parisEventListings)}
-          {renderDuplicatedListingRow('Location in Paris', parisGardenListings, 3)}
+          {renderListingRow("Places in London", londonListings)}
+          {renderListingRow("Locations Available in Paris", parisEventListings)}
+          {renderDuplicatedListingRow("Location in Paris", parisGardenListings, 3)}
         </>
       ) : (
         <>
-          {renderListingRow('Locations Available in Paris', parisListings)}
-          {renderDuplicatedListingRow('Homes in Watford', watfordListings, 3)}
-          {renderListingRow('Places in London', londonListings)}
+          {renderListingRow("Locations Available in Paris", parisListings)}
+          {renderDuplicatedListingRow("Homes in Watford", watfordListings, 3)}
+          {renderListingRow("Places in London", londonListings)}
         </>
       )}
     </div>
-  );
-};
+  )
+}

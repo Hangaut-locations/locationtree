@@ -1,55 +1,50 @@
-import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogTitle } from '../../components/ui/dialog';
-import { Plus, Minus } from 'lucide-react';
+import { Minus, Plus } from "lucide-react"
+import type React from "react"
+import { useEffect, useState } from "react"
+import { Dialog, DialogContent, DialogTitle } from "../../components/ui/dialog"
 
 export interface FilterState {
-  placeType: 'any' | 'room' | 'entire';
-  minPrice: number;
-  maxPrice: number;
-  bedrooms: number;
-  beds: number;
-  adults: number;
-  children: number;
-  pets: number;
+  placeType: "any" | "room" | "entire"
+  minPrice: number
+  maxPrice: number
+  bedrooms: number
+  beds: number
+  adults: number
+  children: number
+  pets: number
 }
 
 interface FilterModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  filters: FilterState;
-  onApply: (filters: FilterState) => void;
-  filteredCount: number;
+  isOpen: boolean
+  onClose: () => void
+  filters: FilterState
+  onApply: (filters: FilterState) => void
+  filteredCount: number
 }
 
-export const FilterModal: React.FC<FilterModalProps> = ({
-  isOpen,
-  onClose,
-  filters,
-  onApply,
-  filteredCount,
-}) => {
-  const [placeType, setPlaceType] = useState<FilterState['placeType']>(filters.placeType);
-  const [minPrice, setMinPrice] = useState(filters.minPrice);
-  const [maxPrice, setMaxPrice] = useState(filters.maxPrice);
-  const [bedrooms, setBedrooms] = useState(filters.bedrooms);
-  const [beds, setBeds] = useState(filters.beds);
-  const [adults, setAdults] = useState(filters.adults);
-  const [children, setChildren] = useState(filters.children);
-  const [pets, setPets] = useState(filters.pets);
+export const FilterModal: React.FC<FilterModalProps> = ({ isOpen, onClose, filters, onApply, filteredCount }) => {
+  const [placeType, setPlaceType] = useState<FilterState["placeType"]>(filters.placeType)
+  const [minPrice, setMinPrice] = useState(filters.minPrice)
+  const [maxPrice, setMaxPrice] = useState(filters.maxPrice)
+  const [bedrooms, setBedrooms] = useState(filters.bedrooms)
+  const [beds, setBeds] = useState(filters.beds)
+  const [adults, setAdults] = useState(filters.adults)
+  const [children, setChildren] = useState(filters.children)
+  const [pets, setPets] = useState(filters.pets)
 
   // Sync state with props when modal opens
   useEffect(() => {
     if (isOpen) {
-      setPlaceType(filters.placeType);
-      setMinPrice(filters.minPrice);
-      setMaxPrice(filters.maxPrice);
-      setBedrooms(filters.bedrooms);
-      setBeds(filters.beds);
-      setAdults(filters.adults);
-      setChildren(filters.children);
-      setPets(filters.pets);
+      setPlaceType(filters.placeType)
+      setMinPrice(filters.minPrice)
+      setMaxPrice(filters.maxPrice)
+      setBedrooms(filters.bedrooms)
+      setBeds(filters.beds)
+      setAdults(filters.adults)
+      setChildren(filters.children)
+      setPets(filters.pets)
     }
-  }, [isOpen, filters]);
+  }, [isOpen, filters])
 
   const handleApply = () => {
     onApply({
@@ -61,28 +56,22 @@ export const FilterModal: React.FC<FilterModalProps> = ({
       adults,
       children,
       pets,
-    });
-    onClose();
-  };
+    })
+    onClose()
+  }
 
   const handleClearAll = () => {
-    setPlaceType('any');
-    setMinPrice(180);
-    setMaxPrice(2610);
-    setBedrooms(1);
-    setBeds(1);
-    setAdults(1);
-    setChildren(1);
-    setPets(1);
-  };
+    setPlaceType("any")
+    setMinPrice(180)
+    setMaxPrice(2610)
+    setBedrooms(1)
+    setBeds(1)
+    setAdults(1)
+    setChildren(1)
+    setPets(1)
+  }
 
-  const renderCounter = (
-    label: string,
-    value: number,
-    onChange: (val: number) => void,
-    min = 0,
-    max = 10
-  ) => {
+  const renderCounter = (label: string, value: number, onChange: (val: number) => void, min = 0, max = 10) => {
     return (
       <div className="flex items-center justify-between py-2">
         <span className="text-sm font-black text-gray-800 dark:text-gray-200">{label}</span>
@@ -106,65 +95,64 @@ export const FilterModal: React.FC<FilterModalProps> = ({
           </button>
         </div>
       </div>
-    );
-  };
+    )
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       {/* Dialog matches the compact square layout shown in the screenshot */}
-<DialogContent className="w-full max-w-full sm:max-w-[680px] h-full sm:h-auto rounded-none sm:rounded-[32px] border-t sm:border border-border bg-card p-0 shadow-2xl animate-in fade-in sm:zoom-in-95 duration-200 top-0 left-0 sm:top-1/2 sm:left-1/2 translate-x-0 translate-y-0 sm:-translate-x-1/2 sm:-translate-y-1/2 overflow-hidden">        
+      <DialogContent className="w-full max-w-full sm:max-w-[680px] h-full sm:h-auto rounded-none sm:rounded-[32px] border-t sm:border border-border bg-card p-0 shadow-2xl animate-in fade-in sm:zoom-in-95 duration-200 top-0 left-0 sm:top-1/2 sm:left-1/2 translate-x-0 translate-y-0 sm:-translate-x-1/2 sm:-translate-y-1/2 overflow-hidden">
         {/* Title Header */}
         <div className="flex items-center justify-center border-b border-border/60 py-5">
-          <DialogTitle className="text-lg font-black text-foreground tracking-tight">
-            Filter
-          </DialogTitle>
+          <DialogTitle className="text-lg font-black text-foreground tracking-tight">Filter</DialogTitle>
         </div>
 
         {/* Content Body */}
-        <div className="px-5 py-6 sm:px-10 sm:py-8 space-y-8 overflow-y-auto max-h-[calc(100vh-130px)] sm:max-h-[70vh] scrollbar-none">          {/* Place Type segmented tab */}
-  <div className="rounded-full border border-gray-300 dark:border-border p-1.5 bg-white dark:bg-muted/10 flex items-center w-full">
-    <button
-      type="button"
-      onClick={() => setPlaceType('any')}
-      className={`flex-grow py-4 text-center text-base font-black rounded-full transition-[background-color,color,transform] duration-160 ease-out active:scale-97 cursor-pointer ${
-        placeType === 'any'
-          ? 'bg-purple-950 text-white shadow-sm dark:bg-purple-800'
-          : 'text-purple-950 dark:text-purple-300 hover:bg-muted/30'
-      }`}
-    >
-      Any type
-    </button>            <button
+        <div className="px-5 py-6 sm:px-10 sm:py-8 space-y-8 overflow-y-auto max-h-[calc(100vh-130px)] sm:max-h-[70vh] scrollbar-none">
+          {" "}
+          {/* Place Type segmented tab */}
+          <div className="rounded-full border border-gray-300 dark:border-border p-1.5 bg-white dark:bg-muted/10 flex items-center w-full">
+            <button
               type="button"
-              onClick={() => setPlaceType('room')}
+              onClick={() => setPlaceType("any")}
+              className={`flex-grow py-4 text-center text-base font-black rounded-full transition-[background-color,color,transform] duration-160 ease-out active:scale-97 cursor-pointer ${
+                placeType === "any"
+                  ? "bg-purple-950 text-white shadow-sm dark:bg-purple-800"
+                  : "text-purple-950 dark:text-purple-300 hover:bg-muted/30"
+              }`}
+            >
+              Any type
+            </button>{" "}
+            <button
+              type="button"
+              onClick={() => setPlaceType("room")}
               className={`flex-grow py-3 text-center text-sm font-black rounded-[20px] transition-[background-color,color,transform] duration-160 ease-out active:scale-97 cursor-pointer ${
-                placeType === 'room'
-                  ? 'bg-purple-950 text-white shadow-sm dark:bg-purple-800'
-                  : 'text-purple-950 dark:text-purple-300 hover:bg-muted/30'
+                placeType === "room"
+                  ? "bg-purple-950 text-white shadow-sm dark:bg-purple-800"
+                  : "text-purple-950 dark:text-purple-300 hover:bg-muted/30"
               }`}
             >
               Room
             </button>
             <button
               type="button"
-              onClick={() => setPlaceType('entire')}
+              onClick={() => setPlaceType("entire")}
               className={`flex-grow py-3 text-center text-sm font-black rounded-[20px] transition-[background-color,color,transform] duration-160 ease-out active:scale-97 cursor-pointer ${
-                placeType === 'entire'
-                  ? 'bg-purple-950 text-white shadow-sm dark:bg-purple-800'
-                  : 'text-purple-950 dark:text-purple-300 hover:bg-muted/30'
+                placeType === "entire"
+                  ? "bg-purple-950 text-white shadow-sm dark:bg-purple-800"
+                  : "text-purple-950 dark:text-purple-300 hover:bg-muted/30"
               }`}
             >
               Entire home
             </button>
           </div>
-
           <div className="border-b border-border/50 pb-1" />
-
           {/* Price Range Slider */}
           <div className="space-y-4">
             <label className="text-sm font-black text-gray-800 dark:text-gray-200 tracking-tight block">
               Price range
             </label>
-            
+
             {/* Standard double slider bar mockup */}
             <div className="relative py-2 select-none">
               <input
@@ -206,31 +194,25 @@ export const FilterModal: React.FC<FilterModalProps> = ({
               </div>
             </div>
           </div>
-
           <div className="border-b border-border/50 pb-1" />
-
           {/* Counters Grid Section matching reference screenshot layout */}
           <div className="grid grid-cols-2 gap-x-10">
             {/* Column 1: Rooms and beds */}
             <div className="space-y-3">
-              <h3 className="text-sm font-black text-gray-800 dark:text-gray-200 tracking-tight">
-                Rooms and beds
-              </h3>
+              <h3 className="text-sm font-black text-gray-800 dark:text-gray-200 tracking-tight">Rooms and beds</h3>
               <div className="space-y-1.5">
-                {renderCounter('Bedrooms', bedrooms, setBedrooms, 1, 8)}
-                {renderCounter('Beds', beds, setBeds, 1, 12)}
+                {renderCounter("Bedrooms", bedrooms, setBedrooms, 1, 8)}
+                {renderCounter("Beds", beds, setBeds, 1, 12)}
               </div>
             </div>
 
             {/* Column 2: People and pets */}
             <div className="space-y-3">
-              <h3 className="text-sm font-black text-gray-800 dark:text-gray-200 tracking-tight">
-                People and pets
-              </h3>
+              <h3 className="text-sm font-black text-gray-800 dark:text-gray-200 tracking-tight">People and pets</h3>
               <div className="space-y-1.5">
-                {renderCounter('Adults', adults, setAdults, 1, 20)}
-                {renderCounter('Children', children, setChildren, 1, 10)}
-                {renderCounter('Pets', pets, setPets, 1, 5)}
+                {renderCounter("Adults", adults, setAdults, 1, 20)}
+                {renderCounter("Children", children, setChildren, 1, 10)}
+                {renderCounter("Pets", pets, setPets, 1, 5)}
               </div>
             </div>
           </div>
@@ -245,7 +227,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({
           >
             Clear all
           </button>
-          
+
           <button
             type="button"
             onClick={handleApply}
@@ -254,8 +236,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({
             Show all {filteredCount}+ places
           </button>
         </div>
-
       </DialogContent>
     </Dialog>
-  );
-};
+  )
+}

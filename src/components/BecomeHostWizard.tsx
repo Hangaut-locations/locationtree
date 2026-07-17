@@ -1,64 +1,79 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Building, Trees, Waves, Mountain, Tv, Frame, Home, Ship, Tent, Search, Plus, Minus, HelpCircle } from 'lucide-react';
-import type { Listing } from '../types/listing';
+import {
+  Building,
+  Frame,
+  HelpCircle,
+  Home,
+  Minus,
+  Mountain,
+  Plus,
+  Search,
+  Ship,
+  Tent,
+  Trees,
+  Tv,
+  Waves,
+} from "lucide-react"
+import type React from "react"
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
+import type { Listing } from "../types/listing"
 
 interface BecomeHostWizardProps {
-  onAddListing: (newListing: Listing) => void;
+  onAddListing: (newListing: Listing) => void
 }
 
-type WizardStep = 1 | 2 | 3 | 4 | 5;
+type WizardStep = 1 | 2 | 3 | 4 | 5
 
 export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing }) => {
-  const [step, setStep] = useState<WizardStep>(1);
-  const navigate = useNavigate();
+  const [step, setStep] = useState<WizardStep>(1)
+  const navigate = useNavigate()
 
   // Form States
-  const [category, setCategory] = useState<string>('Rooftops');
-  const [spaceType, setSpaceType] = useState<'entire' | 'room' | 'shared'>('entire');
-  const [location, setLocation] = useState<string>('');
-  const [guests, setGuests] = useState<number>(1);
-  const [bedrooms, setBedrooms] = useState<number>(1);
-  const [beds, setBeds] = useState<number>(1);
-  const [bathrooms, setBathrooms] = useState<number>(1);
+  const [category, setCategory] = useState<string>("Rooftops")
+  const [spaceType, setSpaceType] = useState<"entire" | "room" | "shared">("entire")
+  const [location, setLocation] = useState<string>("")
+  const [guests, setGuests] = useState<number>(1)
+  const [bedrooms, setBedrooms] = useState<number>(1)
+  const [beds, setBeds] = useState<number>(1)
+  const [bathrooms, setBathrooms] = useState<number>(1)
 
   const categories = [
-    { name: 'Rooftops', icon: Building },
-    { name: 'Tree House', icon: Trees },
-    { name: 'Beach front', icon: Waves },
-    { name: 'Amazing views', icon: Mountain },
-    { name: 'Studio', icon: Tv },
-    { name: 'Frames', icon: Frame },
-    { name: 'Homes', icon: Home },
-    { name: 'Houseboat', icon: Ship },
-    { name: 'Cabin', icon: Tent },
-  ];
+    { name: "Rooftops", icon: Building },
+    { name: "Tree House", icon: Trees },
+    { name: "Beach front", icon: Waves },
+    { name: "Amazing views", icon: Mountain },
+    { name: "Studio", icon: Tv },
+    { name: "Frames", icon: Frame },
+    { name: "Homes", icon: Home },
+    { name: "Houseboat", icon: Ship },
+    { name: "Cabin", icon: Tent },
+  ]
 
   const handleNext = () => {
     if (step < 5) {
-      setStep((prev) => (prev + 1) as WizardStep);
+      setStep((prev) => (prev + 1) as WizardStep)
     } else {
-      handleSubmit();
+      handleSubmit()
     }
-  };
+  }
 
   const handleBack = () => {
     if (step > 1) {
-      setStep((prev) => (prev - 1) as WizardStep);
+      setStep((prev) => (prev - 1) as WizardStep)
     }
-  };
+  }
 
   const handleExit = () => {
-    if (window.confirm('Are you sure you want to save and exit?')) {
-      navigate('/');
+    if (window.confirm("Are you sure you want to save and exit?")) {
+      navigate("/")
     }
-  };
+  }
 
   const handleSubmit = () => {
     // Normalize location to match valid listing locations
-    const normalizedLocation = (['Paris', 'Watford', 'London'].find(
-      (loc) => loc.toLowerCase() === location.trim().toLowerCase()
-    ) || 'Watford') as 'Paris' | 'Watford' | 'London';
+    const normalizedLocation = (["Paris", "Watford", "London"].find(
+      (loc) => loc.toLowerCase() === location.trim().toLowerCase(),
+    ) || "Watford") as "Paris" | "Watford" | "London"
 
     // Mock create a new listing object
     const newListing: Listing = {
@@ -66,40 +81,35 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
       title: `Charming ${category} Stay`,
       location: normalizedLocation,
       price: 150 + Math.floor(Math.random() * 200),
-      priceUnit: 'night',
+      priceUnit: "night",
       rating: 5.0,
       reviewsCount: 1,
       images: [
-        'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80',
-        'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=600&q=80',
+        "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80",
+        "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=600&q=80",
       ],
       category: category,
       guestsCount: guests,
       bedroomsCount: bedrooms,
       bedsCount: beds,
-    };
+    }
 
-    onAddListing(newListing);
-    alert('Congratulations! Your place is successfully listed on Hangout.');
-    navigate('/');
-  };
+    onAddListing(newListing)
+    alert("Congratulations! Your place is successfully listed on Hangout.")
+    navigate("/")
+  }
 
   // Check step validation
   const isStepValid = () => {
-    if (step === 2) return !!category;
-    if (step === 3) return !!spaceType;
+    if (step === 2) return !!category
+    if (step === 3) return !!spaceType
     if (step === 4) {
-      return ['paris', 'watford', 'london'].includes(location.trim().toLowerCase());
+      return ["paris", "watford", "london"].includes(location.trim().toLowerCase())
     }
-    return true;
-  };
+    return true
+  }
 
-  const renderCounterRow = (
-    label: string,
-    value: number,
-    onChange: (val: number) => void,
-    min = 1
-  ) => {
+  const renderCounterRow = (label: string, value: number, onChange: (val: number) => void, min = 1) => {
     return (
       <div className="flex items-center justify-between border-b border-border/40 py-5">
         <span className="text-base font-black text-foreground">{label}</span>
@@ -122,20 +132,19 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
           </button>
         </div>
       </div>
-    );
-  };
+    )
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300">
-      
       {/* Wizard Header */}
       <header className="sticky top-0 z-45 w-full border-b border-border bg-background/95 backdrop-blur-md px-4 py-4 md:px-8 flex items-center justify-between">
-        <div className="flex items-center h-12 max-w-[150px] cursor-pointer" onClick={() => navigate('/')}>
+        <div className="flex items-center h-12 max-w-[150px] cursor-pointer" onClick={() => navigate("/")}>
           <img src="logo.png" alt="Hangout Logo" className="h-full w-full object-contain" />
         </div>
         <div className="flex items-center gap-3">
           <button
-            onClick={() => alert('Support line matches available agents.')}
+            onClick={() => alert("Support line matches available agents.")}
             className="flex h-10 w-10 sm:h-auto sm:w-auto items-center justify-center gap-1.5 rounded-full border border-border sm:px-4 sm:py-2 text-xs font-black text-foreground hover:bg-muted transition-all cursor-pointer"
             aria-label="Help"
           >
@@ -162,7 +171,6 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
       {/* Wizard Body Container */}
       <main className="flex-grow flex items-center justify-center px-4 md:px-8 py-12">
         <div className="w-full max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
-          
           {/* Step 1: Introduction */}
           {step === 1 && (
             <div className="space-y-6">
@@ -173,9 +181,8 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
                 Tell us about your place
               </h1>
               <p className="text-base font-semibold text-muted-foreground leading-relaxed max-w-xl">
-                In this step, we’ll ask you what type of space you’re listing and whether
-                guests will book the whole place or room. Then tell us the location and
-                how many people it can accommodate.
+                In this step, we’ll ask you what type of space you’re listing and whether guests will book the whole
+                place or room. Then tell us the location and how many people it can accommodate.
               </p>
             </div>
           )}
@@ -188,22 +195,22 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 {categories.map((cat) => {
-                  const Icon = cat.icon;
-                  const isSelected = category === cat.name;
+                  const Icon = cat.icon
+                  const isSelected = category === cat.name
                   return (
                     <button
                       key={cat.name}
                       onClick={() => setCategory(cat.name)}
                       className={`flex flex-col items-center justify-center p-4 sm:p-6 border rounded-2xl transition-[border-color,background-color,transform] duration-160 ease-out cursor-pointer hover:border-gray-400 active:scale-97 ${
                         isSelected
-                          ? 'border-purple-950 dark:border-purple-600 bg-gray-100 dark:bg-muted/40 shadow-sm'
-                          : 'border-border/80 bg-card'
+                          ? "border-purple-950 dark:border-purple-600 bg-gray-100 dark:bg-muted/40 shadow-sm"
+                          : "border-border/80 bg-card"
                       }`}
                     >
                       <Icon className="h-7 w-7 text-foreground mb-3" />
                       <span className="text-xs font-black text-foreground">{cat.name}</span>
                     </button>
-                  );
+                  )
                 })}
               </div>
             </div>
@@ -219,11 +226,11 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
                 {/* Option 1: Entire Place */}
                 <button
                   type="button"
-                  onClick={() => setSpaceType('entire')}
+                  onClick={() => setSpaceType("entire")}
                   className={`w-full text-left p-4 sm:p-6 border rounded-2xl transition-[border-color,background-color,transform] duration-160 ease-out cursor-pointer hover:border-gray-400 active:scale-97 block ${
-                    spaceType === 'entire'
-                      ? 'border-purple-950 dark:border-purple-600 bg-purple-950/5 dark:bg-purple-800/10'
-                      : 'border-border/80 bg-card'
+                    spaceType === "entire"
+                      ? "border-purple-950 dark:border-purple-600 bg-purple-950/5 dark:bg-purple-800/10"
+                      : "border-border/80 bg-card"
                   }`}
                 >
                   <h4 className="text-sm font-black text-foreground">An entire place</h4>
@@ -235,11 +242,11 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
                 {/* Option 2: Private Room */}
                 <button
                   type="button"
-                  onClick={() => setSpaceType('room')}
+                  onClick={() => setSpaceType("room")}
                   className={`w-full text-left p-4 sm:p-6 border rounded-2xl transition-[border-color,background-color,transform] duration-160 ease-out cursor-pointer hover:border-gray-400 active:scale-97 block ${
-                    spaceType === 'room'
-                      ? 'border-purple-950 dark:border-purple-600 bg-purple-950/5 dark:bg-purple-800/10'
-                      : 'border-border/80 bg-card'
+                    spaceType === "room"
+                      ? "border-purple-950 dark:border-purple-600 bg-purple-950/5 dark:bg-purple-800/10"
+                      : "border-border/80 bg-card"
                   }`}
                 >
                   <h4 className="text-sm font-black text-foreground">A room</h4>
@@ -251,11 +258,11 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
                 {/* Option 3: Shared Room */}
                 <button
                   type="button"
-                  onClick={() => setSpaceType('shared')}
+                  onClick={() => setSpaceType("shared")}
                   className={`w-full text-left p-4 sm:p-6 border rounded-2xl transition-[border-color,background-color,transform] duration-160 ease-out cursor-pointer hover:border-gray-400 active:scale-97 block ${
-                    spaceType === 'shared'
-                      ? 'border-purple-950 dark:border-purple-600 bg-purple-950/5 dark:bg-purple-800/10'
-                      : 'border-border/80 bg-card'
+                    spaceType === "shared"
+                      ? "border-purple-950 dark:border-purple-600 bg-purple-950/5 dark:bg-purple-800/10"
+                      : "border-border/80 bg-card"
                   }`}
                 >
                   <h4 className="text-sm font-black text-foreground">A shared room in a hostel</h4>
@@ -294,15 +301,15 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
 
                 {/* Predefined Location Suggestions */}
                 <div className="flex flex-wrap justify-center gap-2">
-                  {['Paris', 'Watford', 'London'].map((loc) => (
+                  {["Paris", "Watford", "London"].map((loc) => (
                     <button
                       key={loc}
                       type="button"
                       onClick={() => setLocation(loc)}
                       className={`px-4 py-2.5 rounded-full border text-xs font-bold transition-all cursor-pointer ${
                         location.toLowerCase() === loc.toLowerCase()
-                          ? 'bg-purple-950 text-white border-purple-950 dark:bg-purple-800 dark:border-purple-800 shadow-sm'
-                          : 'bg-card text-foreground border-border hover:bg-muted hover:border-gray-400'
+                          ? "bg-purple-950 text-white border-purple-950 dark:bg-purple-800 dark:border-purple-800 shadow-sm"
+                          : "bg-card text-foreground border-border hover:bg-muted hover:border-gray-400"
                       }`}
                     >
                       {loc}
@@ -314,7 +321,12 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
               {/* Map Preview widget matching screenshots */}
               <div className="rounded-3xl border border-border bg-card overflow-hidden shadow-sm aspect-video max-w-md mx-auto relative bg-[#e5e3df]">
                 {/* Google Maps mock placeholder */}
-                <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/-0.118092,51.509865,12,0/400x200?access_token=mock')` }}>
+                <div
+                  className="absolute inset-0 bg-cover bg-center"
+                  style={{
+                    backgroundImage: `url('https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/-0.118092,51.509865,12,0/400x200?access_token=mock')`,
+                  }}
+                >
                   <div className="w-full h-full flex items-center justify-center relative">
                     <div className="h-8 w-8 rounded-full bg-red-500/20 flex items-center justify-center border-2 border-red-500 shadow-md">
                       <div className="h-3 w-3 rounded-full bg-red-600" />
@@ -339,14 +351,13 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
 
               {/* Basics configuration drawer */}
               <div className="max-w-md mx-auto divide-y divide-border/20">
-                {renderCounterRow('Guests', guests, setGuests)}
-                {renderCounterRow('Bedroom', bedrooms, setBedrooms)}
-                {renderCounterRow('Beds', beds, setBeds)}
-                {renderCounterRow('Bathrooms', bathrooms, setBathrooms)}
+                {renderCounterRow("Guests", guests, setGuests)}
+                {renderCounterRow("Bedroom", bedrooms, setBedrooms)}
+                {renderCounterRow("Beds", beds, setBeds)}
+                {renderCounterRow("Bathrooms", bathrooms, setBathrooms)}
               </div>
             </div>
           )}
-
         </div>
       </main>
 
@@ -361,18 +372,17 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
           >
             Back
           </button>
-          
+
           <button
             type="button"
             onClick={handleNext}
             disabled={!isStepValid()}
             className="rounded-full bg-purple-950 hover:bg-purple-900 dark:bg-purple-800 dark:hover:bg-purple-750 text-white font-bold py-3 px-6 text-sm shadow-md active:scale-97 transition-[transform,background-color] duration-160 ease-out disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
           >
-            {step === 5 ? 'Submit' : 'Next'}
+            {step === 5 ? "Submit" : "Next"}
           </button>
         </div>
       </footer>
-
     </div>
-  );
-};
+  )
+}

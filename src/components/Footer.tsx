@@ -1,10 +1,6 @@
-import React from 'react';
-import { Globe, DollarSign } from 'lucide-react';
-import {
-  SiFacebook,
-  SiX,
-  SiInstagram,
-} from "react-icons/si"
+import { DollarSign, Globe } from "lucide-react"
+import type React from "react"
+import { SiFacebook, SiInstagram, SiX } from "react-icons/si"
 
 export const Footer: React.FC = () => {
   return (
@@ -14,37 +10,103 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 pb-8 border-b border-border/60">
           {/* Support */}
           <div className="space-y-4">
-            <h3 className="text-xs font-black uppercase tracking-wider text-purple-950 dark:text-purple-300">Support</h3>
+            <h3 className="text-xs font-black uppercase tracking-wider text-purple-950 dark:text-purple-300">
+              Support
+            </h3>
             <ul className="space-y-2.5 text-sm font-medium text-muted-foreground">
-              <li><a href="#" className="hover:text-foreground hover:underline transition-colors">Help Center</a></li>
-              <li><a href="#" className="hover:text-foreground hover:underline transition-colors">Safety information</a></li>
-              <li><a href="#" className="hover:text-foreground hover:underline transition-colors">Cancellation options</a></li>
-              <li><a href="#" className="hover:text-foreground hover:underline transition-colors">Our COVID-19 Response</a></li>
-              <li><a href="#" className="hover:text-foreground hover:underline transition-colors">Supporting people with disabilities</a></li>
-              <li><a href="#" className="hover:text-foreground hover:underline transition-colors">Report a neighborhood concern</a></li>
+              <li>
+                <a href="#" className="hover:text-foreground hover:underline transition-colors">
+                  Help Center
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-foreground hover:underline transition-colors">
+                  Safety information
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-foreground hover:underline transition-colors">
+                  Cancellation options
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-foreground hover:underline transition-colors">
+                  Our COVID-19 Response
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-foreground hover:underline transition-colors">
+                  Supporting people with disabilities
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-foreground hover:underline transition-colors">
+                  Report a neighborhood concern
+                </a>
+              </li>
             </ul>
           </div>
 
           {/* Community */}
           <div className="space-y-4">
-            <h3 className="text-xs font-black uppercase tracking-wider text-purple-950 dark:text-purple-300">Community</h3>
+            <h3 className="text-xs font-black uppercase tracking-wider text-purple-950 dark:text-purple-300">
+              Community
+            </h3>
             <ul className="space-y-2.5 text-sm font-medium text-muted-foreground">
-              <li><a href="#" className="hover:text-foreground hover:underline transition-colors">Hangout.org: disaster relief housing</a></li>
-              <li><a href="#" className="hover:text-foreground hover:underline transition-colors">Support Afghan refugees</a></li>
-              <li><a href="#" className="hover:text-foreground hover:underline transition-colors">Celebrating diversity & belonging</a></li>
-              <li><a href="#" className="hover:text-foreground hover:underline transition-colors">Combating discrimination</a></li>
+              <li>
+                <a href="#" className="hover:text-foreground hover:underline transition-colors">
+                  Hangout.org: disaster relief housing
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-foreground hover:underline transition-colors">
+                  Support Afghan refugees
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-foreground hover:underline transition-colors">
+                  Celebrating diversity & belonging
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-foreground hover:underline transition-colors">
+                  Combating discrimination
+                </a>
+              </li>
             </ul>
           </div>
 
           {/* Hosting */}
           <div className="space-y-4">
-            <h3 className="text-xs font-black uppercase tracking-wider text-purple-950 dark:text-purple-300">Hosting</h3>
+            <h3 className="text-xs font-black uppercase tracking-wider text-purple-950 dark:text-purple-300">
+              Hosting
+            </h3>
             <ul className="space-y-2.5 text-sm font-medium text-muted-foreground">
-              <li><a href="#" className="hover:text-foreground hover:underline transition-colors">Try hosting</a></li>
-              <li><a href="#" className="hover:text-foreground hover:underline transition-colors">AirCover for Hosts</a></li>
-              <li><a href="#" className="hover:text-foreground hover:underline transition-colors">Explore hosting resources</a></li>
-              <li><a href="#" className="hover:text-foreground hover:underline transition-colors">Visit our community forum</a></li>
-              <li><a href="#" className="hover:text-foreground hover:underline transition-colors">How to host responsibly</a></li>
+              <li>
+                <a href="#" className="hover:text-foreground hover:underline transition-colors">
+                  Try hosting
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-foreground hover:underline transition-colors">
+                  AirCover for Hosts
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-foreground hover:underline transition-colors">
+                  Explore hosting resources
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-foreground hover:underline transition-colors">
+                  Visit our community forum
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-foreground hover:underline transition-colors">
+                  How to host responsibly
+                </a>
+              </li>
             </ul>
           </div>
 
@@ -52,12 +114,36 @@ export const Footer: React.FC = () => {
           <div className="space-y-4">
             <h3 className="text-xs font-black uppercase tracking-wider text-purple-950 dark:text-purple-300">About</h3>
             <ul className="space-y-2.5 text-sm font-medium text-muted-foreground">
-              <li><a href="#" className="hover:text-foreground hover:underline transition-colors">Newsroom</a></li>
-              <li><a href="#" className="hover:text-foreground hover:underline transition-colors">Learn about new features</a></li>
-              <li><a href="#" className="hover:text-foreground hover:underline transition-colors">Letter from our founders</a></li>
-              <li><a href="#" className="hover:text-foreground hover:underline transition-colors">Careers</a></li>
-              <li><a href="#" className="hover:text-foreground hover:underline transition-colors">Investors</a></li>
-              <li><a href="#" className="hover:text-foreground hover:underline transition-colors">Hangout Luxe</a></li>
+              <li>
+                <a href="#" className="hover:text-foreground hover:underline transition-colors">
+                  Newsroom
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-foreground hover:underline transition-colors">
+                  Learn about new features
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-foreground hover:underline transition-colors">
+                  Letter from our founders
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-foreground hover:underline transition-colors">
+                  Careers
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-foreground hover:underline transition-colors">
+                  Investors
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-foreground hover:underline transition-colors">
+                  Hangout Luxe
+                </a>
+              </li>
             </ul>
           </div>
         </div>
@@ -68,11 +154,17 @@ export const Footer: React.FC = () => {
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 text-center">
             <span>© 2026 Hangout, Inc.</span>
             <span>·</span>
-            <a href="#" className="hover:text-foreground hover:underline transition-colors">Privacy</a>
+            <a href="#" className="hover:text-foreground hover:underline transition-colors">
+              Privacy
+            </a>
             <span>·</span>
-            <a href="#" className="hover:text-foreground hover:underline transition-colors">Terms</a>
+            <a href="#" className="hover:text-foreground hover:underline transition-colors">
+              Terms
+            </a>
             <span>·</span>
-            <a href="#" className="hover:text-foreground hover:underline transition-colors">Sitemap</a>
+            <a href="#" className="hover:text-foreground hover:underline transition-colors">
+              Sitemap
+            </a>
           </div>
 
           {/* Socials & Language / Currency */}
@@ -105,5 +197,5 @@ export const Footer: React.FC = () => {
         </div>
       </div>
     </footer>
-  );
-};
+  )
+}

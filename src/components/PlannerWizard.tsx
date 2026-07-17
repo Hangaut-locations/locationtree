@@ -1,110 +1,105 @@
-import React, { useState } from 'react';
-import { Sparkles, Users, DollarSign, Compass, ArrowRight, RotateCcw } from 'lucide-react';
-import { locationListings as listingsData } from '../data/listings';
-import { ListingCard } from './ListingCard';
-import type { Listing } from '../types/listing';
+import { ArrowRight, Compass, DollarSign, RotateCcw, Sparkles, Users } from "lucide-react"
+import type React from "react"
+import { useState } from "react"
+import { locationListings as listingsData } from "../data/listings"
+import type { Listing } from "../types/listing"
+import { ListingCard } from "./ListingCard"
 
 interface PlannerWizardProps {
-  wishlist: string[];
-  onWishlistToggle: (id: string) => void;
+  wishlist: string[]
+  onWishlistToggle: (id: string) => void
 }
 
 interface EventType {
-  id: string;
-  name: string;
-  emoji: string;
-  description: string;
-  suggestedCategories: string[];
+  id: string
+  name: string
+  emoji: string
+  description: string
+  suggestedCategories: string[]
 }
 
 const eventTypes: EventType[] = [
   {
-    id: 'birthday',
-    name: 'Birthday Party',
-    emoji: '🎉',
-    description: 'Rooftops and amazing views to celebrate with style.',
-    suggestedCategories: ['Rooftops', 'Amazing Views']
+    id: "birthday",
+    name: "Birthday Party",
+    emoji: "🎉",
+    description: "Rooftops and amazing views to celebrate with style.",
+    suggestedCategories: ["Rooftops", "Amazing Views"],
   },
   {
-    id: 'romantic',
-    name: 'Romantic Escape',
-    emoji: '💖',
-    description: 'Charming cabins and beachfront spaces for two.',
-    suggestedCategories: ['Cabin', 'Beach front']
+    id: "romantic",
+    name: "Romantic Escape",
+    emoji: "💖",
+    description: "Charming cabins and beachfront spaces for two.",
+    suggestedCategories: ["Cabin", "Beach front"],
   },
   {
-    id: 'corporate',
-    name: 'Corporate Retreat',
-    emoji: '💼',
-    description: 'Large mansions and estates equipped for team building.',
-    suggestedCategories: ['Mansions', 'Amazing Views']
+    id: "corporate",
+    name: "Corporate Retreat",
+    emoji: "💼",
+    description: "Large mansions and estates equipped for team building.",
+    suggestedCategories: ["Mansions", "Amazing Views"],
   },
   {
-    id: 'family',
-    name: 'Family Gathering',
-    emoji: '🏡',
-    description: 'Spacious properties with room for everyone to enjoy.',
-    suggestedCategories: ['Cabin', 'Tree House', 'Castles']
+    id: "family",
+    name: "Family Gathering",
+    emoji: "🏡",
+    description: "Spacious properties with room for everyone to enjoy.",
+    suggestedCategories: ["Cabin", "Tree House", "Castles"],
   },
   {
-    id: 'adventure',
-    name: 'Adventure Getaway',
-    emoji: '🌲',
-    description: 'Unique treehouses and boat houses off the beaten track.',
-    suggestedCategories: ['Tree House', 'Houseboat', 'Cabin']
-  }
-];
+    id: "adventure",
+    name: "Adventure Getaway",
+    emoji: "🌲",
+    description: "Unique treehouses and boat houses off the beaten track.",
+    suggestedCategories: ["Tree House", "Houseboat", "Cabin"],
+  },
+]
 
-export const PlannerWizard: React.FC<PlannerWizardProps> = ({
-  wishlist,
-  onWishlistToggle,
-}) => {
-  const [step, setStep] = useState<1 | 2 | 3>(1);
-  const [selectedEvent, setSelectedEvent] = useState<EventType | null>(null);
-  const [guestCount, setGuestCount] = useState(4);
-  const [budget, setBudget] = useState(400);
+export const PlannerWizard: React.FC<PlannerWizardProps> = ({ wishlist, onWishlistToggle }) => {
+  const [step, setStep] = useState<1 | 2 | 3>(1)
+  const [selectedEvent, setSelectedEvent] = useState<EventType | null>(null)
+  const [guestCount, setGuestCount] = useState(4)
+  const [budget, setBudget] = useState(400)
 
   const handleSelectEvent = (event: EventType) => {
-    setSelectedEvent(event);
-    setStep(2);
-  };
+    setSelectedEvent(event)
+    setStep(2)
+  }
 
   const handleBackToEvents = () => {
-    setStep(1);
-  };
+    setStep(1)
+  }
 
   const handleGeneratePlan = () => {
-    setStep(3);
-  };
+    setStep(3)
+  }
 
   const handleRestart = () => {
-    setSelectedEvent(null);
-    setGuestCount(4);
-    setBudget(400);
-    setStep(1);
-  };
+    setSelectedEvent(null)
+    setGuestCount(4)
+    setBudget(400)
+    setStep(1)
+  }
 
   // Filter recommendations based on answers
   const recommendations: Listing[] = listingsData.filter((listing) => {
     // 1. Matches event category suggestions
-    const categoryMatches = selectedEvent
-      ? selectedEvent.suggestedCategories.includes(listing.category)
-      : true;
+    const categoryMatches = selectedEvent ? selectedEvent.suggestedCategories.includes(listing.category) : true
 
     // 2. Fits within guest capacity
-    const capacityMatches = listing.guestsCount >= guestCount;
+    const capacityMatches = listing.guestsCount >= guestCount
 
     // 3. Under budget (max rate per hour / night)
-    const budgetMatches = listing.price <= budget;
+    const budgetMatches = listing.price <= budget
 
-    return categoryMatches && capacityMatches && budgetMatches;
-  });
+    return categoryMatches && capacityMatches && budgetMatches
+  })
 
   return (
     <div className="mx-auto max-w-5xl px-4 md:px-8 py-8 animate-in fade-in duration-300">
       {/* Wizard Card Container */}
       <div className="w-full rounded-3xl border border-border bg-card shadow-lg p-4 sm:p-6 md:p-10 space-y-8">
-        
         {/* Progress Header */}
         <div className="flex items-center justify-between border-b border-border/60 pb-6">
           <div>
@@ -114,7 +109,7 @@ export const PlannerWizard: React.FC<PlannerWizardProps> = ({
               <span>Plan Your Experience</span>
             </h1>
           </div>
-          
+
           {/* Progress Indicators */}
           <div className="flex items-center gap-2">
             {[1, 2, 3].map((s) => (
@@ -122,10 +117,10 @@ export const PlannerWizard: React.FC<PlannerWizardProps> = ({
                 key={s}
                 className={`h-2.5 rounded-full transition-all duration-300 ${
                   step === s
-                    ? 'w-8 bg-purple-950 dark:bg-purple-300'
+                    ? "w-8 bg-purple-950 dark:bg-purple-300"
                     : step > s
-                    ? 'w-2.5 bg-purple-600'
-                    : 'w-2.5 bg-muted'
+                      ? "w-2.5 bg-purple-600"
+                      : "w-2.5 bg-muted"
                 }`}
               />
             ))}
@@ -139,7 +134,7 @@ export const PlannerWizard: React.FC<PlannerWizardProps> = ({
               <h2 className="text-lg font-bold text-foreground">What kind of event are you planning?</h2>
               <p className="text-sm text-muted-foreground mt-1">Select an experience type to begin.</p>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {eventTypes.map((event) => (
                 <button
@@ -147,7 +142,9 @@ export const PlannerWizard: React.FC<PlannerWizardProps> = ({
                   onClick={() => handleSelectEvent(event)}
                   className="flex flex-col items-start text-left p-4 sm:p-6 rounded-2xl border border-border bg-card cursor-pointer group planner-card hover:bg-muted/40"
                 >
-                  <span className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-200">{event.emoji}</span>
+                  <span className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-200">
+                    {event.emoji}
+                  </span>
                   <h3 className="text-base font-bold text-purple-950 dark:text-purple-300">{event.name}</h3>
                   <p className="text-xs text-muted-foreground mt-1">{event.description}</p>
                   <span className="mt-4 flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-purple-600">
@@ -298,7 +295,8 @@ export const PlannerWizard: React.FC<PlannerWizardProps> = ({
                 </div>
                 <h3 className="text-lg font-bold text-foreground">No matches found</h3>
                 <p className="text-muted-foreground mt-1.5 max-w-sm text-sm">
-                  We couldn't find listings under ${budget} that fit {guestCount} guests inside the '{selectedEvent.suggestedCategories.join(', ')}' categories.
+                  We couldn't find listings under ${budget} that fit {guestCount} guests inside the '
+                  {selectedEvent.suggestedCategories.join(", ")}' categories.
                 </p>
                 <button
                   onClick={handleRestart}
@@ -310,8 +308,7 @@ export const PlannerWizard: React.FC<PlannerWizardProps> = ({
             )}
           </div>
         )}
-
       </div>
     </div>
-  );
-};
+  )
+}
