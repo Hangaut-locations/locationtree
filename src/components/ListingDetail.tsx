@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Wifi, MapPin, Eye, Tv, Shield, Utensils, Star, Heart, Share2 } from 'lucide-react';
 import type { Listing } from '../types/listing';
+import { format } from 'date-fns';
+import type { DateRange } from 'react-day-picker';
+import { Calendar } from '../../components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '../../components/ui/popover';
 
 interface ListingDetailProps {
   listing: Listing;
@@ -16,6 +20,13 @@ export const ListingDetail: React.FC<ListingDetailProps> = ({
   isWishlisted,
 }) => {
   const [activeSubTab, setActiveSubTab] = useState<'overview' | 'facilities' | 'reviews'>('overview');
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+
+  const numberOfNights = dateRange?.from && dateRange?.to
+    ? Math.max(1, Math.round((dateRange.to.getTime() - dateRange.from.getTime()) / (1000 * 60 * 60 * 24)))
+    : 2;
+
+  const totalPrice = numberOfNights * listing.price;
 
   // Hardcoded mockup review instances
   const reviews = [
@@ -209,20 +220,43 @@ export const ListingDetail: React.FC<ListingDetailProps> = ({
           <div className="rounded-[32px] border border-border bg-card p-6 shadow-md space-y-4">
             <div className="text-center pb-2">
               <span className="text-xl font-black text-foreground">${listing.price}</span>
-              <span className="text-xs font-semibold text-muted-foreground"> for 2 nights for 2 nights</span>
+              <span className="text-xs font-semibold text-muted-foreground">
+                {" "}for {numberOfNights} {numberOfNights === 1 ? 'night' : 'nights'}
+              </span>
             </div>
 
-            {/* Inputs grid */}
-            <div className="grid grid-cols-2 gap-2">
-              <div className="border border-border/80 rounded-xl p-2.5 flex flex-col">
-                <span className="text-[10px] font-black uppercase text-muted-foreground">Check-in</span>
-                <span className="text-xs font-bold text-foreground">Add date</span>
-              </div>
-              <div className="border border-border/80 rounded-xl p-2.5 flex flex-col">
-                <span className="text-[10px] font-black uppercase text-muted-foreground">Check-out</span>
-                <span className="text-xs font-bold text-foreground">Add date</span>
-              </div>
-            </div>
+            {/* Popover Date Selection */}
+            <Popover>
+              <PopoverTrigger
+                render={
+                  <button
+                    type="button"
+                    className="grid grid-cols-2 gap-0 border border-border/80 rounded-xl p-2.5 text-left active:scale-97 transition-all duration-160 ease-[var(--ease-out)] cursor-pointer h-14 w-full focus:outline-hidden focus:ring-2 focus:ring-purple-600/20 bg-card"
+                  />
+                }
+              >
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-black uppercase text-muted-foreground">Check-in</span>
+                  <span className="text-xs font-bold text-foreground truncate">
+                    {dateRange?.from ? format(dateRange.from, "MMM dd, yyyy") : "Add date"}
+                  </span>
+                </div>
+                <div className="flex flex-col border-l border-border/80 pl-4">
+                  <span className="text-[10px] font-black uppercase text-muted-foreground">Check-out</span>
+                  <span className="text-xs font-bold text-foreground truncate">
+                    {dateRange?.to ? format(dateRange.to, "MMM dd, yyyy") : "Add date"}
+                  </span>
+                </div>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0 z-50 bg-card border border-border shadow-xl rounded-3xl" align="center" sideOffset={8}>
+                <Calendar
+                  mode="range"
+                  selected={dateRange}
+                  onSelect={setDateRange}
+                  numberOfMonths={1}
+                />
+              </PopoverContent>
+            </Popover>
 
             <div className="border border-border/80 rounded-xl p-3 flex items-center justify-between">
               <div className="flex flex-col">
@@ -231,9 +265,29 @@ export const ListingDetail: React.FC<ListingDetailProps> = ({
               </div>
             </div>
 
+            {/* Dynamic summary if dates are selected */}
+            {dateRange?.from && dateRange?.to && (
+              <div className="space-y-2 pt-2 text-xs font-bold text-muted-foreground">
+                <div className="flex justify-between">
+                  <span>${listing.price} x {numberOfNights} {numberOfNights === 1 ? 'night' : 'nights'}</span>
+                  <span>${totalPrice}</span>
+                </div>
+                <div className="flex justify-between text-foreground text-sm font-black border-t border-border/60 pt-2">
+                  <span>Total</span>
+                  <span>${totalPrice}</span>
+                </div>
+              </div>
+            )}
+
             {/* Reserve button */}
             <button
-              onClick={() => alert('Booking Reserved!')}
+              onClick={() => {
+                if (!dateRange?.from || !dateRange?.to) {
+                  alert('Please select check-in and check-out dates first!');
+                } else {
+                  alert(`Booking Reserved from ${format(dateRange.from, "PPP")} to ${format(dateRange.to, "PPP")} for $${totalPrice}!`);
+                }
+              }}
               className="w-full rounded-full bg-purple-950 hover:bg-purple-900 dark:bg-purple-800 dark:hover:bg-purple-750 text-white font-bold py-3.5 px-6 shadow-md transition-all duration-150 active:scale-95 cursor-pointer text-sm text-center"
             >
               Reserve
