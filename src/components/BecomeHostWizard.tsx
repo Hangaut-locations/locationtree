@@ -1,6 +1,5 @@
 import {
   Building,
-  Calendar,
   Frame,
   HelpCircle,
   Home,
