@@ -5,6 +5,7 @@ import { useState } from "react"
 import type { DateRange } from "react-day-picker"
 import { Calendar } from "../../components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/popover"
+import { type CurrencyCode, displayPrice, formatPrice } from "../lib/currency"
 import type { Listing } from "../types/listing"
 
 interface ListingDetailProps {
@@ -12,9 +13,18 @@ interface ListingDetailProps {
   onBack: () => void
   onWishlistToggle: (id: string) => void
   isWishlisted: boolean
+  currency: CurrencyCode
+  onReserve: (listing: Listing, total: number) => void
 }
 
-export const ListingDetail: React.FC<ListingDetailProps> = ({ listing, onBack, onWishlistToggle, isWishlisted }) => {
+export const ListingDetail: React.FC<ListingDetailProps> = ({
+  listing,
+  onBack,
+  onWishlistToggle,
+  isWishlisted,
+  currency,
+  onReserve,
+}) => {
   const [activeSubTab, setActiveSubTab] = useState<"overview" | "facilities" | "reviews">("overview")
   const [dateRange, setDateRange] = useState<DateRange | undefined>()
 
@@ -24,6 +34,8 @@ export const ListingDetail: React.FC<ListingDetailProps> = ({ listing, onBack, o
       : 2
 
   const totalPrice = numberOfNights * listing.price
+  const unitPrice = formatPrice(displayPrice(listing.price, currency), currency)
+  const formattedTotal = formatPrice(displayPrice(totalPrice, currency), currency)
 
   // Hardcoded mockup review instances
   const reviews = [
@@ -211,7 +223,7 @@ export const ListingDetail: React.FC<ListingDetailProps> = ({ listing, onBack, o
           {/* Reservation Card */}
           <div className="rounded-[32px] border border-border bg-card p-6 shadow-md space-y-4">
             <div className="text-center pb-2">
-              <span className="text-xl font-black text-foreground">${listing.price}</span>
+              <span className="text-xl font-black text-foreground">{unitPrice}</span>
               <span className="text-xs font-semibold text-muted-foreground">
                 {" "}
                 for {numberOfNights} {numberOfNights === 1 ? "night" : "nights"}
@@ -262,13 +274,13 @@ export const ListingDetail: React.FC<ListingDetailProps> = ({ listing, onBack, o
               <div className="space-y-2 pt-2 text-xs font-bold text-muted-foreground">
                 <div className="flex justify-between">
                   <span>
-                    ${listing.price} x {numberOfNights} {numberOfNights === 1 ? "night" : "nights"}
+                    {unitPrice} x {numberOfNights} {numberOfNights === 1 ? "night" : "nights"}
                   </span>
-                  <span>${totalPrice}</span>
+                  <span>{formattedTotal}</span>
                 </div>
                 <div className="flex justify-between text-foreground text-sm font-black border-t border-border/60 pt-2">
                   <span>Total</span>
-                  <span>${totalPrice}</span>
+                  <span>{formattedTotal}</span>
                 </div>
               </div>
             )}
@@ -279,9 +291,7 @@ export const ListingDetail: React.FC<ListingDetailProps> = ({ listing, onBack, o
                 if (!dateRange?.from || !dateRange?.to) {
                   alert("Please select check-in and check-out dates first!")
                 } else {
-                  alert(
-                    `Booking Reserved from ${format(dateRange.from, "PPP")} to ${format(dateRange.to, "PPP")} for $${totalPrice}!`,
-                  )
+                  onReserve(listing, totalPrice)
                 }
               }}
               className="w-full rounded-full bg-purple-950 hover:bg-purple-900 dark:bg-purple-800 dark:hover:bg-purple-750 text-white font-bold py-3.5 px-6 shadow-md transition-all duration-150 active:scale-95 cursor-pointer text-sm text-center"
