@@ -285,6 +285,7 @@ export const PlannerWizard: React.FC<PlannerWizardProps> = ({ wishlist, onWishli
                     isWishlisted={wishlist.includes(rec.id)}
                     onWishlistToggle={onWishlistToggle}
                     index={idx}
+                    currency="USD"
                   />
                 ))}
               </div>

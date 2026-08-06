@@ -2,6 +2,7 @@ import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } fro
 import { ChevronLeft, ChevronRight, Heart, Star } from "lucide-react"
 import type React from "react"
 import { useState } from "react"
+import { type CurrencyCode, displayPrice, formatPrice } from "../lib/currency"
 import type { Listing } from "../types/listing"
 
 interface ListingCardProps {
@@ -10,6 +11,7 @@ interface ListingCardProps {
   onWishlistToggle: (id: string) => void
   onListingClick?: (listing: Listing) => void
   index?: number
+  currency: CurrencyCode
 }
 
 export const ListingCard: React.FC<ListingCardProps> = ({
@@ -18,6 +20,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   onWishlistToggle,
   onListingClick,
   index,
+  currency,
 }) => {
   const [currentIdx, setCurrentIdx] = useState(0)
   const [isHovered, setIsHovered] = useState(false)
@@ -190,7 +193,9 @@ export const ListingCard: React.FC<ListingCardProps> = ({
           {/* Price and Action button */}
           <div className="flex items-baseline justify-between mt-auto">
             <div>
-              <span className="text-lg font-black text-foreground">${listing.price}</span>
+              <span className="text-lg font-black text-foreground">
+                {formatPrice(displayPrice(listing.price, currency), currency)}
+              </span>
               <span className="text-sm font-medium text-muted-foreground"> / {listing.priceUnit}</span>
             </div>
           </div>
