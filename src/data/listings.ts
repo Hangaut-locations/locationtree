@@ -227,12 +227,12 @@ export const locationListings: Listing[] = [
 
 // Event & Planning Listings Collection (Planning Tab)
 export const planningListings: Listing[] = [
-  // London stays (Places in London section — identical to Location stays)
+  // London events (Planning tab — classified under party-type categories)
   {
     id: "plan-london-1",
     title: "Apartment in Le Chesnay",
     location: "London",
-    category: "Rooftops",
+    category: "House party",
     images: [
       "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80",
@@ -250,7 +250,7 @@ export const planningListings: Listing[] = [
     id: "plan-london-2",
     title: "Apartment in London",
     location: "London",
-    category: "Amazing Views",
+    category: "House party",
     images: [
       "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=800&q=80",
@@ -268,7 +268,7 @@ export const planningListings: Listing[] = [
     id: "plan-london-3",
     title: "Condo in Lewisham",
     location: "London",
-    category: "Houseboat",
+    category: "Yacht party",
     images: [
       "https://images.unsplash.com/photo-1527030280862-64139fbe04ca?auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80",
@@ -286,7 +286,7 @@ export const planningListings: Listing[] = [
     id: "plan-london-4",
     title: "Room in London",
     location: "London",
-    category: "Castles",
+    category: "Creative scene",
     images: [
       "https://images.unsplash.com/photo-1505693395321-883724634266?auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1554995207-c18c203602cb?auto=format&fit=crop&w=800&q=80",
@@ -306,7 +306,7 @@ export const planningListings: Listing[] = [
     id: "plan-paris-1",
     title: "Corsica Studios",
     location: "Paris",
-    category: "Rooftops",
+    category: "Night Club",
     images: [
       "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=800&q=80", // concert crowd
       "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80",
@@ -324,7 +324,7 @@ export const planningListings: Listing[] = [
     id: "plan-paris-2",
     title: "Hotel Esprit saint German",
     location: "Paris",
-    category: "Studio",
+    category: "Live stream",
     images: [
       "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80", // DJ decks/lights
       "https://images.unsplash.com/photo-1468817814611-b7edd94b5d6a?auto=format&fit=crop&w=800&q=80",
@@ -342,7 +342,7 @@ export const planningListings: Listing[] = [
     id: "plan-paris-3",
     title: "Cadet Resident",
     location: "Paris",
-    category: "Amazing Views",
+    category: "Shows",
     images: [
       "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=800&q=80", // festival dance
       "https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=800&q=80",
@@ -360,7 +360,7 @@ export const planningListings: Listing[] = [
     id: "plan-paris-4",
     title: "La Reserve Paris",
     location: "Paris",
-    category: "Mansions",
+    category: "Mansion Party",
     images: [
       "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=800&q=80",
@@ -380,7 +380,7 @@ export const planningListings: Listing[] = [
     id: "plan-paris-garden-1",
     title: "Le Petit Pré",
     location: "Paris",
-    category: "Studio",
+    category: "Field party",
     images: [
       "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=800&q=80", // festive lights gathering
       "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=800&q=80",
@@ -398,7 +398,7 @@ export const planningListings: Listing[] = [
     id: "plan-paris-garden-2",
     title: "Le Jardin Suspendu",
     location: "Paris",
-    category: "Cabin",
+    category: "Rooftop party",
     images: [
       "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?auto=format&fit=crop&w=800&q=80", // sunset rooftop party
       "https://images.unsplash.com/photo-1475855581690-80accde3ae2b?auto=format&fit=crop&w=800&q=80",
@@ -416,7 +416,7 @@ export const planningListings: Listing[] = [
     id: "plan-paris-garden-3",
     title: "Guesthouse in Hertford",
     location: "Paris", // set location to Paris for section mapping
-    category: "Tree House",
+    category: "Barbecue",
     images: [
       "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1554995207-c18c203602cb?auto=format&fit=crop&w=800&q=80",
@@ -434,7 +434,7 @@ export const planningListings: Listing[] = [
     id: "plan-paris-garden-4",
     title: "Room in Watford",
     location: "Paris", // set location to Paris for section mapping
-    category: "Cabin",
+    category: "Creative scene",
     images: [
       "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=800&q=80",

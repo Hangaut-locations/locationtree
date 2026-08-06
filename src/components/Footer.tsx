@@ -1,8 +1,14 @@
 import { DollarSign, Globe } from "lucide-react"
 import type React from "react"
 import { SiFacebook, SiInstagram, SiX } from "react-icons/si"
+import type { CurrencyCode } from "../lib/currency"
 
-export const Footer: React.FC = () => {
+interface FooterProps {
+  currency: CurrencyCode
+  onCurrencyClick: () => void
+}
+
+export const Footer: React.FC<FooterProps> = ({ currency, onCurrencyClick }) => {
   return (
     <footer className="w-full border-t border-border bg-muted/30 pt-12 pb-8 transition-colors duration-300">
       <div className="mx-auto max-w-7xl px-4 md:px-8">
@@ -171,13 +177,21 @@ export const Footer: React.FC = () => {
           <div className="flex flex-wrap items-center gap-6">
             {/* Lang & Currency selection mockup */}
             <div className="flex items-center gap-4">
-              <button className="flex items-center gap-1.5 hover:text-foreground transition-colors cursor-pointer focus:outline-none">
+              <button
+                onClick={onCurrencyClick}
+                className="flex items-center gap-1.5 hover:text-foreground transition-colors cursor-pointer focus:outline-none"
+                aria-label="Choose currency"
+              >
                 <Globe className="h-4 w-4" />
                 <span>English (US)</span>
               </button>
-              <button className="flex items-center gap-1 hover:text-foreground transition-colors cursor-pointer focus:outline-none">
+              <button
+                onClick={onCurrencyClick}
+                className="flex items-center gap-1 hover:text-foreground transition-colors cursor-pointer focus:outline-none"
+                aria-label="Choose currency"
+              >
                 <DollarSign className="h-4 w-4" />
-                <span>USD</span>
+                <span>{currency}</span>
               </button>
             </div>
 
