@@ -1,6 +1,7 @@
 import { Compass, RefreshCw } from "lucide-react"
 import type React from "react"
 import { Skeleton } from "../../components/ui/skeleton"
+import type { CurrencyCode } from "../lib/currency"
 import type { Listing } from "../types/listing"
 import { ListingCard } from "./ListingCard"
 
@@ -14,6 +15,7 @@ interface ListingGridProps {
   activeCategory: string
   activeTab: "location" | "planning"
   onListingClick: (listing: Listing) => void
+  currency: CurrencyCode
 }
 
 export const ListingGrid: React.FC<ListingGridProps> = ({
@@ -26,6 +28,7 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
   activeCategory,
   activeTab,
   onListingClick,
+  currency,
 }) => {
   // Check if any filter is active
   const isFiltering = activeDestination !== "" || activeCategory !== "Rooftops"
@@ -104,6 +107,7 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
               isWishlisted={wishlist.includes(item.id)}
               onWishlistToggle={onWishlistToggle}
               onListingClick={onListingClick}
+              currency={currency}
               index={idx}
             />
           ))}
@@ -126,6 +130,7 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
               isWishlisted={wishlist.includes(item.id)}
               onWishlistToggle={onWishlistToggle}
               onListingClick={onListingClick}
+              currency={currency}
               index={idx}
             />
           ))}

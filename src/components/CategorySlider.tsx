@@ -6,12 +6,14 @@ import {
   ChevronRight,
   Mountain,
   Palmtree,
+  PartyPopper,
   Ship,
   Tent,
   Trees,
   Video,
 } from "lucide-react"
 import React from "react"
+import { PARTY_TYPES } from "../data/constants"
 
 interface Category {
   id: string
@@ -31,17 +33,11 @@ const locationCategories: Category[] = [
   { id: "Cabin", name: "Cabin", icon: Tent },
 ]
 
-const planningCategories: Category[] = [
-  { id: "Rooftops", name: "Rooftops", icon: Building2 },
-  { id: "Amazing Views", name: "Amazing Views", icon: Mountain },
-  { id: "Studio", name: "Studio", icon: Video },
-  { id: "Mansions", name: "Mansions", icon: Building },
-  { id: "Houseboat", name: "Houseboat", icon: Ship },
-  { id: "Cabin", name: "Cabin", icon: Tent },
-  { id: "Tree House", name: "Tree House", icon: Trees },
-  { id: "Beach front", name: "Beach front", icon: Palmtree },
-  { id: "Castles", name: "Castles", icon: Castle },
-]
+const planningCategories: Category[] = PARTY_TYPES.map((name) => ({
+  id: name,
+  name,
+  icon: PartyPopper,
+}))
 
 interface CategorySliderProps {
   activeCategory: string

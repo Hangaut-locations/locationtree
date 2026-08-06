@@ -1,22 +1,9 @@
-import {
-  Building,
-  Frame,
-  HelpCircle,
-  Home,
-  Minus,
-  Mountain,
-  Plus,
-  Search,
-  Ship,
-  Tent,
-  Trees,
-  Tv,
-  Waves,
-} from "lucide-react"
+import { Calendar, HelpCircle, Home, Minus, Plus, Search } from "lucide-react"
 import type React from "react"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import type { Listing } from "../types/listing"
+import { PROPERTY_TYPES } from "../data/constants"
+import type { Listing, PriceMode } from "../types/listing"
 
 interface BecomeHostWizardProps {
   onAddListing: (newListing: Listing) => void
@@ -48,19 +35,10 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
   ])
   const [bookingSetting, setBookingSetting] = useState<"approve-first" | "instant">("approve-first")
   const [basePrice, setBasePrice] = useState<number>(75)
+  const [priceMode, setPriceMode] = useState<PriceMode>("person")
   const [amenities, setAmenities] = useState<Set<string>>(new Set())
 
-  const categories = [
-    { name: "Rooftops", icon: Building },
-    { name: "Tree House", icon: Trees },
-    { name: "Beach front", icon: Waves },
-    { name: "Amazing views", icon: Mountain },
-    { name: "Studio", icon: Tv },
-    { name: "Frames", icon: Frame },
-    { name: "Homes", icon: Home },
-    { name: "Houseboat", icon: Ship },
-    { name: "Cabin", icon: Tent },
-  ]
+  const categories = PROPERTY_TYPES.map((name) => ({ name, icon: Home }))
 
   const handleNext = () => {
     if (step < 12) {
@@ -105,7 +83,7 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
       title: finalTitle,
       location: normalizedLocation,
       price: basePrice, // was: 150 + Math.floor(Math.random() * 200)
-      priceUnit: "night",
+      priceUnit: priceMode,
       rating: 5.0,
       reviewsCount: 1,
       images: photos.slice(0, 2),
@@ -113,6 +91,11 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
       guestsCount: guests,
       bedroomsCount: bedrooms,
       bedsCount: beds,
+      hostingType: "property",
+      priceMode,
+      description,
+      amenities: [...amenities],
+      isOwnedByUser: true,
     }
 
     onAddListing(newListing)
@@ -658,6 +641,27 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({ onAddListing
                   onChange={(e) => setBasePrice(Number(e.target.value) || 0)}
                   className="w-40 border-r border-border/60 bg-transparent text-center text-6xl sm:text-7xl font-black text-foreground outline-none"
                 />
+              </div>
+
+              {/* Price unit selection */}
+              <div className="max-w-md mx-auto">
+                <p className="text-sm font-black text-foreground mb-3">Charge per…</p>
+                <div className="grid grid-cols-3 gap-3">
+                  {(["person", "hour", "night"] as const).map((mode) => (
+                    <button
+                      key={mode}
+                      type="button"
+                      onClick={() => setPriceMode(mode)}
+                      className={`rounded-2xl border px-3 py-3 text-sm font-black transition-all cursor-pointer active:scale-97 ${
+                        priceMode === mode
+                          ? "border-purple-950 dark:border-purple-600 bg-purple-950/5 dark:bg-purple-800/15"
+                          : "border-border/80 bg-card hover:border-gray-400"
+                      }`}
+                    >
+                      <span className="text-foreground capitalize">/ {mode}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <button
