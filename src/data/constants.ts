@@ -1,4 +1,99 @@
 // Party & listing category constants shared across the app.
+import {
+  House,
+  Building2,
+  Ship,
+  Trees,
+  Castle,
+  Palette,
+  Eye,
+  Cake,
+  Martini,
+  Waves,
+  Ghost,
+  Skull,
+  Beef,
+  Mountain,
+  Mic2,
+  Radio,
+  Theater,
+  Gamepad2,
+} from "lucide-react";
+
+export const Party_Types = [
+  {
+    name: "House party",
+    icon: House,
+  },
+  {
+    name: "Rooftop party",
+    icon: Building2,
+  },
+  {
+    name: "Yacht party",
+    icon: Ship,
+  },
+  {
+    name: "Field party",
+    icon: Trees,
+  },
+  {
+    name: "Mansion Party",
+    icon: Castle,
+  },
+  {
+    name: "Creative scene",
+    icon: Palette,
+  },
+  {
+    name: "Visual scene",
+    icon: Eye,
+  },
+  {
+    name: "Birthday Party",
+    icon: Cake,
+  },
+  {
+    name: "Night Club",
+    icon: Martini,
+  },
+  {
+    name: "Beach Party",
+    icon: Waves,
+  },
+  {
+    name: "Halloween",
+    icon: Ghost,
+  },
+  {
+    name: "Horrific",
+    icon: Skull,
+  },
+  {
+    name: "Barbecue",
+    icon: Beef,
+  },
+  {
+    name: "Nature and Adventure",
+    icon: Mountain,
+  },
+  {
+    name: "Podcast Recording",
+    icon: Mic2,
+  },
+  {
+    name: "Live stream",
+    icon: Radio,
+  },
+  {
+    name: "Shows",
+    icon: Theater,
+  },
+  {
+    name: "Games",
+    icon: Gamepad2,
+  },
+] as const;
 
 export const PARTY_TYPES = [
   "House party",
@@ -21,6 +116,7 @@ export const PARTY_TYPES = [
   "Games",
 ] as const
 
+
 export type PartyType = (typeof PARTY_TYPES)[number]
 
 // Party types shown on the guest "Planning something" category slider.
@@ -37,6 +133,45 @@ export const PROPERTY_TYPES = [
   "Houseboat",
   "Cabin",
   "Tree House",
+]
+
+export const Property_Types = [
+ {
+  name:  "Beach front",
+  icon: '/images/beachfront.svg'
+ },
+ {
+  name:  "Roof tops",
+  icon: '/images/rooftops.svg'
+ },
+ {
+  name:  "Homes",
+  icon: '/images/homes.svg'
+ },
+ {
+  name:  "Mansions",
+  icon: '/images/mansions.svg'
+ },
+ {
+  name:  "Studio",
+  icon: '/images/studio.svg'
+ },
+ {
+  name:  "Castles",
+  icon: '/images/studio.svg'
+ },
+ {
+  name:  "House boat",
+  icon: '/images/houseboat.svg'
+ },
+ {
+  name:  "Cabin",
+  icon: '/images/cabin.svg'
+ },
+ {
+  name:  "Tree house",
+  icon: '/images/treehouse.svg'
+ },
 ]
 
 export const DEFAULT_HOST_AVATAR =

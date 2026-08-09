@@ -6,19 +6,18 @@ import {
   ChevronRight,
   Mountain,
   Palmtree,
-  PartyPopper,
   Ship,
   Tent,
   Trees,
   Video,
-} from "lucide-react"
-import React from "react"
-import { PARTY_TYPES } from "../data/constants"
+} from "lucide-react";
+import React from "react";
+import { Party_Types } from "../data/constants";
 
 interface Category {
-  id: string
-  name: string
-  icon: React.ComponentType<{ className?: string }>
+  id: string;
+  name: string;
+  icon: React.ComponentType<{ className?: string }>;
 }
 
 const locationCategories: Category[] = [
@@ -31,33 +30,38 @@ const locationCategories: Category[] = [
   { id: "Castles", name: "Castles", icon: Castle },
   { id: "Houseboat", name: "Houseboat", icon: Ship },
   { id: "Cabin", name: "Cabin", icon: Tent },
-]
+];
 
-const planningCategories: Category[] = PARTY_TYPES.map((name) => ({
-  id: name,
-  name,
-  icon: PartyPopper,
-}))
+const planningCategories: Category[] = Party_Types.map((itm) => ({
+  id: itm.name,
+  name: itm.name,
+  icon: itm.icon,
+}));
 
 interface CategorySliderProps {
-  activeCategory: string
-  activeTab: "location" | "planning"
-  onSelectCategory: (category: string) => void
+  activeCategory: string;
+  activeTab: "location" | "planning";
+  onSelectCategory: (category: string) => void;
 }
 
-export const CategorySlider: React.FC<CategorySliderProps> = ({ activeCategory, activeTab, onSelectCategory }) => {
-  const containerRef = React.useRef<HTMLDivElement>(null)
-  const categories = activeTab === "planning" ? planningCategories : locationCategories
+export const CategorySlider: React.FC<CategorySliderProps> = ({
+  activeCategory,
+  activeTab,
+  onSelectCategory,
+}) => {
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const categories =
+    activeTab === "planning" ? planningCategories : locationCategories;
 
   const scroll = (direction: "left" | "right") => {
     if (containerRef.current) {
-      const scrollAmount = 200
+      const scrollAmount = 200;
       containerRef.current.scrollBy({
         left: direction === "left" ? -scrollAmount : scrollAmount,
         behavior: "smooth",
-      })
+      });
     }
-  }
+  };
 
   return (
     <div className="relative mx-auto w-full max-w-7xl px-4 md:px-8 my-4 flex items-center group">
@@ -71,10 +75,13 @@ export const CategorySlider: React.FC<CategorySliderProps> = ({ activeCategory, 
       </button>
 
       {/* Categories container */}
-      <div ref={containerRef} className="scrollbar-none flex w-full gap-8 overflow-x-auto pb-3 pt-1 scroll-smooth">
+      <div
+        ref={containerRef}
+        className="scrollbar-none flex w-full gap-8 overflow-x-auto pb-3 pt-1 scroll-smooth"
+      >
         {categories.map((cat) => {
-          const Icon = cat.icon
-          const isActive = activeCategory === cat.id
+          const Icon = cat.icon;
+          const isActive = activeCategory === cat.id;
 
           return (
             <button
@@ -95,12 +102,14 @@ export const CategorySlider: React.FC<CategorySliderProps> = ({ activeCategory, 
               >
                 <Icon className="h-5 w-5" />
               </div>
-              <span className="text-xs font-semibold whitespace-nowrap tracking-tight">{cat.name}</span>
+              <span className="text-xs font-semibold whitespace-nowrap tracking-tight">
+                {cat.name}
+              </span>
               {isActive && (
                 <span className="absolute bottom-0 left-1/2 h-1 w-6 -translate-x-1/2 rounded-full bg-purple-950 dark:bg-purple-300" />
               )}
             </button>
-          )
+          );
         })}
       </div>
 
@@ -113,5 +122,5 @@ export const CategorySlider: React.FC<CategorySliderProps> = ({ activeCategory, 
         <ChevronRight className="h-4 w-4" />
       </button>
     </div>
-  )
-}
+  );
+};

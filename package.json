@@ -6,10 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "oxlint",
     "format": "biome format --write .",
     "format:check": "biome format .",
-    "lint:check": "biome lint .",
     "check": "biome check --write .",
     "check:ci": "biome check .",
     "preview": "vite preview"
@@ -21,6 +19,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
+    "leaflet": "^1.9.4",
     "lucide-react": "^1.24.0",
     "motion": "^12.42.2",
     "react": "^19.2.7",
@@ -38,6 +37,7 @@
     "@biomejs/biome": "2.5.4",
     "@rolldown/plugin-babel": "^0.2.3",
     "@types/babel__core": "^7.20.5",
+    "@types/leaflet": "^1.9.22",
     "@types/node": "^24.13.2",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",

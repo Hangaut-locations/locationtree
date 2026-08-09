@@ -5,7 +5,7 @@ export type PriceMode = "person" | "hour" | "night"
 export interface Listing {
   id: string
   title: string
-  location: "Paris" | "Watford" | "London"
+  location: string
   category: string // e.g. "Rooftops", "Tree House", "Beach front" or a party type
   images: string[]
   rating: number

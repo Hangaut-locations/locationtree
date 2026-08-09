@@ -1,3 +1,7 @@
+html, body {
+  font-family: "Montserrat", "Inter", sans-serif;
+}
+
 .counter {
   font-size: 16px;
   padding: 5px 10px;
