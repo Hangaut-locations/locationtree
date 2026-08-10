@@ -1,67 +1,80 @@
-import { CalendarDays, MapPin, Tag, Type, Users } from "lucide-react"
-import type React from "react"
-import { useEffect, useState } from "react"
-import { Dialog, DialogContent, DialogTitle } from "../../components/ui/dialog"
-import { PARTY_TYPES, PROPERTY_TYPES, SAMPLE_IMAGES } from "../data/constants"
-import type { Listing, PriceMode } from "../types/listing"
+import { CalendarDays, MapPin, Tag, Type, Users } from "lucide-react";
+import type React from "react";
+import { useEffect, useState } from "react";
+import { Dialog, DialogContent, DialogTitle } from "../../components/ui/dialog";
+import { PARTY_TYPES, PROPERTY_TYPES, SAMPLE_IMAGES } from "../data/constants";
+import type { Listing, PriceMode } from "../types/listing";
 
 interface ListingEditorProps {
-  isOpen: boolean
-  mode: "party" | "property"
-  listing: Listing | null
-  onClose: () => void
-  onSave: (listing: Listing) => void
+  isOpen: boolean;
+  mode: "party" | "property";
+  listing: Listing | null;
+  onClose: () => void;
+  onSave: (listing: Listing) => void;
 }
 
-export const ListingEditor: React.FC<ListingEditorProps> = ({ isOpen, mode, listing, onClose, onSave }) => {
-  const isParty = mode === "party"
+export const ListingEditor: React.FC<ListingEditorProps> = ({
+  isOpen,
+  mode,
+  listing,
+  onClose,
+  onSave,
+}) => {
+  const isParty = mode === "party";
 
-  const [title, setTitle] = useState("")
-  const [category, setCategory] = useState("")
-  const [location, setLocation] = useState("")
-  const [price, setPrice] = useState(50)
-  const [priceMode, setPriceMode] = useState<PriceMode>(isParty ? "person" : "person")
-  const [guests, setGuests] = useState(10)
-  const [bedrooms, setBedrooms] = useState(1)
-  const [beds, setBeds] = useState(1)
-  const [startDate, setStartDate] = useState("")
-  const [endDate, setEndDate] = useState("")
-  const [activities, setActivities] = useState("")
-  const [rules, setRules] = useState("")
-  const [description, setDescription] = useState("")
-  const [ticketed, setTicketed] = useState(true)
-  const [images, setImages] = useState<string[]>(SAMPLE_IMAGES.slice(0, 2))
+  const [title, setTitle] = useState("");
+  const [category, setCategory] = useState("");
+  const [location, setLocation] = useState("");
+  const [price, setPrice] = useState(50);
+  const [priceMode, setPriceMode] = useState<PriceMode>(
+    isParty ? "person" : "person",
+  );
+  const [guests, setGuests] = useState(10);
+  const [bedrooms, setBedrooms] = useState(1);
+  const [beds, setBeds] = useState(1);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [activities, setActivities] = useState("");
+  const [rules, setRules] = useState("");
+  const [description, setDescription] = useState("");
+  const [ticketed, setTicketed] = useState(true);
+  const [images, setImages] = useState<string[]>(SAMPLE_IMAGES.slice(0, 2));
 
   useEffect(() => {
-    if (!isOpen) return
-    setTitle(listing?.title ?? "")
-    setCategory(listing?.category ?? (isParty ? "" : PROPERTY_TYPES[0]))
-    setLocation(listing?.location ?? "")
-    setPrice(listing?.price ?? 50)
-    setPriceMode(listing?.priceMode ?? (isParty ? "person" : "person"))
-    setGuests(listing?.guestsCount ?? 10)
-    setBedrooms(listing?.bedroomsCount ?? 1)
-    setBeds(listing?.bedsCount ?? 1)
-    setStartDate(listing?.startDate ?? "")
-    setEndDate(listing?.endDate ?? "")
-    setActivities(listing?.activities ?? "")
-    setRules(listing?.rules ?? "")
-    setDescription(listing?.description ?? "")
-    setTicketed(listing?.ticketed ?? true)
-    setImages(listing?.images?.length ? listing.images : SAMPLE_IMAGES.slice(0, 2))
+    if (!isOpen) return;
+    setTitle(listing?.title ?? "");
+    setCategory(listing?.category ?? (isParty ? "" : PROPERTY_TYPES[0]));
+    setLocation(listing?.location ?? "");
+    setPrice(listing?.price ?? 50);
+    setPriceMode(listing?.priceMode ?? (isParty ? "person" : "person"));
+    setGuests(listing?.guestsCount ?? 10);
+    setBedrooms(listing?.bedroomsCount ?? 1);
+    setBeds(listing?.bedsCount ?? 1);
+    setStartDate(listing?.startDate ?? "");
+    setEndDate(listing?.endDate ?? "");
+    setActivities(listing?.activities ?? "");
+    setRules(listing?.rules ?? "");
+    setDescription(listing?.description ?? "");
+    setTicketed(listing?.ticketed ?? true);
+    setImages(
+      listing?.images?.length ? listing.images : SAMPLE_IMAGES.slice(0, 2),
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen])
+  }, [isOpen]);
 
-  const categoryOptions = isParty ? PARTY_TYPES : PROPERTY_TYPES
+  const categoryOptions = isParty ? PARTY_TYPES : PROPERTY_TYPES;
 
   const handleSave = () => {
-    const normalizedLocation = (["Paris", "Watford", "London"].find(
+    const normalizedLocation = (["Lekki", "Lekki", "surulere"].find(
       (l) => l.toLowerCase() === location.trim().toLowerCase(),
-    ) || "London") as "Paris" | "Watford" | "London"
+    ) || "surulere") as "surulere";
 
     const updated: Listing = {
-      id: listing?.id ?? `${isParty ? "party" : "property"}-listing-${Date.now()}`,
-      title: title.trim() || `${category || "New"} ${isParty ? "Party" : "Place"}`,
+      id:
+        listing?.id ??
+        `${isParty ? "party" : "property"}-listing-${Date.now()}`,
+      title:
+        title.trim() || `${category || "New"} ${isParty ? "Party" : "Place"}`,
       location: normalizedLocation,
       category,
       images,
@@ -83,16 +96,20 @@ export const ListingEditor: React.FC<ListingEditorProps> = ({ isOpen, mode, list
       ticketed: isParty ? ticketed : undefined,
       amenities: listing?.amenities,
       isOwnedByUser: true,
-    }
-    onSave(updated)
-    onClose()
-  }
+    };
+    onSave(updated);
+    onClose();
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="w-full max-w-lg rounded-[28px] border-t border-border bg-card p-6 sm:p-7 shadow-2xl animate-in fade-in sm:zoom-in-95 duration-200 max-h-[90vh] flex flex-col">
-        <DialogTitle className="text-xl font-black text-foreground tracking-tight mb-4 shrink-0">
-          {listing ? "Edit listing" : isParty ? "Add a party" : "Add a property"}
+        <DialogTitle className="text-xl font-bold text-foreground tracking-tight mb-4 shrink-0">
+          {listing
+            ? "Edit listing"
+            : isParty
+              ? "Add a party"
+              : "Add a property"}
         </DialogTitle>
 
         <div className="space-y-4 grow overflow-y-auto min-h-0 pr-1 -mr-1">
@@ -103,14 +120,17 @@ export const ListingEditor: React.FC<ListingEditorProps> = ({ isOpen, mode, list
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder={isParty ? "e.g. Rooftop Beach Party" : "e.g. Beachfront Rooftop"}
+              placeholder={
+                isParty ? "e.g. Rooftop Beach Party" : "e.g. Beachfront Rooftop"
+              }
               className="w-full border border-border/80 bg-card rounded-2xl px-4 py-3 text-sm font-bold text-foreground outline-none focus:border-purple-600"
             />
           </label>
 
           <div>
             <span className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground mb-1.5">
-              <Tag className="h-3.5 w-3.5" /> {isParty ? "Party type" : "Place type"}
+              <Tag className="h-3.5 w-3.5" />{" "}
+              {isParty ? "Party type" : "Place type"}
             </span>
             <select
               value={category}
@@ -132,7 +152,7 @@ export const ListingEditor: React.FC<ListingEditorProps> = ({ isOpen, mode, list
             <input
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              placeholder="Paris, Watford, London"
+              placeholder="Paris, Lekki, London"
               className="w-full border border-border/80 bg-card rounded-2xl px-4 py-3 text-sm font-bold text-foreground outline-none focus:border-purple-600"
             />
           </label>
@@ -140,7 +160,8 @@ export const ListingEditor: React.FC<ListingEditorProps> = ({ isOpen, mode, list
           <div className="grid grid-cols-2 gap-4">
             <label className="block space-y-1.5">
               <span className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground">
-                <Users className="h-3.5 w-3.5" /> {isParty ? "Guest capacity" : "Guests"}
+                <Users className="h-3.5 w-3.5" />{" "}
+                {isParty ? "Guest capacity" : "Guests"}
               </span>
               <input
                 type="number"
@@ -151,7 +172,9 @@ export const ListingEditor: React.FC<ListingEditorProps> = ({ isOpen, mode, list
               />
             </label>
             <label className="block space-y-1.5">
-              <span className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground">Price</span>
+              <span className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground">
+                Price
+              </span>
               <input
                 type="number"
                 min={1}
@@ -163,14 +186,16 @@ export const ListingEditor: React.FC<ListingEditorProps> = ({ isOpen, mode, list
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-muted-foreground">Per…</span>
+            <span className="text-xs font-bold text-muted-foreground">
+              Per…
+            </span>
             <div className="flex gap-1.5">
               {(["person", "hour", "night"] as const).map((m) => (
                 <button
                   key={m}
                   type="button"
                   onClick={() => setPriceMode(m)}
-                  className={`rounded-full px-3 py-1.5 text-xs font-black transition-all cursor-pointer active:scale-95 ${
+                  className={`rounded-full px-3 py-1.5 text-xs font-bold transition-all cursor-pointer active:scale-95 ${
                     priceMode === m
                       ? "bg-purple-950 text-white"
                       : "border border-border text-muted-foreground hover:text-foreground"
@@ -185,7 +210,9 @@ export const ListingEditor: React.FC<ListingEditorProps> = ({ isOpen, mode, list
           {!isParty && (
             <div className="grid grid-cols-2 gap-4">
               <label className="block space-y-1.5">
-                <span className="text-xs font-bold text-muted-foreground">Bedrooms</span>
+                <span className="text-xs font-bold text-muted-foreground">
+                  Bedrooms
+                </span>
                 <input
                   type="number"
                   min={0}
@@ -195,7 +222,9 @@ export const ListingEditor: React.FC<ListingEditorProps> = ({ isOpen, mode, list
                 />
               </label>
               <label className="block space-y-1.5">
-                <span className="text-xs font-bold text-muted-foreground">Beds</span>
+                <span className="text-xs font-bold text-muted-foreground">
+                  Beds
+                </span>
                 <input
                   type="number"
                   min={0}
@@ -239,11 +268,20 @@ export const ListingEditor: React.FC<ListingEditorProps> = ({ isOpen, mode, list
                 type="button"
                 onClick={() => setTicketed((prev) => !prev)}
                 className={`w-full flex items-center gap-2 rounded-2xl border px-4 py-3 text-left text-xs font-bold transition-all cursor-pointer ${
-                  ticketed ? "border-purple-950 dark:border-purple-600 bg-purple-950/5" : "border-border/80 bg-card"
+                  ticketed
+                    ? "border-purple-950 dark:border-purple-600 bg-purple-950/5"
+                    : "border-border/80 bg-card"
                 }`}
               >
-                <input type="checkbox" checked={ticketed} readOnly className="accent-purple-950" />
-                <span className="text-foreground">Guests book / buy tickets for reservation</span>
+                <input
+                  type="checkbox"
+                  checked={ticketed}
+                  readOnly
+                  className="accent-purple-950"
+                />
+                <span className="text-foreground">
+                  Guests book / buy tickets for reservation
+                </span>
               </button>
             </>
           )}
@@ -254,15 +292,25 @@ export const ListingEditor: React.FC<ListingEditorProps> = ({ isOpen, mode, list
             </span>
             <textarea
               value={isParty ? activities : description}
-              onChange={(e) => (isParty ? setActivities(e.target.value) : setDescription(e.target.value))}
+              onChange={(e) =>
+                isParty
+                  ? setActivities(e.target.value)
+                  : setDescription(e.target.value)
+              }
               rows={3}
-              placeholder={isParty ? "What's happening at the party?" : "Describe your space"}
+              placeholder={
+                isParty
+                  ? "What's happening at the party?"
+                  : "Describe your space"
+              }
               className="w-full border border-border/80 bg-card rounded-2xl px-4 py-3 text-sm font-semibold text-foreground outline-none focus:border-purple-600"
             />
           </label>
 
           <label className="block space-y-1.5">
-            <span className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground">Rules</span>
+            <span className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground">
+              Rules
+            </span>
             <input
               value={rules}
               onChange={(e) => setRules(e.target.value)}
@@ -275,7 +323,7 @@ export const ListingEditor: React.FC<ListingEditorProps> = ({ isOpen, mode, list
         <div className="flex items-center justify-between gap-3 pt-5 shrink-0 border-t border-border/60 mt-4">
           <button
             onClick={onClose}
-            className="rounded-full border border-border px-6 py-2.5 text-sm font-black text-foreground hover:bg-muted transition-colors cursor-pointer"
+            className="rounded-full border border-border px-6 py-2.5 text-sm font-bold text-foreground hover:bg-muted transition-colors cursor-pointer"
           >
             Cancel
           </button>
@@ -288,5 +336,5 @@ export const ListingEditor: React.FC<ListingEditorProps> = ({ isOpen, mode, list
         </div>
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};

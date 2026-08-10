@@ -1,17 +1,23 @@
-import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion"
-import { ChevronLeft, ChevronRight, Heart, Star } from "lucide-react"
-import type React from "react"
-import { useState } from "react"
-import { type CurrencyCode, displayPrice, formatPrice } from "../lib/currency"
-import type { Listing } from "../types/listing"
+import {
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useSpring,
+  useTransform,
+} from "framer-motion";
+import { ChevronLeft, ChevronRight, Heart, Star } from "lucide-react";
+import type React from "react";
+import { useState } from "react";
+import { type CurrencyCode, displayPrice, formatPrice } from "../lib/currency";
+import type { Listing } from "../types/listing";
 
 interface ListingCardProps {
-  listing: Listing
-  isWishlisted: boolean
-  onWishlistToggle: (id: string) => void
-  onListingClick?: (listing: Listing) => void
-  index?: number
-  currency: CurrencyCode
+  listing: Listing;
+  isWishlisted: boolean;
+  onWishlistToggle: (id: string) => void;
+  onListingClick?: (listing: Listing) => void;
+  index?: number;
+  currency: CurrencyCode;
 }
 
 export const ListingCard: React.FC<ListingCardProps> = ({
@@ -22,60 +28,67 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   index,
   currency,
 }) => {
-  const [currentIdx, setCurrentIdx] = useState(0)
-  const [isHovered, setIsHovered] = useState(false)
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
 
-  const x = useMotionValue(0)
-  const y = useMotionValue(0)
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
 
-  const springConfig = { damping: 25, stiffness: 200, mass: 0.5 }
-  const springX = useSpring(x, springConfig)
-  const springY = useSpring(y, springConfig)
+  const springConfig = { damping: 25, stiffness: 200, mass: 0.5 };
+  const springX = useSpring(x, springConfig);
+  const springY = useSpring(y, springConfig);
 
-  const rotateX = useTransform(springY, [-0.5, 0.5], [6, -6])
-  const rotateY = useTransform(springX, [-0.5, 0.5], [-6, 6])
+  const rotateX = useTransform(springY, [-0.5, 0.5], [6, -6]);
+  const rotateY = useTransform(springX, [-0.5, 0.5], [-6, 6]);
 
-  const prefersReduced = useReducedMotion()
+  const prefersReduced = useReducedMotion();
 
   const transform = useTransform([rotateX, rotateY], ([rX, rY]) =>
-    prefersReduced ? "none" : `perspective(1000px) rotateX(${rX}deg) rotateY(${rY}deg)`,
-  )
+    prefersReduced
+      ? "none"
+      : `perspective(1000px) rotateX(${rX}deg) rotateY(${rY}deg)`,
+  );
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (prefersReduced) return
-    const rect = e.currentTarget.getBoundingClientRect()
-    const width = rect.width
-    const height = rect.height
-    const mouseX = e.clientX - rect.left - width / 2
-    const mouseY = e.clientY - rect.top - height / 2
-    x.set(mouseX / width)
-    y.set(mouseY / height)
-  }
+    if (prefersReduced) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left - width / 2;
+    const mouseY = e.clientY - rect.top - height / 2;
+    x.set(mouseX / width);
+    y.set(mouseY / height);
+  };
 
   const handleMouseLeave = () => {
-    setIsHovered(false)
-    x.set(0)
-    y.set(0)
-  }
+    setIsHovered(false);
+    x.set(0);
+    y.set(0);
+  };
 
   const handlePrev = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    e.preventDefault()
-    setCurrentIdx((prev) => (prev === 0 ? listing.images.length - 1 : prev - 1))
-  }
+    e.stopPropagation();
+    e.preventDefault();
+    setCurrentIdx((prev) =>
+      prev === 0 ? listing.images.length - 1 : prev - 1,
+    );
+  };
 
   const handleNext = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    e.preventDefault()
-    setCurrentIdx((prev) => (prev === listing.images.length - 1 ? 0 : prev + 1))
-  }
+    e.stopPropagation();
+    e.preventDefault();
+    setCurrentIdx((prev) =>
+      prev === listing.images.length - 1 ? 0 : prev + 1,
+    );
+  };
 
   return (
     <div
       onClick={() => onListingClick?.(listing)}
       className="group relative flex flex-col rounded-3xl border border-border/50 bg-card overflow-hidden shadow-sm cursor-pointer card-interactive animate-listing-entrance"
       style={{
-        animationDelay: index !== undefined ? `${Math.min(index * 30, 300)}ms` : "0ms",
+        animationDelay:
+          index !== undefined ? `${Math.min(index * 30, 300)}ms` : "0ms",
       }}
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
@@ -109,12 +122,14 @@ export const ListingCard: React.FC<ListingCardProps> = ({
           {/* Wishlist Button */}
           <button
             onClick={(e) => {
-              e.stopPropagation()
-              e.preventDefault()
-              onWishlistToggle(listing.id)
+              e.stopPropagation();
+              e.preventDefault();
+              onWishlistToggle(listing.id);
             }}
             className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/80 dark:bg-black/40 backdrop-blur-md text-foreground transition-[transform,background-color] duration-160 ease-out hover:bg-white dark:hover:bg-black/60 shadow-md active:scale-97 focus:outline-none cursor-pointer"
-            aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+            aria-label={
+              isWishlisted ? "Remove from wishlist" : "Add to wishlist"
+            }
           >
             <Heart
               className={`h-5 w-5 transition-[transform,colors] duration-200 ease-out ${
@@ -131,7 +146,9 @@ export const ListingCard: React.FC<ListingCardProps> = ({
               <button
                 onClick={handlePrev}
                 className={`absolute left-3 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 dark:bg-black/60 backdrop-blur-sm text-foreground shadow-md transition-[transform,background-color,opacity] duration-160 ease-out hover:scale-105 active:scale-97 cursor-pointer ${
-                  isHovered ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2 pointer-events-none"
+                  isHovered
+                    ? "opacity-100 translate-x-0"
+                    : "opacity-0 -translate-x-2 pointer-events-none"
                 } md:block`}
                 aria-label="Previous image"
               >
@@ -140,7 +157,9 @@ export const ListingCard: React.FC<ListingCardProps> = ({
               <button
                 onClick={handleNext}
                 className={`absolute right-3 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 dark:bg-black/60 backdrop-blur-sm text-foreground shadow-md transition-[transform,background-color,opacity] duration-160 ease-out hover:scale-105 active:scale-97 cursor-pointer ${
-                  isHovered ? "opacity-100 translate-x-0" : "opacity-0 translate-x-2 pointer-events-none"
+                  isHovered
+                    ? "opacity-100 translate-x-0"
+                    : "opacity-0 translate-x-2 pointer-events-none"
                 } md:block`}
                 aria-label="Next image"
               >
@@ -156,9 +175,9 @@ export const ListingCard: React.FC<ListingCardProps> = ({
                 <button
                   key={index}
                   onClick={(e) => {
-                    e.stopPropagation()
-                    e.preventDefault()
-                    setCurrentIdx(index)
+                    e.stopPropagation();
+                    e.preventDefault();
+                    setCurrentIdx(index);
                   }}
                   className={`h-1.5 rounded-full transition-[width,background-color] duration-200 ease-out cursor-pointer ${
                     currentIdx === index ? "w-3 bg-white" : "w-1.5 bg-white/50"
@@ -176,31 +195,38 @@ export const ListingCard: React.FC<ListingCardProps> = ({
           <div className="flex items-center gap-1 text-sm font-semibold">
             <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
             <span className="text-foreground">{listing.rating.toFixed(1)}</span>
-            <span className="text-muted-foreground font-medium">({listing.reviewsCount})</span>
+            <h1 className="text-muted-foreground font-medium">
+              ({listing.reviewsCount})
+            </h1>
           </div>
 
           {/* Title */}
-          <h3 className="mt-2 text-base font-bold text-purple-950 dark:text-purple-300 line-clamp-1 group-hover:text-purple-700 dark:group-hover:text-purple-400 transition-colors">
+          <h3 className="mt-2 text-base font-medium text-purple-950 dark:text-purple-300 line-clamp-1 group-hover:text-purple-700 dark:group-hover:text-purple-400 transition-colors">
             {listing.title}
           </h3>
 
           {/* Guests details */}
-          <p className="mt-1 text-sm font-medium text-muted-foreground">{listing.guestsCount} guests</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {listing.guestsCount} guests
+          </p>
 
           {/* Divider */}
           <div className="mt-4 mb-3 border-t border-border/40" />
 
           {/* Price and Action button */}
           <div className="flex items-baseline justify-between mt-auto">
-            <div>
-              <span className="text-lg font-black text-foreground">
+            <div className="flex items-center gap-1">
+              <h1 className="text-lg font-medium text-foreground">
                 {formatPrice(displayPrice(listing.price, currency), currency)}
+              </h1>
+              <span className="text-sm text-muted-foreground">
+                {" "}
+                / {listing.priceUnit}
               </span>
-              <span className="text-sm font-medium text-muted-foreground"> / {listing.priceUnit}</span>
             </div>
           </div>
         </div>
       </motion.div>
     </div>
-  )
-}
+  );
+};

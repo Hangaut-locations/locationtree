@@ -1,21 +1,28 @@
-import { ArrowRight, Compass, DollarSign, RotateCcw, Sparkles, Users } from "lucide-react"
-import type React from "react"
-import { useState } from "react"
-import { locationListings as listingsData } from "../data/listings"
-import type { Listing } from "../types/listing"
-import { ListingCard } from "./ListingCard"
+import {
+  ArrowRight,
+  Compass,
+  DollarSign,
+  RotateCcw,
+  Sparkles,
+  Users,
+} from "lucide-react";
+import type React from "react";
+import { useState } from "react";
+import { locationListings as listingsData } from "../data/listings";
+import type { Listing } from "../types/listing";
+import { ListingCard } from "./ListingCard";
 
 interface PlannerWizardProps {
-  wishlist: string[]
-  onWishlistToggle: (id: string) => void
+  wishlist: string[];
+  onWishlistToggle: (id: string) => void;
 }
 
 interface EventType {
-  id: string
-  name: string
-  emoji: string
-  description: string
-  suggestedCategories: string[]
+  id: string;
+  name: string;
+  emoji: string;
+  description: string;
+  suggestedCategories: string[];
 }
 
 const eventTypes: EventType[] = [
@@ -54,47 +61,52 @@ const eventTypes: EventType[] = [
     description: "Unique treehouses and boat houses off the beaten track.",
     suggestedCategories: ["Tree House", "Houseboat", "Cabin"],
   },
-]
+];
 
-export const PlannerWizard: React.FC<PlannerWizardProps> = ({ wishlist, onWishlistToggle }) => {
-  const [step, setStep] = useState<1 | 2 | 3>(1)
-  const [selectedEvent, setSelectedEvent] = useState<EventType | null>(null)
-  const [guestCount, setGuestCount] = useState(4)
-  const [budget, setBudget] = useState(400)
+export const PlannerWizard: React.FC<PlannerWizardProps> = ({
+  wishlist,
+  onWishlistToggle,
+}) => {
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [selectedEvent, setSelectedEvent] = useState<EventType | null>(null);
+  const [guestCount, setGuestCount] = useState(4);
+  const [budget, setBudget] = useState(400);
 
   const handleSelectEvent = (event: EventType) => {
-    setSelectedEvent(event)
-    setStep(2)
-  }
+    setSelectedEvent(event);
+    setStep(2);
+  };
 
   const handleBackToEvents = () => {
-    setStep(1)
-  }
+    setStep(1);
+  };
 
   const handleGeneratePlan = () => {
-    setStep(3)
-  }
+    setStep(3);
+  };
 
   const handleRestart = () => {
-    setSelectedEvent(null)
-    setGuestCount(4)
-    setBudget(400)
-    setStep(1)
-  }
+    setSelectedEvent(null);
+    setGuestCount(4);
+    setBudget(400);
+    setStep(1);
+  };
 
   // Filter recommendations based on answers
   const recommendations: Listing[] = listingsData.filter((listing) => {
     // 1. Matches event category suggestions
-    const categoryMatches = selectedEvent ? selectedEvent.suggestedCategories.includes(listing.category) : true
+    const categoryMatches = selectedEvent
+      ? selectedEvent.suggestedCategories.includes(listing.category)
+      : true;
 
     // 2. Fits within guest capacity
-    const capacityMatches = listing.guestsCount >= guestCount
+    const capacityMatches = listing.guestsCount >= guestCount;
 
     // 3. Under budget (max rate per hour / night)
-    const budgetMatches = listing.price <= budget
+    const budgetMatches = listing.price <= budget;
 
-    return categoryMatches && capacityMatches && budgetMatches
-  })
+    return categoryMatches && capacityMatches && budgetMatches;
+  });
 
   return (
     <div className="mx-auto max-w-5xl px-4 md:px-8 py-8 animate-in fade-in duration-300">
@@ -103,8 +115,10 @@ export const PlannerWizard: React.FC<PlannerWizardProps> = ({ wishlist, onWishli
         {/* Progress Header */}
         <div className="flex items-center justify-between border-b border-border/60 pb-6">
           <div>
-            <span className="text-xs font-bold uppercase tracking-widest text-purple-600">Event Planner Wizard</span>
-            <h1 className="text-2xl md:text-3xl font-black text-purple-950 dark:text-purple-300 tracking-tight mt-1 flex items-center gap-2">
+            <span className="text-xs font-bold uppercase tracking-widest text-purple-600">
+              Event Planner Wizard
+            </span>
+            <h1 className="text-2xl md:text-3xl font-bold text-purple-950 dark:text-purple-300 tracking-tight mt-1 flex items-center gap-2">
               <Sparkles className="h-6 w-6 text-purple-600" />
               <span>Plan Your Experience</span>
             </h1>
@@ -131,8 +145,12 @@ export const PlannerWizard: React.FC<PlannerWizardProps> = ({ wishlist, onWishli
         {step === 1 && (
           <div className="space-y-6">
             <div className="text-center md:text-left">
-              <h2 className="text-lg font-bold text-foreground">What kind of event are you planning?</h2>
-              <p className="text-sm text-muted-foreground mt-1">Select an experience type to begin.</p>
+              <h2 className="text-lg font-bold text-foreground">
+                What kind of event are you planning?
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Select an experience type to begin.
+              </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -145,8 +163,12 @@ export const PlannerWizard: React.FC<PlannerWizardProps> = ({ wishlist, onWishli
                   <span className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-200">
                     {event.emoji}
                   </span>
-                  <h3 className="text-base font-bold text-purple-950 dark:text-purple-300">{event.name}</h3>
-                  <p className="text-xs text-muted-foreground mt-1">{event.description}</p>
+                  <h3 className="text-base font-bold text-purple-950 dark:text-purple-300">
+                    {event.name}
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {event.description}
+                  </p>
                   <span className="mt-4 flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-purple-600">
                     <span>Select</span>
                     <ArrowRight className="h-3 w-3" />
@@ -162,8 +184,12 @@ export const PlannerWizard: React.FC<PlannerWizardProps> = ({ wishlist, onWishli
           <div className="space-y-8">
             <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/40 pb-4">
               <div>
-                <h2 className="text-lg font-bold text-foreground">Configure details for your {selectedEvent.name}</h2>
-                <p className="text-sm text-muted-foreground mt-1">Tell us about guests and budget preferences.</p>
+                <h2 className="text-lg font-bold text-foreground">
+                  Configure details for your {selectedEvent.name}
+                </h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Tell us about guests and budget preferences.
+                </p>
               </div>
               <button
                 onClick={handleBackToEvents}
@@ -186,7 +212,9 @@ export const PlannerWizard: React.FC<PlannerWizardProps> = ({ wishlist, onWishli
                   </span>
                 </div>
                 <div className="flex items-center gap-4 p-4 bg-muted/30 rounded-2xl">
-                  <span className="text-xs text-muted-foreground flex-grow">Minimum capacity needed</span>
+                  <span className="text-xs text-muted-foreground flex-grow">
+                    Minimum capacity needed
+                  </span>
                   <div className="flex items-center gap-3">
                     <button
                       type="button"
@@ -196,10 +224,14 @@ export const PlannerWizard: React.FC<PlannerWizardProps> = ({ wishlist, onWishli
                     >
                       -
                     </button>
-                    <span className="w-6 text-center text-sm font-bold text-foreground">{guestCount}</span>
+                    <span className="w-6 text-center text-sm font-bold text-foreground">
+                      {guestCount}
+                    </span>
                     <button
                       type="button"
-                      onClick={() => setGuestCount(Math.min(30, guestCount + 1))}
+                      onClick={() =>
+                        setGuestCount(Math.min(30, guestCount + 1))
+                      }
                       disabled={guestCount >= 30}
                       className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card font-bold hover:bg-muted active:scale-97 transition-[transform,background-color] duration-160 ease-out disabled:opacity-30 cursor-pointer"
                     >
@@ -263,7 +295,8 @@ export const PlannerWizard: React.FC<PlannerWizardProps> = ({ wishlist, onWishli
                   </span>
                 </h2>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Found {recommendations.length} spaces matching: {guestCount}+ guests, up to ${budget}.
+                  Found {recommendations.length} spaces matching: {guestCount}+
+                  guests, up to ${budget}.
                 </p>
               </div>
               <button
@@ -294,9 +327,12 @@ export const PlannerWizard: React.FC<PlannerWizardProps> = ({ wishlist, onWishli
                 <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-900/10 dark:bg-purple-300/15 text-purple-950 dark:text-purple-200 mb-4">
                   <Compass className="h-7 w-7" />
                 </div>
-                <h3 className="text-lg font-bold text-foreground">No matches found</h3>
+                <h3 className="text-lg font-bold text-foreground">
+                  No matches found
+                </h3>
                 <p className="text-muted-foreground mt-1.5 max-w-sm text-sm">
-                  We couldn't find listings under ${budget} that fit {guestCount} guests inside the '
+                  We couldn't find listings under ${budget} that fit{" "}
+                  {guestCount} guests inside the '
                   {selectedEvent.suggestedCategories.join(", ")}' categories.
                 </p>
                 <button
@@ -311,5 +347,5 @@ export const PlannerWizard: React.FC<PlannerWizardProps> = ({ wishlist, onWishli
         )}
       </div>
     </div>
-  )
-}
+  );
+};

@@ -1,99 +1,106 @@
-import { AlertCircle, Eye, EyeOff, Lock, Mail } from "lucide-react"
-import type React from "react"
-import { useEffect, useRef, useState } from "react"
-import { SiApple, SiGoogle } from "react-icons/si"
-import { Dialog, DialogContent, DialogTitle } from "../../components/ui/dialog"
+import { AlertCircle, Eye, EyeOff, Lock, Mail } from "lucide-react";
+import type React from "react";
+import { useEffect, useRef, useState } from "react";
+import { SiApple, SiGoogle } from "react-icons/si";
+import { Dialog, DialogContent, DialogTitle } from "../../components/ui/dialog";
 
 interface AuthModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onLoginSuccess: (email: string) => void
+  isOpen: boolean;
+  onClose: () => void;
+  onLoginSuccess: (email: string) => void;
 }
 
-type AuthScreen = "login" | "verify" | "new-password" | "success"
+type AuthScreen = "login" | "verify" | "new-password" | "success";
 
-export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }) => {
-  const [screen, setScreen] = useState<AuthScreen>("login")
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+export const AuthModal: React.FC<AuthModalProps> = ({
+  isOpen,
+  onClose,
+  onLoginSuccess,
+}) => {
+  const [screen, setScreen] = useState<AuthScreen>("login");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Login Form States
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   // Verification Code States (4 digits)
-  const [code, setCode] = useState<string[]>(["", "", "", ""])
+  const [code, setCode] = useState<string[]>(["", "", "", ""]);
   const codeRefs = [
     useRef<HTMLInputElement>(null),
     useRef<HTMLInputElement>(null),
     useRef<HTMLInputElement>(null),
     useRef<HTMLInputElement>(null),
-  ]
+  ];
 
   // Reset Password States
-  const [newPassword, setNewPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
-  const [passwordsMatch, setPasswordsMatch] = useState(true)
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordsMatch, setPasswordsMatch] = useState(true);
 
   // Sync state on open
   useEffect(() => {
     if (isOpen) {
-      setScreen("login")
-      setEmail("")
-      setPassword("")
-      setCode(["", "", "", ""])
-      setNewPassword("")
-      setConfirmPassword("")
-      setPasswordsMatch(true)
+      setScreen("login");
+      setEmail("");
+      setPassword("");
+      setCode(["", "", "", ""]);
+      setNewPassword("");
+      setConfirmPassword("");
+      setPasswordsMatch(true);
     }
-  }, [isOpen])
+  }, [isOpen]);
 
   const handleLoginSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     // Simulate successful login/signup and close
-    alert(`Success: Logged in as ${email || "guest@hangout.com"}`)
-    onLoginSuccess(email || "guest@hangout.com")
-    onClose()
-  }
+    alert(`Success: Logged in as ${email || "guest@hangout.com"}`);
+    onLoginSuccess(email || "guest@hangout.com");
+    onClose();
+  };
 
   const handleVerifySubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setScreen("new-password")
-  }
+    e.preventDefault();
+    setScreen("new-password");
+  };
 
   const handleNewPasswordSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (newPassword !== confirmPassword) {
-      setPasswordsMatch(false)
-      return
+      setPasswordsMatch(false);
+      return;
     }
-    setPasswordsMatch(true)
-    setScreen("success")
-  }
+    setPasswordsMatch(true);
+    setScreen("success");
+  };
 
   const handleSuccessClick = () => {
-    onLoginSuccess(email || "guest@hangout.com")
-    onClose()
-  }
+    onLoginSuccess(email || "guest@hangout.com");
+    onClose();
+  };
 
   // Shift focus inside verification input blocks
   const handleCodeChange = (index: number, val: string) => {
-    if (!/^\d*$/.test(val)) return // Allow numbers only
+    if (!/^\d*$/.test(val)) return; // Allow numbers only
 
-    const newCode = [...code]
-    newCode[index] = val.slice(-1) // Capture last digit
-    setCode(newCode)
+    const newCode = [...code];
+    newCode[index] = val.slice(-1); // Capture last digit
+    setCode(newCode);
 
     if (val && index < 3) {
-      codeRefs[index + 1].current?.focus()
+      codeRefs[index + 1].current?.focus();
     }
-  }
+  };
 
-  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (
+    index: number,
+    e: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
     if (e.key === "Backspace" && !code[index] && index > 0) {
-      codeRefs[index - 1].current?.focus()
+      codeRefs[index - 1].current?.focus();
     }
-  }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -103,8 +110,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
         {screen === "login" && (
           <form onSubmit={handleLoginSubmit} className="w-full space-y-6">
             <div className="space-y-1.5 text-left">
-              <DialogTitle className="text-2xl font-black text-foreground tracking-tight">Welcome back</DialogTitle>
-              <p className="text-sm font-semibold text-muted-foreground">Let’s log in to get started</p>
+              <DialogTitle className="text-2xl font-bold text-foreground tracking-tight">
+                Welcome back
+              </DialogTitle>
+              <p className="text-sm font-semibold text-muted-foreground">
+                Let’s log in to get started
+              </p>
             </div>
 
             {/* Input fields container */}
@@ -138,7 +149,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
                   onClick={() => setShowPassword(!showPassword)}
                   className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                 >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
                 </button>
               </div>
             </div>
@@ -181,14 +196,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
             <div className="grid grid-cols-2 gap-3.5">
               <button
                 type="button"
-                className="flex items-center justify-center gap-2 rounded-2xl border border-purple-950/20 dark:border-purple-300/20 hover:bg-muted/40 transition-colors py-3 font-black text-sm text-foreground cursor-pointer"
+                className="flex items-center justify-center gap-2 rounded-2xl border border-purple-950/20 dark:border-purple-300/20 hover:bg-muted/40 transition-colors py-3 font-bold text-sm text-foreground cursor-pointer"
               >
                 <SiApple className="h-5 w-5 text-foreground" />
                 <span>Apple</span>
               </button>
               <button
                 type="button"
-                className="flex items-center justify-center gap-2 rounded-2xl border border-purple-950/20 dark:border-purple-300/20 hover:bg-muted/40 transition-colors py-3 font-black text-sm text-foreground cursor-pointer"
+                className="flex items-center justify-center gap-2 rounded-2xl border border-purple-950/20 dark:border-purple-300/20 hover:bg-muted/40 transition-colors py-3 font-bold text-sm text-foreground cursor-pointer"
               >
                 <SiGoogle className="h-4.5 w-4.5 text-red-500" />
                 <span>Google</span>
@@ -211,11 +226,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
 
         {/* Screen 2: Verification Code Input */}
         {screen === "verify" && (
-          <form onSubmit={handleVerifySubmit} className="w-full max-w-md mx-auto space-y-8">
+          <form
+            onSubmit={handleVerifySubmit}
+            className="w-full max-w-md mx-auto space-y-8"
+          >
             <div className="space-y-1.5 text-left">
-              <DialogTitle className="text-2xl font-black text-foreground tracking-tight">Input code</DialogTitle>
+              <DialogTitle className="text-2xl font-bold text-foreground tracking-tight">
+                Input code
+              </DialogTitle>
               <p className="text-sm font-semibold text-muted-foreground leading-relaxed whitespace-pre-line">
-                Please enter the code sent to the email account. {"\n"}check spam folder
+                Please enter the code sent to the email account. {"\n"}check
+                spam folder
               </p>
             </div>
 
@@ -263,9 +284,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
 
         {/* Screen 3: Create a New Password */}
         {screen === "new-password" && (
-          <form onSubmit={handleNewPasswordSubmit} className="w-full max-w-md mx-auto space-y-6">
+          <form
+            onSubmit={handleNewPasswordSubmit}
+            className="w-full max-w-md mx-auto space-y-6"
+          >
             <div className="space-y-1.5 text-left">
-              <DialogTitle className="text-2xl font-black text-foreground tracking-tight">
+              <DialogTitle className="text-2xl font-bold text-foreground tracking-tight">
                 Create a new password
               </DialogTitle>
             </div>
@@ -288,7 +312,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
                   onClick={() => setShowPassword(!showPassword)}
                   className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                 >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
                 </button>
               </div>
 
@@ -308,7 +336,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                 >
-                  {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
                 </button>
               </div>
             </div>
@@ -335,7 +367,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
         {screen === "success" && (
           <div className="w-full max-w-md mx-auto space-y-8 py-4 flex flex-col items-center">
             {/* Header Success Text */}
-            <DialogTitle className="text-xl font-black text-purple-950 dark:text-purple-300 tracking-tight text-center underline decoration-2 underline-offset-4">
+            <DialogTitle className="text-xl font-bold text-purple-950 dark:text-purple-300 tracking-tight text-center underline decoration-2 underline-offset-4">
               Password reset successful
             </DialogTitle>
 
@@ -351,5 +383,5 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
         )}
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};

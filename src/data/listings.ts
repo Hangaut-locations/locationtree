@@ -2,11 +2,11 @@ import type { Listing } from "../types/listing"
 
 // Stays Listings Collection (Location Tab)
 export const locationListings: Listing[] = [
-  // Paris Stays
+  // surulere Stays
   {
-    id: "stay-paris-1",
+    id: "stay-surulere-1",
     title: "Grand Hotel Du Palais Royal",
-    location: "Paris",
+    location: "surulere",
     category: "Rooftops",
     images: [
       "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80",
@@ -22,9 +22,9 @@ export const locationListings: Listing[] = [
     bedsCount: 5,
   },
   {
-    id: "stay-paris-2",
-    title: "Hotel Esprit Saint Germain",
-    location: "Paris",
+    id: "stay-surulere-2",
+    title: "Hotel Esprit",
+    location: "surulere",
     category: "Studio",
     images: [
       "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80",
@@ -40,9 +40,9 @@ export const locationListings: Listing[] = [
     bedsCount: 12,
   },
   {
-    id: "stay-paris-3",
+    id: "stay-surulere-3",
     title: "Cadet Resident",
-    location: "Paris",
+    location: "surulere",
     category: "Amazing Views",
     images: [
       "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=800&q=80",
@@ -58,9 +58,9 @@ export const locationListings: Listing[] = [
     bedsCount: 6,
   },
   {
-    id: "stay-paris-4",
-    title: "La Reserve Paris",
-    location: "Paris",
+    id: "stay-surulere-4",
+    title: "La Reserve Suru",
+    location: "surulere",
     category: "Mansions",
     images: [
       "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80",
@@ -76,11 +76,11 @@ export const locationListings: Listing[] = [
     bedsCount: 10,
   },
 
-  // Watford Stays
+  // Lekki Stays
   {
-    id: "stay-watford-1",
-    title: "Guest suite in Sydenham",
-    location: "Watford",
+    id: "stay-Lekki-1",
+    title: "Guest suite in Surulere",
+    location: "surulere",
     category: "Studio",
     images: [
       "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=800&q=80",
@@ -96,9 +96,9 @@ export const locationListings: Listing[] = [
     bedsCount: 2,
   },
   {
-    id: "stay-watford-2",
+    id: "stay-Lekki-2",
     title: "Cabin in Holmer Green",
-    location: "Watford",
+    location: "surulere",
     category: "Cabin",
     images: [
       "https://images.unsplash.com/photo-1449034446853-66c86144b0ad?auto=format&fit=crop&w=800&q=80",
@@ -114,9 +114,9 @@ export const locationListings: Listing[] = [
     bedsCount: 3,
   },
   {
-    id: "stay-watford-3",
-    title: "Guesthouse in Hertford",
-    location: "Watford",
+    id: "stay-Lekki-3",
+    title: "Guesthouse in Surulere",
+    location: "surulere",
     category: "Tree House",
     images: [
       "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80",
@@ -132,9 +132,9 @@ export const locationListings: Listing[] = [
     bedsCount: 5,
   },
   {
-    id: "stay-watford-4",
-    title: "Room in Watford",
-    location: "Watford",
+    id: "stay-Lekki-4",
+    title: "Room in Lekki",
+    location: "surulere",
     category: "Cabin",
     images: [
       "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=800&q=80",
@@ -152,9 +152,9 @@ export const locationListings: Listing[] = [
 
   // London Stays
   {
-    id: "stay-london-1",
-    title: "Apartment in Le Chesnay",
-    location: "London",
+    id: "stay-lagos-1",
+    title: "Apartment in Lekii",
+    location: "surulere",
     category: "Rooftops",
     images: [
       "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80",
@@ -170,9 +170,9 @@ export const locationListings: Listing[] = [
     bedsCount: 4,
   },
   {
-    id: "stay-london-2",
-    title: "Apartment in London",
-    location: "London",
+    id: "stay-lagos-2",
+    title: "Apartment in Lagos",
+    location: "surulere",
     category: "Amazing Views",
     images: [
       "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=800&q=80",
@@ -188,9 +188,9 @@ export const locationListings: Listing[] = [
     bedsCount: 6,
   },
   {
-    id: "stay-london-3",
-    title: "Condo in Lewisham",
-    location: "London",
+    id: "stay-lagos-3",
+    title: "Condo in Lekki",
+    location: "surulere",
     category: "Houseboat",
     images: [
       "https://images.unsplash.com/photo-1527030280862-64139fbe04ca?auto=format&fit=crop&w=800&q=80",
@@ -206,9 +206,9 @@ export const locationListings: Listing[] = [
     bedsCount: 8,
   },
   {
-    id: "stay-london-4",
-    title: "Room in London",
-    location: "London",
+    id: "stay-lagos-4",
+    title: "Room in Lagos",
+    location: "surulere",
     category: "Castles",
     images: [
       "https://images.unsplash.com/photo-1505693395321-883724634266?auto=format&fit=crop&w=800&q=80",
@@ -229,9 +229,9 @@ export const locationListings: Listing[] = [
 export const planningListings: Listing[] = [
   // London events (Planning tab — classified under party-type categories)
   {
-    id: "plan-london-1",
-    title: "Apartment in Le Chesnay",
-    location: "London",
+    id: "plan-lagos-1",
+    title: "Apartment in Lekii",
+    location: "surulere",
     category: "House party",
     images: [
       "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80",
@@ -247,9 +247,9 @@ export const planningListings: Listing[] = [
     bedsCount: 4,
   },
   {
-    id: "plan-london-2",
-    title: "Apartment in London",
-    location: "London",
+    id: "plan-lagos-2",
+    title: "Apartment in Lagos",
+    location: "surulere",
     category: "House party",
     images: [
       "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=800&q=80",
@@ -265,9 +265,9 @@ export const planningListings: Listing[] = [
     bedsCount: 6,
   },
   {
-    id: "plan-london-3",
-    title: "Condo in Lewisham",
-    location: "London",
+    id: "plan-lagos-3",
+    title: "Condo in Lekki",
+    location: "surulere",
     category: "Yacht party",
     images: [
       "https://images.unsplash.com/photo-1527030280862-64139fbe04ca?auto=format&fit=crop&w=800&q=80",
@@ -283,9 +283,9 @@ export const planningListings: Listing[] = [
     bedsCount: 8,
   },
   {
-    id: "plan-london-4",
-    title: "Room in London",
-    location: "London",
+    id: "plan-lagos-4",
+    title: "Room in Lagos",
+    location: "surulere",
     category: "Creative scene",
     images: [
       "https://images.unsplash.com/photo-1505693395321-883724634266?auto=format&fit=crop&w=800&q=80",
@@ -301,11 +301,11 @@ export const planningListings: Listing[] = [
     bedsCount: 1,
   },
 
-  // Paris Events (Locations Available in Paris section)
+  // surulere Events (Locations Available in surulere section)
   {
-    id: "plan-paris-1",
+    id: "plan-surulere-1",
     title: "Corsica Studios",
-    location: "Paris",
+    location: "surulere",
     category: "Night Club",
     images: [
       "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=800&q=80", // concert crowd
@@ -321,9 +321,9 @@ export const planningListings: Listing[] = [
     bedsCount: 20,
   },
   {
-    id: "plan-paris-2",
-    title: "Hotel Esprit saint German",
-    location: "Paris",
+    id: "plan-surulere-2",
+    title: "Hotel La wa",
+    location: "surulere",
     category: "Live stream",
     images: [
       "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80", // DJ decks/lights
@@ -339,9 +339,9 @@ export const planningListings: Listing[] = [
     bedsCount: 15,
   },
   {
-    id: "plan-paris-3",
+    id: "plan-surulere-3",
     title: "Cadet Resident",
-    location: "Paris",
+    location: "surulere",
     category: "Shows",
     images: [
       "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=800&q=80", // festival dance
@@ -357,9 +357,9 @@ export const planningListings: Listing[] = [
     bedsCount: 8,
   },
   {
-    id: "plan-paris-4",
-    title: "La Reserve Paris",
-    location: "Paris",
+    id: "plan-surulere-4",
+    title: "La Pas Surulere",
+    location: "surulere",
     category: "Mansion Party",
     images: [
       "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80",
@@ -375,11 +375,11 @@ export const planningListings: Listing[] = [
     bedsCount: 10,
   },
 
-  // Paris Gardens/Patios (Location in Paris section)
+  // surulere Gardens/Patios (Location in surulere section)
   {
-    id: "plan-paris-garden-1",
-    title: "Le Petit Pré",
-    location: "Paris",
+    id: "plan-surulere-garden-1",
+    title: "Le Suru",
+    location: "surulere",
     category: "Field party",
     images: [
       "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=800&q=80", // festive lights gathering
@@ -395,9 +395,9 @@ export const planningListings: Listing[] = [
     bedsCount: 30,
   },
   {
-    id: "plan-paris-garden-2",
+    id: "plan-surulere-garden-2",
     title: "Le Jardin Suspendu",
-    location: "Paris",
+    location: "surulere",
     category: "Rooftop party",
     images: [
       "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?auto=format&fit=crop&w=800&q=80", // sunset rooftop party
@@ -413,9 +413,9 @@ export const planningListings: Listing[] = [
     bedsCount: 20,
   },
   {
-    id: "plan-paris-garden-3",
-    title: "Guesthouse in Hertford",
-    location: "Paris", // set location to Paris for section mapping
+    id: "plan-surulere-garden-3",
+    title: "Guesthouse in Surulere",
+    location: "surulere", // set location to surulere for section mapping
     category: "Barbecue",
     images: [
       "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80",
@@ -431,9 +431,9 @@ export const planningListings: Listing[] = [
     bedsCount: 5,
   },
   {
-    id: "plan-paris-garden-4",
-    title: "Room in Watford",
-    location: "Paris", // set location to Paris for section mapping
+    id: "plan-surulere-garden-4",
+    title: "Room in Lekki",
+    location: "surulere", // set location to surulere for section mapping
     category: "Creative scene",
     images: [
       "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=800&q=80",

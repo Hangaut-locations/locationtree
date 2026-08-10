@@ -12,44 +12,54 @@ import {
   Settings2,
   User,
   Wallet as WalletIcon,
-} from "lucide-react"
-import type React from "react"
-import type { CurrencyCode } from "../lib/currency"
+} from "lucide-react";
+import type React from "react";
+import type { CurrencyCode } from "../lib/currency";
 
 export interface SideMenuCallbacks {
-  onWallet: () => void
-  onHostEarnings: () => void
-  onGuestPayments: () => void
-  onWishlist: () => void
-  onProfile: () => void
-  onCurrency: () => void
-  onTrips: () => void
-  onSupport: () => void
-  onLogin: () => void
-  onLogout: () => void
-  onClose: () => void
+  onWallet: () => void;
+  onHostEarnings: () => void;
+  onGuestPayments: () => void;
+  onWishlist: () => void;
+  onProfile: () => void;
+  onCurrency: () => void;
+  onTrips: () => void;
+  onSupport: () => void;
+  onLogin: () => void;
+  onLogout: () => void;
+  onClose: () => void;
 }
 
 interface SideMenuProps {
-  isOpen: boolean
-  isLoggedIn: boolean
-  viewMode: "guest" | "host"
-  currency: CurrencyCode
-  callbacks: SideMenuCallbacks
+  isOpen: boolean;
+  isLoggedIn: boolean;
+  viewMode: "guest" | "host";
+  currency: CurrencyCode;
+  callbacks: SideMenuCallbacks;
 }
 
 interface MenuItem {
-  label: string
-  icon: React.ComponentType<{ className?: string }>
-  onClick: () => void
-  hint?: string
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  onClick: () => void;
+  hint?: string;
 }
 
-export const SideMenu: React.FC<SideMenuProps> = ({ isOpen, isLoggedIn, viewMode, currency, callbacks }) => {
-  if (!isOpen) return null
+export const SideMenu: React.FC<SideMenuProps> = ({
+  isOpen,
+  isLoggedIn,
+  viewMode,
+  currency,
+  callbacks,
+}) => {
+  if (!isOpen) return null;
 
   const guestItems: MenuItem[] = [
-    { label: "Wallet & Payments", icon: WalletIcon, onClick: callbacks.onWallet },
+    {
+      label: "Wallet & Payments",
+      icon: WalletIcon,
+      onClick: callbacks.onWallet,
+    },
     { label: "Booked Trips", icon: Plane, onClick: callbacks.onTrips },
     { label: "Wish/Lived list", icon: Heart, onClick: callbacks.onWishlist },
     {
@@ -60,12 +70,26 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isOpen, isLoggedIn, viewMode
     },
     { label: "Profile", icon: User, onClick: callbacks.onProfile },
     { label: "Contact support", icon: LifeBuoy, onClick: callbacks.onSupport },
-  ]
+  ];
 
   const hostItems: MenuItem[] = [
-    { label: "Wallet", icon: WalletIcon, onClick: callbacks.onWallet, hint: "Deposit & pay for bookings" },
-    { label: "Host Earnings", icon: DollarSign, onClick: callbacks.onHostEarnings, hint: "Withdraw to bank" },
-    { label: "Guest Payments", icon: CreditCard, onClick: callbacks.onGuestPayments },
+    {
+      label: "Wallet",
+      icon: WalletIcon,
+      onClick: callbacks.onWallet,
+      hint: "Deposit & pay for bookings",
+    },
+    {
+      label: "Host Earnings",
+      icon: DollarSign,
+      onClick: callbacks.onHostEarnings,
+      hint: "Withdraw to bank",
+    },
+    {
+      label: "Guest Payments",
+      icon: CreditCard,
+      onClick: callbacks.onGuestPayments,
+    },
     { label: "Wish/Lived list", icon: Heart, onClick: callbacks.onWishlist },
     {
       label: "Language and Currency",
@@ -76,27 +100,31 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isOpen, isLoggedIn, viewMode
     { label: "Profile & Bio", icon: User, onClick: callbacks.onProfile },
     { label: "Booked Trips", icon: Plane, onClick: callbacks.onTrips },
     { label: "Contact support", icon: LifeBuoy, onClick: callbacks.onSupport },
-  ]
+  ];
 
   const renderList = (title: string, list: MenuItem[]) => (
     <div className="space-y-1.5">
-      <p className="px-4 pt-4 pb-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{title}</p>
+      <p className="px-4 pt-4 pb-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+        {title}
+      </p>
       {list.map((item) => {
-        const Icon = item.icon
+        const Icon = item.icon;
         return (
           <button
             key={item.label}
             onClick={item.onClick}
-            className="w-full flex items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-bold text-foreground hover:bg-muted transition-colors cursor-pointer"
+            className="w-full flex items-center gap-3 rounded-xl px-4 py-3 text-left text-sm text-foreground hover:bg-muted transition-colors cursor-pointer"
           >
             <Icon className="h-4.5 w-4.5 text-muted-foreground shrink-0" />
-            <span className="flex-1">{item.label}</span>
-            {item.hint && <span className="text-[11px] font-semibold text-muted-foreground">{item.hint}</span>}
+            <span className="flex-1 font-semibold">{item.label}</span>
+            {item.hint && (
+              <span className="text-xs text-muted-foreground">{item.hint}</span>
+            )}
           </button>
-        )
+        );
       })}
     </div>
-  )
+  );
 
   return (
     <>
@@ -106,11 +134,11 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isOpen, isLoggedIn, viewMode
         onClick={callbacks.onClose}
       />
       {/* Drawer panel */}
-      <div className="fixed top-0 left-0 z-50 h-full w-[320px] max-w-[85vw] bg-card border-r border-border shadow-2xl overflow-y-auto animate-in slide-in-from-left-40 duration-200 flex flex-col">
+      <div className="fixed top-0 left-0 z-50 h-full w-[420px] max-w-[90vw] bg-card border-r border-border shadow-2xl overflow-y-auto animate-in slide-in-from-left-40 duration-200 flex flex-col">
         {/* Header with title */}
         <div className="flex items-center justify-between px-5 py-5 border-b border-border/60">
-          <span className="text-sm font-black text-foreground">Menu</span>
-          <span className="text-xs font-bold text-muted-foreground bg-muted px-3 py-1 rounded-full">
+          <span className="text-sm font-semibold text-foreground">Menu</span>
+          <span className="text-xs font-semibold text-muted-foreground bg-muted px-3 py-1 rounded-full">
             {viewMode === "host" ? "Host account" : "Guest account"}
           </span>
         </div>
@@ -121,7 +149,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isOpen, isLoggedIn, viewMode
             {isLoggedIn ? (
               <button
                 onClick={callbacks.onLogout}
-                className="w-full flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
+                className="w-full flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
               >
                 <LogOut className="h-4.5 w-4.5" />
                 <span>Log out</span>
@@ -129,7 +157,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isOpen, isLoggedIn, viewMode
             ) : (
               <button
                 onClick={callbacks.onLogin}
-                className="w-full flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-bold text-foreground hover:bg-muted transition-colors cursor-pointer"
+                className="w-full flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer"
               >
                 <LogIn className="h-4.5 w-4.5" />
                 <span>Log in</span>
@@ -152,16 +180,24 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isOpen, isLoggedIn, viewMode
           )}
 
           {renderList(viewMode === "host" ? "Account" : "Account", [
-            { label: "Settings", icon: Settings2, onClick: callbacks.onProfile },
+            {
+              label: "Settings",
+              icon: Settings2,
+              onClick: callbacks.onProfile,
+            },
             {
               label: "Switch to " + (viewMode === "host" ? "Guest" : "Host"),
               icon: viewMode === "host" ? User : Briefcase,
               onClick: callbacks.onProfile, // handled by navbar switcher
             },
-            { label: "Contact support", icon: LifeBuoy, onClick: callbacks.onSupport },
+            {
+              label: "Contact support",
+              icon: LifeBuoy,
+              onClick: callbacks.onSupport,
+            },
           ])}
         </div>
       </div>
     </>
-  )
-}
+  );
+};

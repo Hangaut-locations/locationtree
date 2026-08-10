@@ -6,23 +6,23 @@ import {
   CreditCard,
   User,
   Wallet as WalletIcon,
-} from "lucide-react"
-import type React from "react"
-import { useState } from "react"
-import { type CurrencyCode, displayPrice, formatPrice } from "../lib/currency"
-import type { WalletTransaction } from "../types/listing"
+} from "lucide-react";
+import type React from "react";
+import { useState } from "react";
+import { type CurrencyCode, displayPrice, formatPrice } from "../lib/currency";
+import type { WalletTransaction } from "../types/listing";
 
 interface WalletViewProps {
-  mode: "guest" | "host"
-  hostBalance: number
-  guestBalance: number
-  transactions: WalletTransaction[]
-  onDeposit: (amount: number) => void
-  onWithdraw: (amount: number) => void
-  currency: CurrencyCode
+  mode: "guest" | "host";
+  hostBalance: number;
+  guestBalance: number;
+  transactions: WalletTransaction[];
+  onDeposit: (amount: number) => void;
+  onWithdraw: (amount: number) => void;
+  currency: CurrencyCode;
 }
 
-const VIRTUAL_ACCOUNT = "0123 4567 8901" // placeholder virtual account for guest deposits
+const VIRTUAL_ACCOUNT = "0123 4567 8901"; // placeholder virtual account for guest deposits
 
 export const WalletView: React.FC<WalletViewProps> = ({
   mode,
@@ -33,29 +33,35 @@ export const WalletView: React.FC<WalletViewProps> = ({
   onWithdraw,
   currency,
 }) => {
-  const [amount, setAmount] = useState(0)
-  const [selectedAccount, setSelectedAccount] = useState("GTBank •• 8842")
+  const [amount, setAmount] = useState(0);
+  const [selectedAccount, setSelectedAccount] = useState("GTBank •• 8842");
 
-  const balance = mode === "host" ? hostBalance : guestBalance
-  const isHost = mode === "host"
+  const balance = mode === "host" ? hostBalance : guestBalance;
+  const isHost = mode === "host";
 
   const actions = [
-    { label: isHost ? "Withdraw to bank" : "Deposit money", handler: () => onDeposit(Math.max(1, amount)) },
-    { label: isHost ? "Add funds" : "Withdraw", handler: () => onWithdraw(Math.max(1, amount)) },
-  ]
+    {
+      label: isHost ? "Withdraw to bank" : "Deposit money",
+      handler: () => onDeposit(Math.max(1, amount)),
+    },
+    {
+      label: isHost ? "Add funds" : "Withdraw",
+      handler: () => onWithdraw(Math.max(1, amount)),
+    },
+  ];
 
   return (
-    <div className="mx-auto max-w-4xl px-4 md:px-8 py-8 space-y-8">
+    <div className="mx-auto max-w-4xl px-4 md:px-8 py-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
       {/* Header */}
       <div className="flex items-center gap-3">
         <div className="h-12 w-12 rounded-2xl bg-purple-950/10 text-purple-950 dark:text-purple-300 flex items-center justify-center">
           <WalletIcon className="h-6 w-6" />
         </div>
         <div>
-          <h1 className="text-2xl font-black text-foreground tracking-tight">
+          <h1 className="text-xl font-semibold text-foreground tracking-tight">
             {isHost ? "Host Wallet" : "Wallet & Payments"}
           </h1>
-          <p className="text-sm font-semibold text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             {isHost
               ? "Your earnings from parties and property listings. Withdraw anytime to your bank."
               : "Deposit money to pay for bookings and reservations."}
@@ -65,11 +71,13 @@ export const WalletView: React.FC<WalletViewProps> = ({
 
       {/* Balance card */}
       <div className="rounded-[28px] border border-border bg-card p-6 md:p-8 shadow-sm bg-linear-to-br from-purple-950 to-purple-800 text-white">
-        <p className="text-xs font-bold uppercase tracking-widest text-white/70">Available balance</p>
-        <p className="mt-2 text-4xl font-black tracking-tight">
-          {formatPrice(displayPrice(balance, currency), currency)}
+        <p className="text-xs uppercase tracking-widest text-white/70">
+          Available balance
         </p>
-        <div className="mt-5 flex flex-wrap items-center gap-3 text-xs font-bold text-white/80">
+        <h1 className="mt-2 text-4xl font-semibold tracking-tight">
+          {formatPrice(displayPrice(balance, currency), currency)}
+        </h1>
+        <div className="mt-5 flex flex-wrap items-center gap-3 text-xs text-white/80">
           {isHost ? (
             <span className="flex items-center gap-1.5">
               <Briefcase className="h-4 w-4" /> Host earnings
@@ -87,13 +95,15 @@ export const WalletView: React.FC<WalletViewProps> = ({
       {/* Amount + actions */}
       <div className="rounded-3xl border border-border bg-card p-6 space-y-4">
         <div className="flex items-center justify-center gap-3">
-          <span className="text-4xl font-black text-foreground">{currency === "NGN" ? "₦" : "$"}</span>
+          <span className="text-4xl font-semibold text-foreground">
+            {currency === "NGN" ? "₦" : "$"}
+          </span>
           <input
             type="number"
             min={1}
             value={amount}
             onChange={(e) => setAmount(Number(e.target.value) || 0)}
-            className="w-40 border-b border-border text-center text-4xl font-black text-foreground outline-none bg-transparent"
+            className="w-40 border-b border-border text-center text-4xl font-semibold text-foreground outline-none bg-transparent"
             placeholder="0"
           />
         </div>
@@ -102,13 +112,17 @@ export const WalletView: React.FC<WalletViewProps> = ({
             <button
               key={a.label}
               onClick={a.handler}
-              className={`flex items-center gap-2 rounded-full px-6 py-3 text-sm font-black transition-[transform,background-color] duration-160 ease-out active:scale-97 cursor-pointer ${
+              className={`flex items-center gap-2 rounded-full px-4 py-2.5 text-xs font-medium transition-all duration-200 ease active:scale-97 cursor-pointer ${
                 i === 0
                   ? "bg-purple-950 text-white hover:bg-purple-900"
                   : "border border-border text-foreground hover:bg-muted"
               }`}
             >
-              {i === 0 ? <ArrowDownToLine className="h-4 w-4" /> : <ArrowUpFromLine className="h-4 w-4" />}
+              {i === 0 ? (
+                <ArrowDownToLine className="h-4 w-4" />
+              ) : (
+                <ArrowUpFromLine className="h-4 w-4" />
+              )}
               <span>{a.label}</span>
             </button>
           ))}
@@ -120,7 +134,10 @@ export const WalletView: React.FC<WalletViewProps> = ({
             <Banknote className="h-5 w-5 text-purple-950 dark:text-purple-300 shrink-0" />
             <p className="text-xs font-semibold text-muted-foreground">
               Fund your wallet via your virtual account number{" "}
-              <span className="font-black text-foreground">{VIRTUAL_ACCOUNT}</span>. Deposits reflect automatically.
+              <span className="font-semibold text-foreground">
+                {VIRTUAL_ACCOUNT}
+              </span>
+              . Deposits reflect automatically.
             </p>
           </div>
         )}
@@ -129,12 +146,14 @@ export const WalletView: React.FC<WalletViewProps> = ({
       {/* Withdraw bank account */}
       {isHost && (
         <div className="rounded-3xl border border-border bg-card p-6 space-y-3">
-          <p className="text-sm font-black text-foreground">Withdraw to your bank account</p>
+          <p className="text-sm text-foreground">
+            Withdraw to your bank account
+          </p>
           <div className="flex flex-col sm:flex-row gap-3">
             <select
               value={selectedAccount}
               onChange={(e) => setSelectedAccount(e.target.value)}
-              className="flex-1 rounded-full border border-border bg-card px-5 py-3 text-sm font-bold text-foreground outline-none cursor-pointer"
+              className="flex-1 rounded-full border border-border bg-card px-5 py-3 text-sm font-semibold text-foreground outline-none cursor-pointer"
             >
               <option>GTBank •• 8842</option>
               <option>Zenith •• 2231</option>
@@ -142,7 +161,7 @@ export const WalletView: React.FC<WalletViewProps> = ({
             </select>
             <button
               onClick={() => onWithdraw(Math.max(1, amount))}
-              className="rounded-full border border-border px-6 py-3 text-sm font-black text-foreground hover:bg-muted transition-colors cursor-pointer"
+              className="rounded-full border border-border px-5 py-2 text-sm text-foreground hover:bg-muted transition-colors cursor-pointer"
             >
               Withdraw
             </button>
@@ -154,22 +173,35 @@ export const WalletView: React.FC<WalletViewProps> = ({
       <div className="rounded-3xl border border-border bg-card p-6 pb-2">
         <div className="flex items-center gap-2 mb-4">
           <User className="h-4 w-4 text-purple-950 dark:text-purple-300" />
-          <h3 className="text-sm font-black text-foreground uppercase tracking-wider">Transactions</h3>
+          <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+            Transactions
+          </h3>
         </div>
         {transactions.length === 0 ? (
-          <p className="text-sm font-semibold text-muted-foreground pb-4">
+          <p className="text-sm text-muted-foreground pb-4">
             No transactions yet.{" "}
-            {isHost ? "Earnings appear here as guests book." : "Deposits and payments appear here."}
+            {isHost
+              ? "Earnings appear here as guests book."
+              : "Deposits and payments appear here."}
           </p>
         ) : (
           <div className="divide-y divide-border/50">
             {transactions.map((tx) => (
-              <div key={tx.id} className="flex items-center justify-between py-3">
+              <div
+                key={tx.id}
+                className="flex items-center justify-between py-3"
+              >
                 <div>
-                  <p className="text-sm font-black text-foreground">{tx.label}</p>
-                  <p className="text-[11px] font-semibold text-muted-foreground">{tx.date}</p>
+                  <p className="text-sm font-semibold text-foreground">
+                    {tx.label}
+                  </p>
+                  <p className="text-[11px] font-semibold text-muted-foreground">
+                    {tx.date}
+                  </p>
                 </div>
-                <span className={`text-sm font-black ${tx.type === "credit" ? "text-green-600" : "text-foreground"}`}>
+                <span
+                  className={`text-sm font-semibold ${tx.type === "credit" ? "text-green-600" : "text-foreground"}`}
+                >
                   {tx.type === "credit" ? "+" : "−"}
                   {formatPrice(displayPrice(tx.amount, currency), currency)}
                 </span>
@@ -179,5 +211,5 @@ export const WalletView: React.FC<WalletViewProps> = ({
         )}
       </div>
     </div>
-  )
-}
+  );
+};
