@@ -79,7 +79,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Logo */}
           <div className="flex items-center justify-center h-12 max-w-[150px]">
             <img
-              src="logo.png"
+              src="/images/logo.png"
               alt="Hangout Logo"
               className="h-full w-full object-contain"
             />

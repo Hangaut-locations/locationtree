@@ -15,7 +15,7 @@ const StepSix: React.FC<IStepFiveProps> = ({ amenities, setAmenities }) => {
     });
   };
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
       <div className="space-y-1.5">
         <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
           Tell guests what your place has to offer

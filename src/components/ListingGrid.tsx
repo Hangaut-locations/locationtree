@@ -84,7 +84,9 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-purple-900/10 dark:bg-purple-300/15 text-purple-950 dark:text-purple-200 mb-6">
           <Compass className="h-8 w-8 animate-bounce" />
         </div>
-        <h3 className="text-xl font-bold text-foreground">No listings found</h3>
+        <h3 className="text-xl font-semibold text-foreground">
+          No listings found
+        </h3>
         <p className="text-muted-foreground mt-2 max-w-md">
           We couldn't find any listings matching your search parameters. Try
           adjusting your destination, dates, guests count, or category.
@@ -105,7 +107,7 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
     if (items.length === 0) return null;
     return (
       <section className="space-y-6">
-        <h2 className="text-xl md:text-2xl font-bold text-purple-950 dark:text-purple-300 tracking-tight">
+        <h2 className="text-gl md:text-xl font-semibold text-purple-950 dark:text-purple-300 tracking-tight">
           {title}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
@@ -134,7 +136,7 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
     if (items.length === 0) return null;
     return Array.from({ length: repeatCount }).map((_, index) => (
       <section key={`${title}-${index}`} className="space-y-6">
-        <h2 className="text-xl md:text-2xl font-bold text-purple-950 dark:text-purple-300 tracking-tight">
+        <h2 className="text-xl md:text-2xl font-semibold text-purple-950 dark:text-purple-300 tracking-tight">
           {title}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">

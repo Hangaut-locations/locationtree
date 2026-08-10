@@ -19,14 +19,14 @@ export const Footer: React.FC<FooterProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 pb-8 border-b border-border/60">
           {/* Support */}
           <div className="space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-purple-950 dark:text-purple-300">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-purple-950 dark:text-purple-300">
               Support
             </h3>
-            <ul className="space-y-2.5 text-sm font-medium text-muted-foreground">
+            <ul className="space-y-2.5 text-sm  text-muted-foreground">
               <li>
                 <a
                   href="#"
-                  className="hover:text-foreground hover:underline transition-colors"
+                  className="hover:text-foreground hover:underline transition-colors text-xs"
                 >
                   Help Center
                 </a>
@@ -34,7 +34,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <a
                   href="#"
-                  className="hover:text-foreground hover:underline transition-colors"
+                  className="hover:text-foreground hover:underline transition-colors text-xs"
                 >
                   Safety information
                 </a>
@@ -42,7 +42,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <a
                   href="#"
-                  className="hover:text-foreground hover:underline transition-colors"
+                  className="hover:text-foreground hover:underline transition-colors text-xs"
                 >
                   Cancellation options
                 </a>
@@ -50,7 +50,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <a
                   href="#"
-                  className="hover:text-foreground hover:underline transition-colors"
+                  className="hover:text-foreground hover:underline transition-colors text-xs"
                 >
                   Our COVID-19 Response
                 </a>
@@ -58,7 +58,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <a
                   href="#"
-                  className="hover:text-foreground hover:underline transition-colors"
+                  className="hover:text-foreground hover:underline transition-colors text-xs"
                 >
                   Supporting people with disabilities
                 </a>
@@ -66,7 +66,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <a
                   href="#"
-                  className="hover:text-foreground hover:underline transition-colors"
+                  className="hover:text-foreground hover:underline transition-colors text-xs"
                 >
                   Report a neighborhood concern
                 </a>
@@ -76,14 +76,14 @@ export const Footer: React.FC<FooterProps> = ({
 
           {/* Community */}
           <div className="space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-purple-950 dark:text-purple-300">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-purple-950 dark:text-purple-300">
               Community
             </h3>
-            <ul className="space-y-2.5 text-sm font-medium text-muted-foreground">
+            <ul className="space-y-2.5 text-sm  text-muted-foreground">
               <li>
                 <a
                   href="#"
-                  className="hover:text-foreground hover:underline transition-colors"
+                  className="hover:text-foreground hover:underline transition-colors text-xs"
                 >
                   Hangout.org: disaster relief housing
                 </a>
@@ -91,7 +91,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <a
                   href="#"
-                  className="hover:text-foreground hover:underline transition-colors"
+                  className="hover:text-foreground hover:underline transition-colors text-xs"
                 >
                   Support Afghan refugees
                 </a>
@@ -99,7 +99,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <a
                   href="#"
-                  className="hover:text-foreground hover:underline transition-colors"
+                  className="hover:text-foreground hover:underline transition-colors text-xs"
                 >
                   Celebrating diversity & belonging
                 </a>
@@ -107,7 +107,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <a
                   href="#"
-                  className="hover:text-foreground hover:underline transition-colors"
+                  className="hover:text-foreground hover:underline transition-colors text-xs"
                 >
                   Combating discrimination
                 </a>
@@ -117,14 +117,14 @@ export const Footer: React.FC<FooterProps> = ({
 
           {/* Hosting */}
           <div className="space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-purple-950 dark:text-purple-300">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-purple-950 dark:text-purple-300">
               Hosting
             </h3>
-            <ul className="space-y-2.5 text-sm font-medium text-muted-foreground">
+            <ul className="space-y-2.5 text-sm  text-muted-foreground">
               <li>
                 <a
                   href="#"
-                  className="hover:text-foreground hover:underline transition-colors"
+                  className="hover:text-foreground hover:underline transition-colors text-xs"
                 >
                   Try hosting
                 </a>
@@ -132,7 +132,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <a
                   href="#"
-                  className="hover:text-foreground hover:underline transition-colors"
+                  className="hover:text-foreground hover:underline transition-colors text-xs"
                 >
                   AirCover for Hosts
                 </a>
@@ -140,7 +140,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <a
                   href="#"
-                  className="hover:text-foreground hover:underline transition-colors"
+                  className="hover:text-foreground hover:underline transition-colors text-xs"
                 >
                   Explore hosting resources
                 </a>
@@ -148,7 +148,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <a
                   href="#"
-                  className="hover:text-foreground hover:underline transition-colors"
+                  className="hover:text-foreground hover:underline transition-colors text-xs"
                 >
                   Visit our community forum
                 </a>
@@ -156,7 +156,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <a
                   href="#"
-                  className="hover:text-foreground hover:underline transition-colors"
+                  className="hover:text-foreground hover:underline transition-colors text-xs"
                 >
                   How to host responsibly
                 </a>
@@ -166,14 +166,14 @@ export const Footer: React.FC<FooterProps> = ({
 
           {/* About */}
           <div className="space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-purple-950 dark:text-purple-300">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-purple-950 dark:text-purple-300">
               About
             </h3>
-            <ul className="space-y-2.5 text-sm font-medium text-muted-foreground">
+            <ul className="space-y-2.5 text-sm  text-muted-foreground">
               <li>
                 <a
                   href="#"
-                  className="hover:text-foreground hover:underline transition-colors"
+                  className="hover:text-foreground hover:underline transition-colors text-xs"
                 >
                   Newsroom
                 </a>
@@ -181,7 +181,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <a
                   href="#"
-                  className="hover:text-foreground hover:underline transition-colors"
+                  className="hover:text-foreground hover:underline transition-colors text-xs"
                 >
                   Learn about new features
                 </a>
@@ -189,7 +189,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <a
                   href="#"
-                  className="hover:text-foreground hover:underline transition-colors"
+                  className="hover:text-foreground hover:underline transition-colors text-xs"
                 >
                   Letter from our founders
                 </a>
@@ -197,7 +197,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <a
                   href="#"
-                  className="hover:text-foreground hover:underline transition-colors"
+                  className="hover:text-foreground hover:underline transition-colors text-xs"
                 >
                   Careers
                 </a>
@@ -205,7 +205,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <a
                   href="#"
-                  className="hover:text-foreground hover:underline transition-colors"
+                  className="hover:text-foreground hover:underline transition-colors text-xs"
                 >
                   Investors
                 </a>
@@ -213,7 +213,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <a
                   href="#"
-                  className="hover:text-foreground hover:underline transition-colors"
+                  className="hover:text-foreground hover:underline transition-colors text-xs"
                 >
                   Hangout Luxe
                 </a>
@@ -223,28 +223,28 @@ export const Footer: React.FC<FooterProps> = ({
         </div>
 
         {/* Bottom Bar */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-6 text-sm font-medium text-muted-foreground">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-6 text-sm  text-muted-foreground">
           {/* Copyright & Links */}
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 text-center">
             <span>© 2026 Hangout, Inc.</span>
             <span>·</span>
             <a
               href="#"
-              className="hover:text-foreground hover:underline transition-colors"
+              className="hover:text-foreground hover:underline transition-colors text-xs"
             >
               Privacy
             </a>
             <span>·</span>
             <a
               href="#"
-              className="hover:text-foreground hover:underline transition-colors"
+              className="hover:text-foreground hover:underline transition-colors text-xs"
             >
               Terms
             </a>
             <span>·</span>
             <a
               href="#"
-              className="hover:text-foreground hover:underline transition-colors"
+              className="hover:text-foreground hover:underline transition-colors text-xs"
             >
               Sitemap
             </a>

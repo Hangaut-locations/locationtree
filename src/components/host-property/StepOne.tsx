@@ -14,7 +14,7 @@ const StepOne: React.FC<IStepOneProps> = () => {
       <h1 className="text-2xl sm:text-4xl font-bold text-foreground tracking-tight leading-tight">
         Tell us about your place
       </h1>
-      <p className="text-base font-semibold text-muted-foreground leading-relaxed max-w-xl">
+      <p className="text-muted-foreground leading-relaxed max-w-xl">
         In this step, we’ll ask you what type of space you’re listing and
         whether guests will book the whole place or room. Then tell us the
         location and how many people it can accommodate

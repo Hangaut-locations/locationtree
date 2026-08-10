@@ -1,4 +1,4 @@
-import { Search, MapPin } from "lucide-react";
+import { MapPin } from "lucide-react";
 import {
   useEffect,
   useRef,
@@ -9,7 +9,7 @@ import {
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
-interface IStepFourProps {
+interface IStepOneProps {
   location: string;
   setLocation: Dispatch<SetStateAction<string>>;
 }
@@ -24,7 +24,7 @@ const DEFAULT_LOCATION: Coordinates = {
   lng: 3.3792,
 };
 
-const StepFour: React.FC<IStepFourProps> = ({ location, setLocation }) => {
+const PartyStepThree: React.FC<IStepOneProps> = ({ location, setLocation }) => {
   const mapRef = useRef<L.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const markerRef = useRef<L.Marker | null>(null);
@@ -208,51 +208,35 @@ const StepFour: React.FC<IStepFourProps> = ({ location, setLocation }) => {
 
     searchLocation(loc);
   };
-
   return (
-    <div className="space-y-6 relative">
-      {/* Location Input */}
-      <div className="flex flex-col gap-4 max-w-lg mx-auto">
-        <div
-          className="
-            flex items-center gap-3
-            border border-border/80
-            bg-card
-            rounded-full
-            px-5 py-3.5
-            transition-colors
-            focus-within:border-purple-600
-            focus-within:ring-2
-            focus-within:ring-purple-600/10
-            w-full
-          "
-        >
-          <Search className="h-5 w-5 text-muted-foreground" />
-
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out relative">
+      <div className="space-y-1.5 text-center">
+        <span className="text-sm font-semibold text-purple-950 dark:text-purple-300 uppercase tracking-widest block">
+          Step 3
+        </span>
+        <h2 className="text-xl md:text-2xl font-semibold text-foreground tracking-tight">
+          Where is the party located?
+        </h2>
+        <p className="text-xs text-muted-foreground">
+          The address is only shared with guests after they book a ticket.
+        </p>
+      </div>
+      <div className="flex flex-col gap-4 max-w-md mx-auto">
+        <div className="flex items-center gap-3 border border-border/80 bg-card rounded-full px-5 py-3 transition-colors focus-within:border-purple-600 focus-within:ring-2 focus-within:ring-purple-600/10 w-full">
+          <MapPin className="h-5 w-5 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Search hangout location"
+            placeholder="Party location (e.g. Lekki, Paris, London)"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="w-full bg-transparent text-sm font-bold text-foreground outline-none border-none p-0 focus:ring-0"
+            className="w-full bg-transparent text-sm font-semibold text-foreground outline-none border-none p-0 focus:ring-0"
           />
-
           {searching && (
-            <div
-              className="
-                h-4 w-4
-                rounded-full
-                border-2
-                border-purple-600
-                border-t-transparent
-                animate-spin
-              "
-            />
+            <div className="h-4 w-4 rounded-full border-2 border-purple-600 border-t-transparent animate-spin" />
           )}
         </div>
 
-        {/* Suggestions */}
         <div className="flex flex-wrap justify-center gap-2">
           {["Lekki", "Surulere", "Lagos"].map((loc) => (
             <button
@@ -297,4 +281,4 @@ const StepFour: React.FC<IStepFourProps> = ({ location, setLocation }) => {
   );
 };
 
-export default StepFour;
+export default PartyStepThree;

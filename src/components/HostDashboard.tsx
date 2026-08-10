@@ -1,6 +1,7 @@
 import {
   Briefcase,
   CalendarDays,
+  Home,
   LogOut,
   PartyPopper,
   Pencil,
@@ -205,7 +206,7 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({
               />
             </label>
 
-            <p className="text-xs font-semibold text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               Tip: click your profile picture to edit your profile. Changes save
               as you type out of each field.
             </p>
@@ -218,42 +219,39 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
           {/* Add new */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <button
-              onClick={() => setEditing({ listing: null, mode: "party" })}
-              className="group flex items-center gap-4 rounded-3xl border border-border bg-card p-6 text-left hover:border-purple-950/40 hover:shadow-md transition-all cursor-pointer"
-            >
-              <div className="h-12 w-12 rounded-2xl bg-purple-950/10 text-purple-950 dark:text-purple-300 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <PartyPopper className="h-6 w-6" />
-              </div>
-              <div className="flex-1">
-                <p className="text-base font-semibold text-foreground">
-                  Host a new party
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Add a new party listing
-                </p>
-              </div>
-              <Plus className="h-5 w-5 text-muted-foreground" />
-            </button>
-            <button
-              onClick={() => setEditing({ listing: null, mode: "property" })}
-              className="group flex items-center gap-4 rounded-3xl border border-border bg-card p-6 text-left hover:border-purple-950/40 hover:shadow-md transition-all cursor-pointer"
-            >
-              <div className="h-12 w-12 rounded-2xl bg-purple-950/10 text-purple-950 dark:text-purple-300 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Briefcase className="h-6 w-6" />
-              </div>
-              <div className="flex-1">
-                <Link to="/become-a-host/property" className="w-full">
+            <Link to="/become-a-host/party" className="w-full flex">
+              <button className="w-full group flex items-center gap-4 rounded-3xl border border-border bg-card p-6 text-left hover:border-purple-950/40 hover:shadow-md transition-all cursor-pointer">
+                <div className="h-12 w-12 rounded-2xl bg-purple-950/10 text-purple-950 dark:text-purple-300 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <PartyPopper className="h-6 w-6" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-base font-semibold text-foreground">
+                    Host a new party
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Add a new party listing
+                  </p>
+                </div>
+                <Plus className="h-5 w-5 text-muted-foreground" />
+              </button>
+            </Link>
+
+            <Link to="/become-a-host/property" className="w-full flex">
+              <button className="w-full group flex items-center gap-4 rounded-3xl border border-border bg-card p-6 text-left hover:border-purple-950/40 hover:shadow-md transition-all cursor-pointer">
+                <div className="h-12 w-12 rounded-2xl bg-purple-950/10 text-purple-950 dark:text-purple-300 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Home className="h-6 w-6" />
+                </div>
+                <div className="flex-1">
                   <p className="text-base font-semibold text-foreground">
                     List a new property
                   </p>
                   <p className="text-xs text-muted-foreground">
                     Add a place / spot for events
                   </p>
-                </Link>
-              </div>
-              <Plus className="h-5 w-5 text-muted-foreground" />
-            </button>
+                </div>
+                <Plus className="h-5 w-5 text-muted-foreground" />
+              </button>
+            </Link>
           </div>
 
           {listings.length === 0 ? (
@@ -347,7 +345,7 @@ const ListingRow: React.FC<{
         <p className="text-sm font-semibold text-foreground truncate">
           {listing.title}
         </p>
-        <p className="text-[11px] font-semibold text-muted-foreground">
+        <p className="text-[11px] text-muted-foreground">
           {listing.location} · {listing.guestsCount} guests · ${listing.price}/
           {listing.priceUnit}
           {listing.hostingType === "party" &&

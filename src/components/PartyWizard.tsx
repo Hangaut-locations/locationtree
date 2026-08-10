@@ -5,6 +5,7 @@ import {
   Minus,
   PartyPopper,
   Plus,
+  SaveAllIcon,
   Ticket,
   Type,
   Users,
@@ -12,14 +13,21 @@ import {
 import type React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { PARTY_TYPES, SAMPLE_IMAGES } from "../data/constants";
+import { Party_Types, SAMPLE_IMAGES } from "../data/constants";
 import type { Listing } from "../types/listing";
+import { useRef } from "react";
+import PartyStepThree from "./list-party/StepThree.party";
 
 interface PartyWizardProps {
   onAddListing: (listing: Listing) => void;
 }
 
 type WizardStep = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+
+const openDatePicker = (ref: React.RefObject<HTMLInputElement | null>) => {
+  ref.current?.showPicker?.();
+  ref.current?.focus();
+};
 
 export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
   const [step, setStep] = useState<WizardStep>(1);
@@ -37,6 +45,9 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
   const [rules, setRules] = useState<string>("");
   const [ticketed, setTicketed] = useState<boolean>(true);
   const [photos] = useState<string[]>(SAMPLE_IMAGES.slice(0, 2));
+
+  const startDateRef = useRef<HTMLInputElement>(null);
+  const endDateRef = useRef<HTMLInputElement>(null);
 
   const today = new Date().toISOString().split("T")[0];
   const isDateValid = !!startDate && !!endDate && endDate >= startDate;
@@ -59,7 +70,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
   };
 
   const handleSubmit = () => {
-    const normalizedLocation = (["Lekki", "Lekki", "surulere"].find(
+    const normalizedLocation = (["Lekki", "Lagos", "surulere"].find(
       (loc) => loc.toLowerCase() === location.trim().toLowerCase(),
     ) || "surulere") as "surulere";
 
@@ -100,10 +111,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
   const isStepValid = () => {
     if (step === 1) return !!partyType;
     if (step === 2) return isDateValid;
-    if (step === 3)
-      return ["Lekki", "Lekki", "surulere"].includes(
-        location.trim().toLowerCase(),
-      );
+    if (step === 3) return !!location;
     if (step === 5) return activities.trim().length > 0;
     if (step === 8) return price > 0;
     return true;
@@ -117,7 +125,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
   ) => {
     return (
       <div className="flex items-center justify-between border-b border-border/40 py-5">
-        <span className="text-base font-bold text-foreground">{label}</span>
+        <span className="text-base font-semibold text-foreground">{label}</span>
         <div className="flex items-center gap-4">
           <button
             type="button"
@@ -127,7 +135,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
           >
             <Minus className="h-4.5 w-4.5" />
           </button>
-          <span className="w-5 text-center text-base font-bold text-foreground">
+          <span className="w-5 text-center text-base font-semibold text-foreground">
             {value}
           </span>
           <button
@@ -143,7 +151,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300">
+    <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300 relative">
       {/* Wizard Header */}
       <header className="sticky top-0 z-45 w-full border-b border-border bg-background/95 backdrop-blur-md px-4 py-4 md:px-8 flex items-center justify-between">
         <div
@@ -151,7 +159,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
           onClick={() => navigate("/")}
         >
           <img
-            src="logo.png"
+            src="/images/logo.png"
             alt="Hangout Logo"
             className="h-full w-full object-contain"
           />
@@ -159,27 +167,30 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
         <div className="flex items-center gap-3">
           <button
             onClick={() => alert("Support line matches available agents.")}
-            className="flex h-10 w-10 sm:h-auto sm:w-auto items-center justify-center gap-1.5 rounded-full border border-border sm:px-4 sm:py-2 text-xs font-bold text-foreground hover:bg-muted transition-all cursor-pointer"
+            className="flex h-10 w-10 sm:h-auto sm:w-auto items-center justify-center gap-1.5 rounded-full border border-border sm:px-4 sm:py-2 text-xs font-medium text-foreground hover:bg-muted transition-all cursor-pointer"
             aria-label="Help"
           >
-            <HelpCircle className="h-4.5 w-4.5" />
+            <HelpCircle className="h-4 w-4" />
             <span className="hidden sm:inline">Questions?</span>
           </button>
           <button
             onClick={handleExit}
-            className="flex items-center gap-1.5 rounded-full border border-border px-4 py-2.5 md:py-2 text-xs md:text-sm font-bold text-foreground hover:bg-muted transition-all cursor-pointer"
+            className="flex items-center gap-1.5 rounded-full border border-border px-4 py-2.5 md:py-2 text-xs font-medium text-foreground hover:bg-muted transition-all cursor-pointer"
           >
+            <SaveAllIcon className="h-4 w-4" />
             <span>Save & Exit</span>
           </button>
         </div>
       </header>
 
       {/* Progress Bar Indicator */}
-      <div className="w-full bg-muted h-1">
+      <div className="w-full bg-muted h-1 fixed z-10 top-20 right-0 left-0">
         <div
-          className="bg-purple-950 dark:bg-purple-650 h-full transition-all duration-300"
-          style={{ width: `${(step / 8) * 100}%` }}
-        />
+          className="h-full rounded-full bg-gradient-to-r from-violet-600 via-purple-500 to-fuchsia-500 shadow-[0_0_10px_rgba(139,92,246,0.45)] transition-all duration-500 ease-out relative overflow-hidden"
+          style={{ width: `${(step / 12) * 100}%` }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent animate-[shimmer_2s_infinite]" />
+        </div>
       </div>
 
       {/* Wizard Body Container */}
@@ -187,34 +198,34 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
         <div className="w-full max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
           {/* Step 1: Party type */}
           {step === 1 && (
-            <div className="space-y-6">
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
               <div className="space-y-1.5 text-center">
-                <span className="text-sm font-bold text-purple-950 dark:text-purple-300 uppercase tracking-widest block">
+                <span className="text-sm font-semibold text-purple-950 dark:text-purple-300 uppercase tracking-widest block">
                   Step 1
                 </span>
-                <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
+                <h1 className="text-xl sm:text-2xl font-semibold text-foreground tracking-tight">
                   What type of party are you hosting?
                 </h1>
-                <p className="text-sm font-semibold text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   Choose what fits best — house, beach, yacht, club and more.
                 </p>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {PARTY_TYPES.map((type) => {
-                  const isSelected = partyType === type;
+                {Party_Types.map((item, index) => {
+                  const isSelected = partyType === item.name;
                   return (
                     <button
-                      key={type}
-                      onClick={() => setPartyType(type)}
-                      className={`flex items-center gap-2 rounded-2xl border px-4 py-3.5 text-left text-sm font-bold transition-[border-color,background-color,transform] duration-160 ease-out cursor-pointer active:scale-97 ${
+                      key={index}
+                      onClick={() => setPartyType(item.name)}
+                      className={`flex items-center gap-2 rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition-[border-color,background-color,transform] duration-160 ease-out cursor-pointer active:scale-97 ${
                         isSelected
                           ? "border-purple-950 dark:border-purple-600 bg-purple-950/5 dark:bg-purple-800/15"
                           : "border-border/80 bg-card hover:border-gray-400"
                       }`}
                     >
-                      <PartyPopper className="h-4 w-4 text-purple-950 dark:text-purple-300 shrink-0" />
-                      <span className="text-xs font-bold text-foreground">
-                        {type}
+                      <item.icon className="h-4 w-4 text-purple-950 dark:text-purple-300 shrink-0" />
+                      <span className="text-xs font-semibold text-foreground">
+                        {item.name}
                       </span>
                     </button>
                   );
@@ -225,52 +236,86 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
 
           {/* Step 2: Party dates */}
           {step === 2 && (
-            <div className="space-y-6">
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
               <div className="space-y-1.5 text-center">
-                <span className="text-sm font-bold text-purple-950 dark:text-purple-300 uppercase tracking-widest block">
+                <span className="text-sm font-semibold text-purple-950 dark:text-purple-300 uppercase tracking-widest block">
                   Step 2
                 </span>
-                <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
+                <h2 className="text-xl sm:text-2xl font-semibold text-foreground tracking-tight">
                   When is your party happening?
                 </h2>
-                <p className="text-xs font-semibold text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   Your party listing is cleared automatically after its end
                   date.
                 </p>
               </div>
-              <div className="max-w-md mx-auto space-y-4">
-                <div className="flex items-center gap-3 border border-border/80 bg-card rounded-2xl px-4 py-3.5 transition-colors focus-within:border-purple-600">
-                  <CalendarDays className="h-5 w-5 text-muted-foreground" />
-                  <label className="flex flex-col w-full">
-                    <span className="text-[10px] font-bold uppercase text-muted-foreground">
-                      Start date
-                    </span>
-                    <input
-                      type="date"
-                      min={today}
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
-                      className="w-full bg-transparent text-sm font-bold text-foreground outline-none border-none p-0 focus:ring-0 cursor-pointer [color-scheme:light-dark]"
-                    />
-                  </label>
+              <div className="max-w-2xl mx-auto space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Start Date */}
+                  <div
+                    onClick={() => openDatePicker(startDateRef)}
+                    className="flex items-center gap-3 border border-border/80 bg-card rounded-2xl px-4 py-3 transition-all hover:border-purple-500 focus-within:border-purple-600 focus-within:ring-2 focus-within:ring-purple-600/10 cursor-pointer"
+                  >
+                    <CalendarDays className="h-5 w-5 text-muted-foreground shrink-0" />
+
+                    <div className="flex flex-col w-full">
+                      <span className="text-[10px] font-semibold uppercase text-muted-foreground">
+                        Start date
+                      </span>
+
+                      <input
+                        ref={startDateRef}
+                        id="start_date"
+                        type="date"
+                        min={today}
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                        onClick={(e) => e.stopPropagation()}
+                        className="w-full bg-transparent text-sm font-semibold text-foreground outline-none border-none p-0 focus:ring-0 cursor-pointer [color-scheme:light_dark]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* End Date */}
+                  <div
+                    onClick={() => openDatePicker(endDateRef)}
+                    className="flex items-center gap-3 border border-border/80 bg-card rounded-2xl px-4 py-3 transition-all hover:border-purple-500 focus-within:border-purple-600 focus-within:ring-2 focus-within:ring-purple-600/10 cursor-pointer"
+                  >
+                    <CalendarDays className="h-5 w-5 text-muted-foreground shrink-0" />
+
+                    <div className="flex flex-col w-full">
+                      <span className="text-[10px] font-semibold uppercase text-muted-foreground">
+                        End date
+                      </span>
+
+                      <input
+                        ref={endDateRef}
+                        id="end_date"
+                        type="date"
+                        min={startDate || today}
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                        onClick={(e) => e.stopPropagation()}
+                        className="
+            w-full
+            bg-transparent
+            text-sm
+            font-semibold
+            text-foreground
+            outline-none
+            border-none
+            p-0
+            focus:ring-0
+            cursor-pointer
+            [color-scheme:light_dark]
+          "
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3 border border-border/80 bg-card rounded-2xl px-4 py-3.5 transition-colors focus-within:border-purple-600">
-                  <CalendarDays className="h-5 w-5 text-muted-foreground" />
-                  <label className="flex flex-col w-full">
-                    <span className="text-[10px] font-bold uppercase text-muted-foreground">
-                      End date
-                    </span>
-                    <input
-                      type="date"
-                      min={startDate || today}
-                      value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                      className="w-full bg-transparent text-sm font-bold text-foreground outline-none border-none p-0 focus:ring-0 cursor-pointer [color-scheme:light-dark]"
-                    />
-                  </label>
-                </div>
+
                 {startDate && endDate && !isDateValid && (
-                  <p className="text-center text-xs font-bold text-red-500">
+                  <p className="text-center text-xs font-semibold text-red-500">
                     End date must be after the start date.
                   </p>
                 )}
@@ -280,61 +325,20 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
 
           {/* Step 3: Location */}
           {step === 3 && (
-            <div className="space-y-6">
-              <div className="space-y-1.5 text-center">
-                <span className="text-sm font-bold text-purple-950 dark:text-purple-300 uppercase tracking-widest block">
-                  Step 3
-                </span>
-                <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
-                  Where is the party located?
-                </h2>
-                <p className="text-xs font-semibold text-muted-foreground">
-                  The address is only shared with guests after they book a
-                  ticket.
-                </p>
-              </div>
-              <div className="flex flex-col gap-4 max-w-md mx-auto">
-                <div className="flex items-center gap-3 border border-border/80 bg-card rounded-full px-5 py-3.5 transition-colors focus-within:border-purple-600 focus-within:ring-2 focus-within:ring-purple-600/10 w-full">
-                  <MapPin className="h-5 w-5 text-muted-foreground" />
-                  <input
-                    type="text"
-                    placeholder="Party location (e.g. Lekki, Paris, London)"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    className="w-full bg-transparent text-sm font-bold text-foreground outline-none border-none p-0 focus:ring-0"
-                  />
-                </div>
-                <div className="flex flex-wrap justify-center gap-2">
-                  {["Lekki", "Lekki", "surulere"].map((loc) => (
-                    <button
-                      key={loc}
-                      type="button"
-                      onClick={() => setLocation(loc)}
-                      className={`px-4 py-2.5 rounded-full border text-xs font-bold transition-all cursor-pointer ${
-                        location.toLowerCase() === loc.toLowerCase()
-                          ? "bg-purple-950 text-white border-purple-950 dark:bg-purple-800 dark:border-purple-800 shadow-sm"
-                          : "bg-card text-foreground border-border hover:bg-muted hover:border-gray-400"
-                      }`}
-                    >
-                      {loc}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <PartyStepThree location={location} setLocation={setLocation} />
           )}
 
           {/* Step 4: Capacity + price */}
           {step === 4 && (
-            <div className="space-y-6">
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
               <div className="space-y-1.5 text-center">
-                <span className="text-sm font-bold text-purple-950 dark:text-purple-300 uppercase tracking-widest block">
+                <span className="text-sm font-semibold text-purple-950 dark:text-purple-300 uppercase tracking-widest block">
                   Step 4
                 </span>
-                <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
+                <h2 className="text-xl sm:text-2xl font-semibold text-foreground tracking-tight">
                   Set your guest capacity and price
                 </h2>
-                <p className="text-xs font-semibold text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   Parties don't need bedrooms or beds — guests come for the
                   experience, not to sleep.
                 </p>
@@ -345,7 +349,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
               </div>
 
               <div className="space-y-3">
-                <p className="text-sm font-bold text-foreground">
+                <p className="text-sm text-foreground">
                   How do you want to charge?
                 </p>
                 <div className="grid grid-cols-2 gap-3">
@@ -360,10 +364,10 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
                   >
                     <Users className="h-5 w-5 text-purple-950 dark:text-purple-300" />
                     <div>
-                      <p className="text-sm font-bold text-foreground">
+                      <p className="text-sm font-semibold text-foreground">
                         Per person
                       </p>
-                      <p className="text-[11px] font-semibold text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         Guests buy a ticket per seat
                       </p>
                     </div>
@@ -379,10 +383,10 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
                   >
                     <CalendarDays className="h-5 w-5 text-purple-950 dark:text-purple-300" />
                     <div>
-                      <p className="text-sm font-bold text-foreground">
+                      <p className="text-sm font-semibold text-foreground">
                         Per hour
                       </p>
-                      <p className="text-[11px] font-semibold text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         Guests book the whole party
                       </p>
                     </div>
@@ -391,15 +395,17 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
               </div>
 
               <div className="flex items-center justify-center gap-3 max-w-md mx-auto">
-                <span className="text-5xl font-bold text-foreground">$</span>
+                <span className="text-5xl font-semibold text-foreground">
+                  $
+                </span>
                 <input
                   type="number"
                   min={1}
                   value={price}
                   onChange={(e) => setPrice(Number(e.target.value) || 0)}
-                  className="w-32 border-r border-border/60 bg-transparent text-center text-5xl font-bold text-foreground outline-none"
+                  className="w-32 border-r border-border/60 bg-transparent text-center text-5xl font-semibold text-foreground outline-none"
                 />
-                <span className="text-sm font-bold text-muted-foreground">
+                <span className="text-sm font-semibold text-muted-foreground">
                   / {priceMode}
                 </span>
               </div>
@@ -408,15 +414,15 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
 
           {/* Step 5: Activities */}
           {step === 5 && (
-            <div className="space-y-6">
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
               <div className="space-y-1.5 text-center">
-                <span className="text-sm font-bold text-purple-950 dark:text-purple-300 uppercase tracking-widest block">
+                <span className="text-sm font-semibold text-purple-950 dark:text-purple-300 uppercase tracking-widest block">
                   Step 5
                 </span>
-                <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
+                <h2 className="text-xl sm:text-2xl font-semibold text-foreground tracking-tight">
                   What will be happening at the party?
                 </h2>
-                <p className="text-xs font-semibold text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   Describe the vibe, music, activities and anything guests
                   should expect.
                 </p>
@@ -433,15 +439,15 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
 
           {/* Step 6: Rules */}
           {step === 6 && (
-            <div className="space-y-6">
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
               <div className="space-y-1.5 text-center">
-                <span className="text-sm font-bold text-purple-950 dark:text-purple-300 uppercase tracking-widest block">
+                <span className="text-sm font-semibold text-purple-950 dark:text-purple-300 uppercase tracking-widest block">
                   Step 6
                 </span>
-                <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
+                <h2 className="text-xl sm:text-2xl font-semibold text-foreground tracking-tight">
                   Set your party rules
                 </h2>
-                <p className="text-xs font-semibold text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   Keep it clear so guests know what's allowed (and what isn't).
                 </p>
               </div>
@@ -457,15 +463,15 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
 
           {/* Step 7: Title + ticket */}
           {step === 7 && (
-            <div className="space-y-6">
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
               <div className="space-y-1.5 text-center">
-                <span className="text-sm font-bold text-purple-950 dark:text-purple-300 uppercase tracking-widest block">
+                <span className="text-sm font-semibold text-purple-950 dark:text-purple-300 uppercase tracking-widest block">
                   Step 7
                 </span>
-                <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
+                <h2 className="text-xl sm:text-2xl font-semibold text-foreground tracking-tight">
                   Name your party
                 </h2>
-                <p className="text-xs font-semibold text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   Pick something catchy — you can tweak it anytime from your
                   host profile.
                 </p>
@@ -476,7 +482,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g. Rooftop Sunset Beach Party"
-                className="w-full max-w-lg mx-auto block border-2 border-foreground px-4 py-3.5 outline-none placeholder:text-muted-foreground/40 focus:ring-2 focus:ring-purple-600/10 rounded-2xl text-sm font-bold text-foreground"
+                className="w-full max-w-lg mx-auto block border-2 border-foreground px-4 py-3 outline-none placeholder:text-muted-foreground/40 focus:ring-2 focus:ring-purple-600/10 rounded-2xl text-sm font-semibold text-foreground"
               />
               <p className="text-right text-xs font-semibold text-muted-foreground">
                 {title.length}/48
@@ -493,16 +499,16 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
               >
                 <Ticket className="h-5 w-5 text-purple-950 dark:text-purple-300" />
                 <div className="flex-1">
-                  <p className="text-sm font-bold text-foreground">
+                  <p className="text-sm font-medium text-foreground">
                     Guests book / buy tickets for reservation
                   </p>
-                  <p className="text-xs font-semibold text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     Ticket sales are required for this party. Turn off to allow
                     free RSVP.
                   </p>
                 </div>
                 <span
-                  className={`h-6 w-6 rounded-full border flex items-center justify-center text-[10px] font-bold ${
+                  className={`h-6 w-6 rounded-full border flex items-center justify-center text-[10px] font-semibold ${
                     ticketed
                       ? "bg-purple-950 text-white border-purple-950"
                       : "border-border text-transparent"
@@ -518,20 +524,20 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
           {step === 8 && (
             <div className="space-y-8 text-center">
               <div className="space-y-1.5">
-                <span className="text-sm font-bold text-purple-950 dark:text-purple-300 uppercase tracking-widest block">
+                <span className="text-sm font-semibold text-purple-950 dark:text-purple-300 uppercase tracking-widest block">
                   Step 8
                 </span>
-                <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
+                <h2 className="text-xl sm:text-2xl font-semibold text-foreground tracking-tight">
                   Set your final price for the party
                 </h2>
-                <p className="text-xs font-semibold text-muted-foreground">
-                  <span className="font-bold text-foreground">{partyType}</span>{" "}
-                  · {startDate} → {endDate} · {capacity} guests
+                <p className="text-xs text-muted-foreground">
+                  <span className="text-foreground">{partyType}</span> ·{" "}
+                  {startDate} → {endDate} · {capacity} guests
                 </p>
               </div>
 
               <div className="flex items-center justify-center gap-3">
-                <span className="text-6xl sm:text-7xl font-bold text-foreground">
+                <span className="text-6xl sm:text-7xl font-semibold text-foreground">
                   $
                 </span>
                 <input
@@ -539,33 +545,33 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
                   min={1}
                   value={price}
                   onChange={(e) => setPrice(Number(e.target.value) || 0)}
-                  className="w-40 border-r border-border/60 bg-transparent text-center text-6xl sm:text-7xl font-bold text-foreground outline-none"
+                  className="w-40 border-r border-border/60 bg-transparent text-center text-6xl sm:text-7xl font-semibold text-foreground outline-none"
                 />
               </div>
-              <p className="text-sm font-bold text-muted-foreground">
+              <p className="text-sm font-semibold text-muted-foreground">
                 per {priceMode}
               </p>
 
               <div className="max-w-md mx-auto rounded-3xl border border-border bg-card p-5 text-left space-y-2">
-                <div className="flex justify-between text-xs font-bold text-muted-foreground">
+                <div className="flex justify-between text-xs font-semibold text-muted-foreground">
                   <span className="flex items-center gap-1.5">
                     <Type className="h-3.5 w-3.5" /> Type
                   </span>
                   <span className="text-foreground">{partyType}</span>
                 </div>
-                <div className="flex justify-between text-xs font-bold text-muted-foreground">
+                <div className="flex justify-between text-xs font-semibold text-muted-foreground">
                   <span className="flex items-center gap-1.5">
                     <MapPin className="h-3.5 w-3.5" /> Location
                   </span>
                   <span className="text-foreground">{location || "—"}</span>
                 </div>
-                <div className="flex justify-between text-xs font-bold text-muted-foreground">
+                <div className="flex justify-between text-xs font-semibold text-muted-foreground">
                   <span className="flex items-center gap-1.5">
                     <Users className="h-3.5 w-3.5" /> Capacity
                   </span>
                   <span className="text-foreground">{capacity} guests</span>
                 </div>
-                <div className="flex justify-between text-xs font-bold text-muted-foreground">
+                <div className="flex justify-between text-xs font-semibold text-muted-foreground">
                   <span className="flex items-center gap-1.5">
                     <Ticket className="h-3.5 w-3.5" /> Booking
                   </span>
@@ -575,26 +581,26 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
                 </div>
               </div>
 
-              <button
+              {/* <button
                 type="button"
                 onClick={handleSubmit}
-                className="rounded-full bg-purple-950 hover:bg-purple-900 dark:bg-purple-800 dark:hover:bg-purple-750 text-white font-bold py-3 px-8 text-sm shadow-md active:scale-97 transition-[transform,background-color] duration-160 ease-out cursor-pointer"
+                className="rounded-full bg-purple-950 hover:bg-purple-900 dark:bg-purple-800 dark:hover:bg-purple-750 text-white font-semibold py-3 px-8 text-sm shadow-md active:scale-97 transition-[transform,background-color] duration-160 ease-out cursor-pointer"
               >
                 Publish party
-              </button>
+              </button> */}
             </div>
           )}
         </div>
       </main>
 
       {/* Fixed Footer Actions bar */}
-      <footer className="border-t border-border/60 bg-card py-5 px-6 sm:px-8 mt-auto">
+      <footer className="border-t border-border/60 bg-card py-5 px-6 sm:px-8 mt-auto z-10 sticky bottom-0 right-0 left-0">
         <div className="w-full max-w-2xl mx-auto flex items-center justify-between">
           <button
             type="button"
             onClick={handleBack}
             disabled={step === 1}
-            className="rounded-xl border border-border px-6 py-2.5 text-sm font-bold text-foreground hover:bg-muted disabled:opacity-30 disabled:pointer-events-none cursor-pointer active:scale-97 transition-[transform,background-color] duration-160 ease-out"
+            className="rounded-xl border border-border px-6 py-2.5 text-sm font-semibold text-foreground hover:bg-muted disabled:opacity-30 disabled:pointer-events-none cursor-pointer active:scale-97 transition-[transform,background-color] duration-160 ease-out"
           >
             Back
           </button>
@@ -602,7 +608,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
             type="button"
             onClick={handleNext}
             disabled={!isStepValid()}
-            className="rounded-full bg-purple-950 hover:bg-purple-900 dark:bg-purple-800 dark:hover:bg-purple-750 text-white font-bold py-3 px-6 text-sm shadow-md active:scale-97 transition-[transform,background-color] duration-160 ease-out disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
+            className="rounded-full bg-purple-950 hover:bg-purple-900 dark:bg-purple-800 dark:hover:bg-purple-750 text-white font-semibold py-3 px-6 text-sm shadow-md active:scale-97 transition-[transform,background-color] duration-160 ease-out disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
           >
             {step === 8 ? "Publish" : "Next"}
           </button>

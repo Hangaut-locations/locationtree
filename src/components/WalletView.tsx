@@ -58,10 +58,10 @@ export const WalletView: React.FC<WalletViewProps> = ({
           <WalletIcon className="h-6 w-6" />
         </div>
         <div>
-          <h1 className="text-2xl font-semibold text-foreground tracking-tight">
+          <h1 className="text-xl font-semibold text-foreground tracking-tight">
             {isHost ? "Host Wallet" : "Wallet & Payments"}
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             {isHost
               ? "Your earnings from parties and property listings. Withdraw anytime to your bank."
               : "Deposit money to pay for bookings and reservations."}
@@ -71,13 +71,13 @@ export const WalletView: React.FC<WalletViewProps> = ({
 
       {/* Balance card */}
       <div className="rounded-[28px] border border-border bg-card p-6 md:p-8 shadow-sm bg-linear-to-br from-purple-950 to-purple-800 text-white">
-        <p className="text-xs font-semibold uppercase tracking-widest text-white/70">
+        <p className="text-xs uppercase tracking-widest text-white/70">
           Available balance
         </p>
-        <p className="mt-2 text-4xl font-semibold tracking-tight">
+        <h1 className="mt-2 text-4xl font-semibold tracking-tight">
           {formatPrice(displayPrice(balance, currency), currency)}
-        </p>
-        <div className="mt-5 flex flex-wrap items-center gap-3 text-xs font-semibold text-white/80">
+        </h1>
+        <div className="mt-5 flex flex-wrap items-center gap-3 text-xs text-white/80">
           {isHost ? (
             <span className="flex items-center gap-1.5">
               <Briefcase className="h-4 w-4" /> Host earnings
@@ -112,7 +112,7 @@ export const WalletView: React.FC<WalletViewProps> = ({
             <button
               key={a.label}
               onClick={a.handler}
-              className={`flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-[transform,background-color] duration-160 ease-out active:scale-97 cursor-pointer ${
+              className={`flex items-center gap-2 rounded-full px-4 py-2.5 text-xs font-medium transition-all duration-200 ease active:scale-97 cursor-pointer ${
                 i === 0
                   ? "bg-purple-950 text-white hover:bg-purple-900"
                   : "border border-border text-foreground hover:bg-muted"
@@ -146,7 +146,7 @@ export const WalletView: React.FC<WalletViewProps> = ({
       {/* Withdraw bank account */}
       {isHost && (
         <div className="rounded-3xl border border-border bg-card p-6 space-y-3">
-          <p className="text-sm font-semibold text-foreground">
+          <p className="text-sm text-foreground">
             Withdraw to your bank account
           </p>
           <div className="flex flex-col sm:flex-row gap-3">
@@ -161,7 +161,7 @@ export const WalletView: React.FC<WalletViewProps> = ({
             </select>
             <button
               onClick={() => onWithdraw(Math.max(1, amount))}
-              className="rounded-full border border-border px-6 py-3 text-sm font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer"
+              className="rounded-full border border-border px-5 py-2 text-sm text-foreground hover:bg-muted transition-colors cursor-pointer"
             >
               Withdraw
             </button>

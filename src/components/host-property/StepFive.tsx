@@ -51,7 +51,7 @@ const renderCounterRow = (
   min = 1,
 ) => {
   return (
-    <div className="flex items-center justify-between border-b border-border/40 py-5">
+    <div className="flex items-center justify-between border-b border-border/40 py-5 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
       <span className="text-base font-bold text-foreground">{label}</span>
       <div className="flex items-center gap-4">
         <button

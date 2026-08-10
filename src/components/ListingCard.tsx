@@ -195,18 +195,18 @@ export const ListingCard: React.FC<ListingCardProps> = ({
           <div className="flex items-center gap-1 text-sm font-semibold">
             <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
             <span className="text-foreground">{listing.rating.toFixed(1)}</span>
-            <span className="text-muted-foreground font-medium">
+            <h1 className="text-muted-foreground font-medium">
               ({listing.reviewsCount})
-            </span>
+            </h1>
           </div>
 
           {/* Title */}
-          <h3 className="mt-2 text-base font-bold text-purple-950 dark:text-purple-300 line-clamp-1 group-hover:text-purple-700 dark:group-hover:text-purple-400 transition-colors">
+          <h3 className="mt-2 text-base font-medium text-purple-950 dark:text-purple-300 line-clamp-1 group-hover:text-purple-700 dark:group-hover:text-purple-400 transition-colors">
             {listing.title}
           </h3>
 
           {/* Guests details */}
-          <p className="mt-1 text-sm font-medium text-muted-foreground">
+          <p className="mt-1 text-xs text-muted-foreground">
             {listing.guestsCount} guests
           </p>
 
@@ -215,11 +215,11 @@ export const ListingCard: React.FC<ListingCardProps> = ({
 
           {/* Price and Action button */}
           <div className="flex items-baseline justify-between mt-auto">
-            <div>
-              <span className="text-lg font-bold text-foreground">
+            <div className="flex items-center gap-1">
+              <h1 className="text-lg font-medium text-foreground">
                 {formatPrice(displayPrice(listing.price, currency), currency)}
-              </span>
-              <span className="text-sm font-medium text-muted-foreground">
+              </h1>
+              <span className="text-sm text-muted-foreground">
                 {" "}
                 / {listing.priceUnit}
               </span>

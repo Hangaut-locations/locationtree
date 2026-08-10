@@ -74,7 +74,7 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({
     // Normalize location to match valid listing locations
     const normalizedLocation = (["Lekki", "Surulere", "Lagos"].find(
       (loc) => loc.toLowerCase() === location.trim().toLowerCase(),
-    ) || "Lekki") as "Lekki" | "Lagos" | "Surulere";
+    ) || "Lagos") as "Lekki" | "Lagos" | "Surulere";
 
     // Mock create a new listing object
     const finalTitle = title.trim() || `Charming ${category} Stay`;
@@ -127,7 +127,7 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({
           onClick={() => navigate("/")}
         >
           <img
-            src="logo.png"
+            src="/images/logo.png"
             alt="Hangout Logo"
             className="h-full w-full object-contain"
           />
@@ -143,7 +143,7 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({
           </button>
           <button
             onClick={handleExit}
-            className="flex items-center gap-1.5 rounded-full border border-border px-4 py-2.5 md:py-2 text-xs md:text-sm font-bold text-foreground hover:bg-muted transition-all cursor-pointer"
+            className="flex items-center gap-1.5 rounded-full border border-border px-4 py-2.5 md:py-2 text-xs md:text-sm font-medium text-foreground hover:bg-muted transition-all cursor-pointer"
           >
             <span>Save & Exit</span>
           </button>

@@ -49,7 +49,7 @@ const StepSeven: React.FC<IStepFiveProps> = ({ photos, setPhotos }) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
       {/* Header */}
       <div>
         <p className="text-sm font-bold text-purple-600">Step 6</p>
