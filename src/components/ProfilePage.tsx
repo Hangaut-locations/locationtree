@@ -2,6 +2,8 @@ import { User } from "lucide-react";
 import type React from "react";
 import { DEFAULT_HOST_AVATAR } from "../data/constants";
 import type { HostProfile } from "../types/listing";
+import PhoneInput from "./global/PhoneInput";
+import { useState } from "react";
 
 interface ProfilePageProps {
   profile: HostProfile;
@@ -12,6 +14,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
   profile,
   onUpdateProfile,
 }) => {
+  const [phone, setPhone] = useState("");
   return (
     <div className="mx-auto max-w-2xl px-4 md:px-8 py-8">
       <div className="flex items-center gap-3 mb-6">
@@ -53,6 +56,21 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
               className="w-full border border-border/80 bg-muted/20 rounded-2xl px-4 py-3 text-sm font-bold text-foreground outline-none focus:border-purple-600"
             />
           </label>
+
+          <label className="block space-y-1.5">
+            <span className="text-xs font-bold text-muted-foreground">
+              Email address
+            </span>
+            <input
+              type="email"
+              defaultValue={profile.email}
+              onChange={(e) =>
+                onUpdateProfile({ ...profile, email: e.target.value })
+              }
+              className="w-full border border-border/80 bg-muted/20 rounded-2xl px-4 py-3 text-sm font-bold text-foreground outline-none focus:border-purple-600"
+            />
+          </label>
+
           <label className="block space-y-1.5">
             <span className="text-xs font-bold text-muted-foreground">
               Location
@@ -69,13 +87,18 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
             <span className="text-xs font-bold text-muted-foreground">
               Phone number
             </span>
-            <input
-              defaultValue={profile.phone}
+            <PhoneInput
+              value={phone}
+              onChange={(value) => setPhone(value)}
               onBlur={(e) =>
-                onUpdateProfile({ ...profile, phone: e.target.value })
+                onUpdateProfile({ ...profile, phone: e.target.value }) as any
               }
-              className="w-full border border-border/80 bg-muted/20 rounded-2xl px-4 py-3 text-sm font-bold text-foreground outline-none focus:border-purple-600"
             />
+            {/* <input
+              defaultValue={profile.phone}
+            
+              className="w-full border border-border/80 bg-muted/20 rounded-2xl px-4 py-3 text-sm font-bold text-foreground outline-none focus:border-purple-600"
+            /> */}
           </label>
           <label className="block space-y-1.5">
             <span className="text-xs font-bold text-muted-foreground">Bio</span>

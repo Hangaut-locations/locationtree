@@ -4,9 +4,14 @@ import {
   Castle,
   ChevronLeft,
   ChevronRight,
+  Home,
   Mountain,
+  MountainSnow,
   Palmtree,
+  PalmtreeIcon,
+  PanelsTopLeft,
   Ship,
+  Sparkles,
   Tent,
   Trees,
   Video,
@@ -30,6 +35,15 @@ const locationCategories: Category[] = [
   { id: "Castles", name: "Castles", icon: Castle },
   { id: "Houseboat", name: "Houseboat", icon: Ship },
   { id: "Cabin", name: "Cabin", icon: Tent },
+
+  // New categories
+  { id: "Cave", name: "Cave", icon: MountainSnow },
+  { id: "Mud house", name: "Mud house", icon: Home },
+  { id: "Icons", name: "Icons", icon: Sparkles },
+  { id: "Frames", name: "Frames", icon: PanelsTopLeft },
+  { id: "Homes", name: "Homes", icon: Home },
+  { id: "OMG!", name: "OMG!", icon: Sparkles },
+  { id: "Islands", name: "Islands", icon: PalmtreeIcon },
 ];
 
 const planningCategories: Category[] = Party_Types.map((itm) => ({

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "../../components/ui/tabs";
 import { DEFAULT_GUEST_AVATAR, DEFAULT_HOST_AVATAR } from "../data/constants";
 import type { CurrencyCode } from "../lib/currency";
+import { Link } from "react-router-dom";
 
 interface NavbarProps {
   activeTab: "location" | "planning";
@@ -77,13 +78,15 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
 
           {/* Logo */}
-          <div className="flex items-center justify-center h-12 max-w-[150px]">
-            <img
-              src="/images/logo.png"
-              alt="Hangout Logo"
-              className="h-full w-full object-contain"
-            />
-          </div>
+          <Link to="/">
+            <div className="flex items-center justify-center h-12 max-w-[150px]">
+              <img
+                src="/images/logo.png"
+                alt="Hangout Logo"
+                className="h-full w-full object-contain"
+              />
+            </div>
+          </Link>
 
           {/* Right Controls (Mobile Only) */}
           <div className="flex md:hidden items-center gap-2">

@@ -65,9 +65,14 @@ export const ListingEditor: React.FC<ListingEditorProps> = ({
   const categoryOptions = isParty ? PARTY_TYPES : PROPERTY_TYPES;
 
   const handleSave = () => {
-    const normalizedLocation = (["Lekki", "Lekki", "surulere"].find(
-      (l) => l.toLowerCase() === location.trim().toLowerCase(),
-    ) || "surulere") as "surulere";
+    const normalizedLocation = ([
+      "Lekki",
+      "Lagos",
+      "surulere",
+      "Uyo",
+      "Enugu",
+    ].find((l) => l.toLowerCase() === location.trim().toLowerCase()) ||
+      "surulere") as "surulere" | "Uyo" | "Enugu" | "Lagos" | "Lekki";
 
     const updated: Listing = {
       id:
