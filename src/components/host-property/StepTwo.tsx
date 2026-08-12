@@ -31,11 +31,12 @@ const StepTwo: React.FC<IStepTwoProps> = ({ category, setCategory }) => {
                   : "border-border/80 bg-card hover:bg-gray-50"
               }`}
             >
-              <img
+              {/* <img
                 src={cat.icon}
                 alt={cat.name}
                 className="h-7 w-7 lg:w-10 lg:h-10 text-foreground mb-3"
-              />
+              /> */}
+              <cat.icon className="" />
               <span className="text-xs font-bold text-foreground">
                 {cat.name}
               </span>

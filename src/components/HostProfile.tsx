@@ -78,6 +78,21 @@ export const HostProfilePage: React.FC<ProfilePageProps> = ({
               className="w-full border border-border/80 bg-muted/20 rounded-2xl px-4 py-3 text-sm font-medium text-foreground outline-none focus:border-purple-600"
             />
           </label>
+          <label className="block space-y-1.5">
+            <span className="text-xs font-medium text-muted-foreground">
+              Email address
+            </span>
+            <input
+              type="email"
+              readOnly={!isEditing}
+              defaultValue={profile.email}
+              onBlur={(e) =>
+                onUpdateProfile({ ...profile, name: e.target.value })
+              }
+              placeholder="Enter email address"
+              className="w-full border border-border/80 bg-muted/20 rounded-2xl px-4 py-3 text-sm font-medium text-foreground outline-none focus:border-purple-600"
+            />
+          </label>
           <LocationSelect
             label="Country"
             disabled={!isEditing}
@@ -104,20 +119,7 @@ export const HostProfilePage: React.FC<ProfilePageProps> = ({
             onChange={(value) => onUpdateProfile({ ...profile, city: value })}
             type="city"
           />
-          <label className="block space-y-1.5">
-            <span className="text-xs font-medium text-muted-foreground">
-              Address
-            </span>
-            <input
-              readOnly={!isEditing}
-              defaultValue={profile.location}
-              onBlur={(e) =>
-                onUpdateProfile({ ...profile, location: e.target.value })
-              }
-              placeholder="City"
-              className="w-full border border-border/80 bg-muted/20 rounded-2xl px-4 py-3 text-sm font-medium text-foreground outline-none focus:border-purple-600"
-            />
-          </label>
+
           <label className="block space-y-1.5">
             <span className="text-xs font-medium text-muted-foreground">
               Phone number
@@ -132,6 +134,21 @@ export const HostProfilePage: React.FC<ProfilePageProps> = ({
                   phone: value,
                 }) as any
               }
+            />
+          </label>
+
+          <label className="block space-y-1.5 col-span-full">
+            <span className="text-xs font-medium text-muted-foreground">
+              Address
+            </span>
+            <input
+              readOnly={!isEditing}
+              defaultValue={profile.location}
+              onBlur={(e) =>
+                onUpdateProfile({ ...profile, location: e.target.value })
+              }
+              placeholder="City"
+              className="w-full border border-border/80 bg-muted/20 rounded-2xl px-4 py-3 text-sm font-medium text-foreground outline-none focus:border-purple-600"
             />
           </label>
         </div>

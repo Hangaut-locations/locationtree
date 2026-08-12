@@ -50,9 +50,13 @@ export const Navbar: React.FC<NavbarProps> = ({
   }, []);
 
   const avatar =
-    viewMode === "host" && isLoggedIn
-      ? DEFAULT_HOST_AVATAR
-      : DEFAULT_GUEST_AVATAR;
+    isLoggedIn && userName
+      ? userName.split(" ")[0][0] + userName.split(" ")[0][1]
+      : "G";
+  // const avatar =
+  //   viewMode === "host" && isLoggedIn
+  //     ? DEFAULT_HOST_AVATAR
+  //     : DEFAULT_GUEST_AVATAR;
   const displayName =
     isLoggedIn && userName ? userName : viewMode === "host" ? "Host" : "Guest";
 
@@ -68,13 +72,17 @@ export const Navbar: React.FC<NavbarProps> = ({
             aria-label="Open menu"
           >
             <Menu className="h-4 w-4 text-foreground" />
-            {isLoggedIn && (
+            {/* <h2>{avatar}</h2> */}
+            {/* {isLoggedIn && (
               <img
                 src={avatar}
                 alt="Account"
                 className="h-6 w-6 rounded-full object-cover hidden sm:block"
               />
-            )}
+            )} */}
+            <div className="flex justify-center items-center w-max font-semibold text-sm uppercase">
+              {avatar}
+            </div>
           </button>
 
           {/* Logo */}
@@ -96,12 +104,13 @@ export const Navbar: React.FC<NavbarProps> = ({
                 >
                   Become a Host
                 </button>
-                <div className="h-10 w-10 rounded-full border border-border overflow-hidden bg-muted flex items-center justify-center cursor-pointer hover:scale-105 active:scale-97 transition-all">
-                  <img
+                <div className="h-10 w-10 rounded-full capitalize border border-border overflow-hidden bg-muted flex items-center justify-center cursor-pointer hover:scale-105 active:scale-97 transition-all">
+                  <h1>{avatar}</h1>
+                  {/* <img
                     src={avatar}
                     alt="User avatar"
                     className="h-full w-full object-cover"
-                  />
+                  /> */}
                 </div>
               </>
             ) : (
@@ -185,11 +194,14 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <span className="text-xs text-muted-foreground">
                     {currency}
                   </span>
-                  <img
+                  <span className="text-sm lg:text-base uppercase font-semibold text-muted-foreground">
+                    {avatar}
+                  </span>
+                  {/* <img
                     src={avatar}
                     alt="Account"
                     className="h-8 w-8 rounded-full object-cover"
-                  />
+                  /> */}
                 </button>
 
                 {userMenuOpen && (

@@ -23,8 +23,10 @@ import {
   Home,
   Tent,
   Sparkles,
+  Video,
   Palmtree,
 } from "lucide-react";
+
 
 export const Party_Types = [
   {
@@ -171,44 +173,71 @@ export const PROPERTY_TYPES = [
   "Tree House",
 ]
 
+
+
 export const Property_Types = [
- {
-  name:  "Beach front",
-  icon: '/images/beachfront.svg'
- },
- {
-  name:  "Roof tops",
-  icon: '/images/rooftops.svg'
- },
- {
-  name:  "Homes",
-  icon: '/images/homes.svg'
- },
- {
-  name:  "Mansions",
-  icon: '/images/mansions.svg'
- },
- {
-  name:  "Studio",
-  icon: '/images/studio.svg'
- },
- {
-  name:  "Castles",
-  icon: '/images/studio.svg'
- },
- {
-  name:  "House boat",
-  icon: '/images/houseboat.svg'
- },
- {
-  name:  "Cabin",
-  icon: '/images/cabin.svg'
- },
- {
-  name:  "Tree house",
-  icon: '/images/treehouse.svg'
- },
-]
+  {
+    name: "Beach front",
+    icon: Palmtree,
+  },
+  {
+    name: "Roof tops",
+    icon: Building2,
+  },
+  {
+    name: "Homes",
+    icon: House,
+  },
+  {
+    name: "Mansions",
+    icon: Castle,
+  },
+  {
+    name: "Studio",
+    icon: Video,
+  },
+  {
+    name: "Castles",
+    icon: Castle,
+  },
+  {
+    name: "House boat",
+    icon: Ship,
+  },
+  {
+    name: "Cabin",
+    icon: Tent,
+  },
+  {
+    name: "Tree house",
+    icon: Trees,
+  },
+   {
+    name: "Amazing views",
+    icon: MountainSnow,
+  },
+  {
+    name: "Frames",
+    icon: PanelsTopLeft,
+  },
+ 
+  {
+    name: "Houseboat",
+    icon: Ship,
+  },
+  {
+    name: "Cabin",
+    icon: Tent,
+  },
+  {
+    name: "OMG!",
+    icon: Sparkles,
+  },
+  {
+    name: "Islands",
+    icon: Palmtree,
+  },
+] as const;
 
 export const DEFAULT_HOST_AVATAR =
   "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=120&q=80"

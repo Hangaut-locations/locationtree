@@ -38,10 +38,8 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({
   const [bedrooms, setBedrooms] = useState<number>(1);
   const [beds, setBeds] = useState<number>(1);
   const [bathrooms, setBathrooms] = useState<number>(1);
-  const [title, setTitle] = useState<string>("Charming rooftop retreat");
-  const [description, setDescription] = useState<string>(
-    "A stylish space designed for memorable stays, calm mornings, and easy hosting.",
-  );
+  const [title, setTitle] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
   const [photos, setPhotos] = useState<string[]>([]);
   const [bookingSetting, setBookingSetting] = useState<
     "approve-first" | "instant"

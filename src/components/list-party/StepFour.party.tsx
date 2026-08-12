@@ -61,7 +61,8 @@ const PartyStepFour: React.FC<IStepProps> = ({ photos, setPhotos }) => {
         </h2>
 
         <p className="mt-2 text-sm text-muted-foreground">
-          Showcase the atmosphere, layout, and highlights in a polished gallery.
+          Upload the sample images of how your party will look and feel like and
+          the activities of what will be happening in the party.
         </p>
       </div>
 
