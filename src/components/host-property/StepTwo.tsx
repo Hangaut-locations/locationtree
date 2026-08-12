@@ -13,8 +13,9 @@ const StepTwo: React.FC<IStepTwoProps> = ({ category, setCategory }) => {
   }));
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
-      <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight text-center mb-8">
+    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
+      <p className="text-sm font-bold text-purple-600">Step 2</p>
+      <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight mb-8">
         Which of these best describes your place?
       </h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">

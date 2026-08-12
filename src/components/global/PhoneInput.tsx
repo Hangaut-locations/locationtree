@@ -136,13 +136,7 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
   return (
     <div className="block space-y-1.5">
       <div
-        className={`
-          flex
-          items-center
-          rounded-2xl
-          border
-          bg-muted/20
-          transition-colors
+        className={`flex items-center rounded-2xl border bg-muted/20 transition-colors
           ${
             error || isValid === false
               ? "border-red-500"
@@ -156,19 +150,7 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
             value={country}
             disabled={disabled}
             onChange={(e) => handleCountryChange(e.target.value as CountryCode)}
-            className="
-              appearance-none
-              bg-transparent
-              pl-4
-              pr-8
-              py-3
-              text-sm
-              font-bold
-              text-foreground
-              outline-none
-              cursor-pointer
-              disabled:cursor-not-allowed
-            "
+            className="appearance-none bg-transparent pl-4 pr-8 py-3 text-sm font-medium text-foreground outline-none cursor-pointer disabled:cursor-not-allowed"
           >
             {countries.map((item) => (
               <option key={item.code} value={item.code}>
@@ -190,18 +172,7 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
           placeholder={placeholder}
           onBlur={onBlur}
           onChange={(e) => handlePhoneChange(e.target.value)}
-          className="
-            min-w-0
-            flex-1
-            bg-transparent
-            px-4
-            py-3
-            text-sm
-            font-bold
-            text-foreground
-            outline-none
-            placeholder:text-muted-foreground/60
-          "
+          className="min-w-0 flex-1 bg-transparent px-4 py-3 text-sm font-medium text-foreground outline-none placeholder:text-muted-foreground/60"
         />
 
         {/* Validation indicator */}

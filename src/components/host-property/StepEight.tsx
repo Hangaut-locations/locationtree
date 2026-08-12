@@ -9,9 +9,8 @@ const StepEight: React.FC<IStepFiveProps> = ({ title, setTitle }) => {
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
       <div className="space-y-1.5 mb-6">
-        <span className="text-sm font-bold text-purple-950 uppercase tracking-widest block">
-          Step 7
-        </span>
+        <p className="text-sm font-bold text-purple-600">Step 8</p>
+
         <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
           Now, let's give your apartment a title
         </h2>

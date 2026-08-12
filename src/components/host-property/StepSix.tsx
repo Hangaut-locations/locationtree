@@ -17,10 +17,12 @@ const StepSix: React.FC<IStepFiveProps> = ({ amenities, setAmenities }) => {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
       <div className="space-y-1.5">
+        <p className="text-sm font-bold text-purple-600">Step 6</p>
+
         <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
           Tell guests what your place has to offer
         </h2>
-        <p className="text-xs font-semibold text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           You can add more amenities after you publish your listing.
         </p>
       </div>

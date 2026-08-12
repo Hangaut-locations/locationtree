@@ -12,7 +12,8 @@
   --text-h: #08060d;
   --bg: #fff;
   /* --border: oklch(0.922 0 0); */
-    --border: 220 13% 88%;
+    /* --border: 220 13% 88%; */
+    --border: #d1d5dc;
   --code-bg: #f4f3ec;
   --accent: oklch(0.97 0 0);
   --accent-bg: rgba(170, 59, 255, 0.1);
