@@ -209,8 +209,8 @@ const PartyStepThree: React.FC<IStepOneProps> = ({ location, setLocation }) => {
     searchLocation(loc);
   };
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out relative">
-      <div className="space-y-1.5 text-center">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
+      <div className="space-y-1.5">
         <span className="text-sm font-semibold text-purple-950 dark:text-purple-300 uppercase tracking-widest block">
           Step 3
         </span>
@@ -238,7 +238,7 @@ const PartyStepThree: React.FC<IStepOneProps> = ({ location, setLocation }) => {
         </div>
 
         <div className="flex flex-wrap justify-center gap-2">
-          {["Lekki", "Surulere", "Lagos"].map((loc) => (
+          {["Lekki", "Surulere", "Lagos", "Uyo", "Enugu"].map((loc) => (
             <button
               key={loc}
               type="button"
@@ -257,7 +257,7 @@ const PartyStepThree: React.FC<IStepOneProps> = ({ location, setLocation }) => {
       </div>
 
       {/* Real Map */}
-      <div className="rounded-3xl border border-border bg-card overflow-hidden shadow-sm aspect-video max-w-lg mx-auto relative">
+      <div className="rounded-3xl border border-border bg-card overflow-hidden shadow-sm aspect-video max-w-lg mx-auto relative z-[1]">
         <div ref={mapContainerRef} className="absolute inset-0" />
 
         {/* Selected Location */}

@@ -15,24 +15,21 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Party_Types, SAMPLE_IMAGES } from "../data/constants";
 import type { Listing } from "../types/listing";
-import { useRef } from "react";
 import PartyStepThree from "./list-party/StepThree.party";
+import PartyStepTwo from "./list-party/StepTwo.party";
+import PartyStepFour from "./list-party/StepFour.party";
 
 interface PartyWizardProps {
   onAddListing: (listing: Listing) => void;
 }
 
-type WizardStep = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
-
-const openDatePicker = (ref: React.RefObject<HTMLInputElement | null>) => {
-  ref.current?.showPicker?.();
-  ref.current?.focus();
-};
+type WizardStep = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 
 export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
   const [step, setStep] = useState<WizardStep>(1);
   const navigate = useNavigate();
 
+  const [photos, setPhotos] = useState<string[]>([]);
   const [partyType, setPartyType] = useState<string>("");
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
@@ -44,16 +41,11 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
   const [activities, setActivities] = useState<string>("");
   const [rules, setRules] = useState<string>("");
   const [ticketed, setTicketed] = useState<boolean>(true);
-  const [photos] = useState<string[]>(SAMPLE_IMAGES.slice(0, 2));
 
-  const startDateRef = useRef<HTMLInputElement>(null);
-  const endDateRef = useRef<HTMLInputElement>(null);
-
-  const today = new Date().toISOString().split("T")[0];
   const isDateValid = !!startDate && !!endDate && endDate >= startDate;
 
   const handleNext = () => {
-    if (step < 8) {
+    if (step < 9) {
       setStep((prev) => (prev + 1) as WizardStep);
     } else {
       handleSubmit();
@@ -70,9 +62,14 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
   };
 
   const handleSubmit = () => {
-    const normalizedLocation = (["Lekki", "Lagos", "surulere"].find(
-      (loc) => loc.toLowerCase() === location.trim().toLowerCase(),
-    ) || "surulere") as "surulere";
+    const normalizedLocation = ([
+      "Lekki",
+      "Lagos",
+      "surulere",
+      "Uyo",
+      "Enugu",
+    ].find((loc) => loc.toLowerCase() === location.trim().toLowerCase()) ||
+      "surulere") as "surulere" | "Enugu" | "Uyo" | "Lekki" | "Lagos";
 
     const finalTitle =
       title.trim() ||
@@ -112,42 +109,11 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
     if (step === 1) return !!partyType;
     if (step === 2) return isDateValid;
     if (step === 3) return !!location;
-    if (step === 5) return activities.trim().length > 0;
-    if (step === 8) return price > 0;
+    if (step === 4) return !!photos;
+    if (step === 5) return price > 0;
+    if (step === 6) return activities.trim().length > 0;
+    if (step === 7) return rules.trim().length > 0;
     return true;
-  };
-
-  const renderCounter = (
-    label: string,
-    value: number,
-    onChange: (val: number) => void,
-    min = 1,
-  ) => {
-    return (
-      <div className="flex items-center justify-between border-b border-border/40 py-5">
-        <span className="text-base font-semibold text-foreground">{label}</span>
-        <div className="flex items-center gap-4">
-          <button
-            type="button"
-            onClick={() => onChange(Math.max(min, value - 1))}
-            disabled={value <= min}
-            className="flex h-10 w-10 md:h-8 md:w-8 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted active:scale-97 disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-[transform,background-color] duration-160 ease-out"
-          >
-            <Minus className="h-4.5 w-4.5" />
-          </button>
-          <span className="w-5 text-center text-base font-semibold text-foreground">
-            {value}
-          </span>
-          <button
-            type="button"
-            onClick={() => onChange(value + 1)}
-            className="flex h-10 w-10 md:h-8 md:w-8 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted active:scale-97 cursor-pointer transition-[transform,background-color] duration-160 ease-out"
-          >
-            <Plus className="h-4.5 w-4.5" />
-          </button>
-        </div>
-      </div>
-    );
   };
 
   return (
@@ -199,7 +165,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
           {/* Step 1: Party type */}
           {step === 1 && (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
-              <div className="space-y-1.5 text-center">
+              <div className="space-y-1.5">
                 <span className="text-sm font-semibold text-purple-950 dark:text-purple-300 uppercase tracking-widest block">
                   Step 1
                 </span>
@@ -224,7 +190,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
                       }`}
                     >
                       <item.icon className="h-4 w-4 text-purple-950 dark:text-purple-300 shrink-0" />
-                      <span className="text-xs font-semibold text-foreground">
+                      <span className="text-xs font-semibold text-foreground capitalize">
                         {item.name}
                       </span>
                     </button>
@@ -236,91 +202,12 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
 
           {/* Step 2: Party dates */}
           {step === 2 && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
-              <div className="space-y-1.5 text-center">
-                <span className="text-sm font-semibold text-purple-950 dark:text-purple-300 uppercase tracking-widest block">
-                  Step 2
-                </span>
-                <h2 className="text-xl sm:text-2xl font-semibold text-foreground tracking-tight">
-                  When is your party happening?
-                </h2>
-                <p className="text-xs text-muted-foreground">
-                  Your party listing is cleared automatically after its end
-                  date.
-                </p>
-              </div>
-              <div className="max-w-2xl mx-auto space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Start Date */}
-                  <div
-                    onClick={() => openDatePicker(startDateRef)}
-                    className="flex items-center gap-3 border border-border/80 bg-card rounded-2xl px-4 py-3 transition-all hover:border-purple-500 focus-within:border-purple-600 focus-within:ring-2 focus-within:ring-purple-600/10 cursor-pointer"
-                  >
-                    <CalendarDays className="h-5 w-5 text-muted-foreground shrink-0" />
-
-                    <div className="flex flex-col w-full">
-                      <span className="text-[10px] font-semibold uppercase text-muted-foreground">
-                        Start date
-                      </span>
-
-                      <input
-                        ref={startDateRef}
-                        id="start_date"
-                        type="date"
-                        min={today}
-                        value={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
-                        onClick={(e) => e.stopPropagation()}
-                        className="w-full bg-transparent text-sm font-semibold text-foreground outline-none border-none p-0 focus:ring-0 cursor-pointer [color-scheme:light_dark]"
-                      />
-                    </div>
-                  </div>
-
-                  {/* End Date */}
-                  <div
-                    onClick={() => openDatePicker(endDateRef)}
-                    className="flex items-center gap-3 border border-border/80 bg-card rounded-2xl px-4 py-3 transition-all hover:border-purple-500 focus-within:border-purple-600 focus-within:ring-2 focus-within:ring-purple-600/10 cursor-pointer"
-                  >
-                    <CalendarDays className="h-5 w-5 text-muted-foreground shrink-0" />
-
-                    <div className="flex flex-col w-full">
-                      <span className="text-[10px] font-semibold uppercase text-muted-foreground">
-                        End date
-                      </span>
-
-                      <input
-                        ref={endDateRef}
-                        id="end_date"
-                        type="date"
-                        min={startDate || today}
-                        value={endDate}
-                        onChange={(e) => setEndDate(e.target.value)}
-                        onClick={(e) => e.stopPropagation()}
-                        className="
-            w-full
-            bg-transparent
-            text-sm
-            font-semibold
-            text-foreground
-            outline-none
-            border-none
-            p-0
-            focus:ring-0
-            cursor-pointer
-            [color-scheme:light_dark]
-          "
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {startDate && endDate && !isDateValid && (
-                  <p className="text-center text-xs font-semibold text-red-500">
-                    End date must be after the start date.
-                  </p>
-                )}
-              </div>
-            </div>
+            <PartyStepTwo
+              endDate={endDate}
+              startDate={startDate}
+              setEndDate={setEndDate}
+              setStartDate={setStartDate}
+            />
           )}
 
           {/* Step 3: Location */}
@@ -328,12 +215,16 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
             <PartyStepThree location={location} setLocation={setLocation} />
           )}
 
-          {/* Step 4: Capacity + price */}
           {step === 4 && (
+            <PartyStepFour photos={photos} setPhotos={setPhotos} />
+          )}
+
+          {/* Step 5: Capacity + price */}
+          {step === 5 && (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
-              <div className="space-y-1.5 text-center">
+              <div className="space-y-1.5">
                 <span className="text-sm font-semibold text-purple-950 dark:text-purple-300 uppercase tracking-widest block">
-                  Step 4
+                  Step 5
                 </span>
                 <h2 className="text-xl sm:text-2xl font-semibold text-foreground tracking-tight">
                   Set your guest capacity and price
@@ -349,7 +240,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
               </div>
 
               <div className="space-y-3">
-                <p className="text-sm text-foreground">
+                <p className="text-xs text-foreground">
                   How do you want to charge?
                 </p>
                 <div className="grid grid-cols-2 gap-3">
@@ -412,12 +303,12 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
             </div>
           )}
 
-          {/* Step 5: Activities */}
-          {step === 5 && (
+          {/* Step 6: Activities */}
+          {step === 6 && (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
-              <div className="space-y-1.5 text-center">
+              <div className="space-y-1.5">
                 <span className="text-sm font-semibold text-purple-950 dark:text-purple-300 uppercase tracking-widest block">
-                  Step 5
+                  Step 6
                 </span>
                 <h2 className="text-xl sm:text-2xl font-semibold text-foreground tracking-tight">
                   What will be happening at the party?
@@ -437,12 +328,12 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
             </div>
           )}
 
-          {/* Step 6: Rules */}
-          {step === 6 && (
+          {/* Step 7: Rules */}
+          {step === 7 && (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
-              <div className="space-y-1.5 text-center">
+              <div className="space-y-1.5">
                 <span className="text-sm font-semibold text-purple-950 dark:text-purple-300 uppercase tracking-widest block">
-                  Step 6
+                  Step 7
                 </span>
                 <h2 className="text-xl sm:text-2xl font-semibold text-foreground tracking-tight">
                   Set your party rules
@@ -461,12 +352,12 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
             </div>
           )}
 
-          {/* Step 7: Title + ticket */}
-          {step === 7 && (
+          {/* Step 8: Title + ticket */}
+          {step === 8 && (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
-              <div className="space-y-1.5 text-center">
+              <div className="space-y-1.5 w-full">
                 <span className="text-sm font-semibold text-purple-950 dark:text-purple-300 uppercase tracking-widest block">
-                  Step 7
+                  Step 8
                 </span>
                 <h2 className="text-xl sm:text-2xl font-semibold text-foreground tracking-tight">
                   Name your party
@@ -482,7 +373,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g. Rooftop Sunset Beach Party"
-                className="w-full max-w-lg mx-auto block border-2 border-foreground px-4 py-3 outline-none placeholder:text-muted-foreground/40 focus:ring-2 focus:ring-purple-600/10 rounded-2xl text-sm font-semibold text-foreground"
+                className="w-full mx-auto block border-2 border-foreground px-4 py-3 outline-none placeholder:text-muted-foreground/40 focus:ring-2 focus:ring-purple-600/10 rounded-2xl text-sm font-semibold text-foreground"
               />
               <p className="text-right text-xs font-semibold text-muted-foreground">
                 {title.length}/48
@@ -520,12 +411,12 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
             </div>
           )}
 
-          {/* Step 8: Publish */}
-          {step === 8 && (
+          {/* Step 9: Publish */}
+          {step === 9 && (
             <div className="space-y-8 text-center">
               <div className="space-y-1.5">
                 <span className="text-sm font-semibold text-purple-950 dark:text-purple-300 uppercase tracking-widest block">
-                  Step 8
+                  Step 9
                 </span>
                 <h2 className="text-xl sm:text-2xl font-semibold text-foreground tracking-tight">
                   Set your final price for the party
@@ -594,7 +485,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
       </main>
 
       {/* Fixed Footer Actions bar */}
-      <footer className="border-t border-border/60 bg-card py-5 px-6 sm:px-8 mt-auto z-10 sticky bottom-0 right-0 left-0">
+      <footer className="border-t border-border/60 bg-card py-5 px-6 sm:px-8 mt-auto z-20 sticky bottom-0 right-0 left-0">
         <div className="w-full max-w-2xl mx-auto flex items-center justify-between">
           <button
             type="button"
@@ -610,10 +501,43 @@ export const PartyWizard: React.FC<PartyWizardProps> = ({ onAddListing }) => {
             disabled={!isStepValid()}
             className="rounded-full bg-purple-950 hover:bg-purple-900 dark:bg-purple-800 dark:hover:bg-purple-750 text-white font-semibold py-3 px-6 text-sm shadow-md active:scale-97 transition-[transform,background-color] duration-160 ease-out disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
           >
-            {step === 8 ? "Publish" : "Next"}
+            {step === 9 ? "Publish" : "Next"}
           </button>
         </div>
       </footer>
+    </div>
+  );
+};
+
+const renderCounter = (
+  label: string,
+  value: number,
+  onChange: (val: number) => void,
+  min = 1,
+) => {
+  return (
+    <div className="flex items-center justify-between border-b border-border/40 py-5">
+      <span className="text-base font-semibold text-foreground">{label}</span>
+      <div className="flex items-center gap-4">
+        <button
+          type="button"
+          onClick={() => onChange(Math.max(min, value - 1))}
+          disabled={value <= min}
+          className="flex h-10 w-10 md:h-8 md:w-8 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted active:scale-97 disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-[transform,background-color] duration-160 ease-out"
+        >
+          <Minus className="h-4.5 w-4.5" />
+        </button>
+        <span className="w-5 text-center text-base font-semibold text-foreground">
+          {value}
+        </span>
+        <button
+          type="button"
+          onClick={() => onChange(value + 1)}
+          className="flex h-10 w-10 md:h-8 md:w-8 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted active:scale-97 cursor-pointer transition-[transform,background-color] duration-160 ease-out"
+        >
+          <Plus className="h-4.5 w-4.5" />
+        </button>
+      </div>
     </div>
   );
 };

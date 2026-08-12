@@ -22,6 +22,7 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
   const [checkOut, setCheckOut] = useState(activeSearch.checkOut);
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const today = new Date().toISOString().split("T")[0];
 
   const locations = ["Lagos", "Lekki", "Surulere"];
 
@@ -58,6 +59,14 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
 
   const clearDestination = () => {
     setDestination("");
+  };
+
+  const startDateRef = useRef<HTMLInputElement>(null);
+  const endDateRef = useRef<HTMLInputElement>(null);
+
+  const openDatePicker = (ref: React.RefObject<HTMLInputElement | null>) => {
+    ref.current?.showPicker?.();
+    ref.current?.focus();
   };
 
   const isDateInvalid =
@@ -137,9 +146,14 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
           <label className="text-[10px] font-bold uppercase tracking-wider text-purple-950 dark:text-purple-300">
             Check in
           </label>
-          <div className="flex items-center gap-1.5 mt-0.5 relative">
+          <div
+            onClick={() => openDatePicker(startDateRef)}
+            className="flex items-center gap-1.5 mt-0.5 relative"
+          >
             <Calendar className="h-4 w-4 text-purple-600 pointer-events-none absolute left-0" />
             <input
+              min={today}
+              ref={startDateRef}
               type="date"
               value={checkIn}
               onChange={(e) => setCheckIn(e.target.value)}
@@ -153,11 +167,16 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
           <label className="text-[10px] font-bold uppercase tracking-wider text-purple-950 dark:text-purple-300">
             Check out
           </label>
-          <div className="flex items-center gap-1.5 mt-0.5 relative">
+          <div
+            onClick={() => openDatePicker(endDateRef)}
+            className="flex items-center gap-1.5 mt-0.5 relative"
+          >
             <Calendar className="h-4 w-4 text-purple-600 pointer-events-none absolute left-0" />
             <input
               type="date"
               value={checkOut}
+              ref={endDateRef}
+              min={checkIn || today}
               onChange={(e) => setCheckOut(e.target.value)}
               className={`w-full bg-transparent pl-6 text-sm font-medium placeholder-muted-foreground outline-none border-none p-0 focus:ring-0 cursor-pointer [color-scheme:light-dark] ${
                 isDateInvalid ? "text-red-500 font-bold" : "text-foreground"

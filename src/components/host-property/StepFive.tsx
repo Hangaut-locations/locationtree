@@ -24,7 +24,7 @@ const StepFive: React.FC<IStepFiveProps> = ({
 }) => {
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
-      <div className="space-y-1.5 text-center mb-6">
+      <div className="space-y-1.5 mb-6">
         <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
           Share some basics about your place
         </h2>

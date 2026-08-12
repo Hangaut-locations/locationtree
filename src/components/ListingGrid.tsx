@@ -107,7 +107,7 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
     if (items.length === 0) return null;
     return (
       <section className="space-y-6">
-        <h2 className="text-gl md:text-xl font-semibold text-purple-950 dark:text-purple-300 tracking-tight">
+        <h2 className="text-lg md:text-xl font-semibold text-purple-950 dark:text-purple-300 tracking-tight">
           {title}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
@@ -136,7 +136,7 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
     if (items.length === 0) return null;
     return Array.from({ length: repeatCount }).map((_, index) => (
       <section key={`${title}-${index}`} className="space-y-6">
-        <h2 className="text-xl md:text-2xl font-semibold text-purple-950 dark:text-purple-300 tracking-tight">
+        <h2 className="text-xl md:text-xl font-semibold text-purple-950 dark:text-purple-300 tracking-tight">
           {title}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
@@ -162,7 +162,7 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
       <div className="mx-auto max-w-7xl px-4 md:px-8 py-8 space-y-12">
         {isPlanning ? (
           <>
-            {renderListingRow("Places in Lagos", lagosListings)}
+            {renderListingRow("Parties in Lagos", lagosListings)}
             {renderListingRow(
               "Locations Available in lekki",
               lekkiEventListings,
@@ -173,7 +173,7 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
           <>
             {renderListingRow("Locations Available in lekki", lekkiListings)}
             {renderListingRow("Homes in Lekki", surulereListings)}
-            {renderListingRow("Places in London", lagosListings)}
+            {renderListingRow("Parties in Uyo", lagosListings)}
           </>
         )}
       </div>

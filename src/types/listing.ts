@@ -36,6 +36,7 @@ export interface HostProfile {
   phone: string
   bio: string
   avatar: string
+  email?: string
 }
 
 export interface Wallet {

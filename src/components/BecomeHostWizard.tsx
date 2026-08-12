@@ -72,9 +72,14 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({
 
   const handleSubmit = () => {
     // Normalize location to match valid listing locations
-    const normalizedLocation = (["Lekki", "Surulere", "Lagos"].find(
-      (loc) => loc.toLowerCase() === location.trim().toLowerCase(),
-    ) || "Lagos") as "Lekki" | "Lagos" | "Surulere";
+    const normalizedLocation = ([
+      "Lekki",
+      "Surulere",
+      "Lagos",
+      "Uyo",
+      "Enugu",
+    ].find((loc) => loc.toLowerCase() === location.trim().toLowerCase()) ||
+      "Lagos") as "Lekki" | "Lagos" | "Surulere" | "Enugu" | "Uyo";
 
     // Mock create a new listing object
     const finalTitle = title.trim() || `Charming ${category} Stay`;

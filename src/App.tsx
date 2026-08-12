@@ -45,6 +45,7 @@ const DEFAULT_PROFILE: HostProfile = {
   phone: "+44 7700 900123",
   bio: "I love hosting unforgettable rooftop parties and events across the city.",
   avatar: "",
+  email: "",
 };
 
 const DEFAULT_WALLET: Wallet = {
