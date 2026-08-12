@@ -6,9 +6,8 @@ interface IStepFiveProps {
 const StepTen: React.FC<IStepFiveProps> = () => {
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
-      <span className="text-sm font-bold text-purple-950 dark:text-purple-300 uppercase tracking-widest block">
-        Step 10
-      </span>
+      <p className="text-sm font-bold text-purple-600">Step 10</p>
+
       <h1 className="text-2xl sm:text-4xl font-bold text-foreground tracking-tight leading-tight">
         Finish up and publish
       </h1>

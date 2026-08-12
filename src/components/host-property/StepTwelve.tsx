@@ -18,9 +18,8 @@ const StepTwelve: React.FC<IStepProps> = ({
   return (
     <div className="space-y-8 text-center animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
       <div className="space-y-1.5">
-        <span className="text-sm font-bold text-purple-950 dark:text-purple-300 uppercase tracking-widest block">
-          Step 12
-        </span>
+        <p className="text-sm font-bold text-purple-600">Step 12</p>
+
         <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
           Set your base price for the spot
         </h2>

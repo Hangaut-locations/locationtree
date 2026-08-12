@@ -6,6 +6,7 @@ import {
   PartyPopper,
   Pencil,
   Plus,
+  SaveAll,
   Trash2,
   User,
   Wallet as WalletIcon,
@@ -17,6 +18,9 @@ import type { HostProfile, Listing, WalletTransaction } from "../types/listing";
 import { ListingEditor } from "./ListingEditor";
 import { WalletView } from "./WalletView";
 import { Link } from "react-router-dom";
+import PhoneInput from "./global/PhoneInput";
+import LocationSelect from "./global/LocationSelect";
+import { HostProfilePage } from "./HostProfile";
 
 interface HostDashboardProps {
   profile: HostProfile;
@@ -113,105 +117,7 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({
 
       {/* PROFILE SECTION */}
       {section === "profile" && (
-        <div className="rounded-[28px] border border-border bg-card p-6 md:p-8 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
-          <div className="flex flex-col sm:flex-row items-center gap-6">
-            {/* Click avatar to edit profile */}
-            <button
-              onClick={() => setSection("listings")}
-              className="relative group shrink-0 cursor-pointer"
-              aria-label="Edit profile"
-            >
-              <img
-                src={profile.avatar || DEFAULT_HOST_AVATAR}
-                alt="Host profile"
-                className="h-28 w-28 rounded-full object-cover border-4 border-purple-950/10"
-              />
-              <span className="absolute -bottom-1 -right-1 h-9 w-9 rounded-full bg-purple-950 text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
-                <Pencil className="h-4 w-4" />
-              </span>
-            </button>
-            <div className="text-center sm:text-left">
-              <h2 className="text-2xl font-semibold text-foreground tracking-tight">
-                {profile.name || "Your name"}
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                {profile.location ? `${profile.location} · ` : ""}
-                {profile.phone || "add phone"}
-              </p>
-
-              <button
-                // onClick={() => setSection("listings")}
-                className="mt-3 rounded-full border border-border px-5 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
-              >
-                Edit profile
-              </button>
-            </div>
-          </div>
-
-          <div className="border-t border-border/50 pt-6 space-y-5">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <label className="block space-y-1.5">
-                <span className="text-xs font-medium text-muted-foreground">
-                  Full name
-                </span>
-                <input
-                  defaultValue={profile.name}
-                  onBlur={(e) =>
-                    onUpdateProfile({ ...profile, name: e.target.value })
-                  }
-                  placeholder="Introduce yourself — full name"
-                  className="w-full border border-border/80 bg-muted/20 rounded-2xl px-4 py-3 text-sm font-semibold text-foreground outline-none focus:border-purple-600"
-                />
-              </label>
-              <label className="block space-y-1.5">
-                <span className="text-xs font-medium text-muted-foreground">
-                  Location
-                </span>
-                <input
-                  defaultValue={profile.location}
-                  onBlur={(e) =>
-                    onUpdateProfile({ ...profile, location: e.target.value })
-                  }
-                  placeholder="City"
-                  className="w-full border border-border/80 bg-muted/20 rounded-2xl px-4 py-3 text-sm font-semibold text-foreground outline-none focus:border-purple-600"
-                />
-              </label>
-              <label className="block space-y-1.5">
-                <span className="text-xs font-medium text-muted-foreground">
-                  Phone number
-                </span>
-                <input
-                  defaultValue={profile.phone}
-                  onBlur={(e) =>
-                    onUpdateProfile({ ...profile, phone: e.target.value })
-                  }
-                  placeholder="+44 …"
-                  className="w-full border border-border/80 bg-muted/20 rounded-2xl px-4 py-3 text-sm font-semibold text-foreground outline-none focus:border-purple-600"
-                />
-              </label>
-            </div>
-
-            <label className="block space-y-1.5">
-              <span className="text-xs font-medium text-muted-foreground">
-                About me / Bio
-              </span>
-              <textarea
-                defaultValue={profile.bio}
-                onBlur={(e) =>
-                  onUpdateProfile({ ...profile, bio: e.target.value })
-                }
-                rows={4}
-                placeholder="Tell guests a little about yourself and what you love hosting…"
-                className="w-full border border-border/80 bg-muted/20 rounded-2xl px-4 py-3 text-sm font-semibold text-foreground outline-none focus:border-purple-600"
-              />
-            </label>
-
-            <p className="text-xs text-muted-foreground">
-              Tip: click your profile picture to edit your profile. Changes save
-              as you type out of each field.
-            </p>
-          </div>
-        </div>
+        <HostProfilePage profile={profile} onUpdateProfile={onUpdateProfile} />
       )}
 
       {/* LISTINGS SECTION */}

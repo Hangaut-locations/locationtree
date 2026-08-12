@@ -210,23 +210,12 @@ const StepFour: React.FC<IStepFourProps> = ({ location, setLocation }) => {
   };
 
   return (
-    <div className="space-y-6 relative">
+    <div className="space-y-6 relative w-full">
       {/* Location Input */}
-      <div className="flex flex-col gap-4 max-w-lg mx-auto">
-        <div
-          className="
-            flex items-center gap-3
-            border border-border/80
-            bg-card
-            rounded-full
-            px-5 py-3.5
-            transition-colors
-            focus-within:border-purple-600
-            focus-within:ring-2
-            focus-within:ring-purple-600/10
-            w-full
-          "
-        >
+      <div className="flex flex-col gap-4 max-w-xl mx-auto">
+        <p className="text-sm font-bold text-purple-600">Step 4</p>
+
+        <div className="flex items-center gap-3 border border-border/80 bg-card rounded-full px-5 py-3.5 transition-colors focus-within:border-purple-600 focus-within:ring-2 focus-within:ring-purple-600/10 w-full">
           <Search className="h-5 w-5 text-muted-foreground" />
 
           <input
@@ -239,22 +228,13 @@ const StepFour: React.FC<IStepFourProps> = ({ location, setLocation }) => {
           />
 
           {searching && (
-            <div
-              className="
-                h-4 w-4
-                rounded-full
-                border-2
-                border-purple-600
-                border-t-transparent
-                animate-spin
-              "
-            />
+            <div className="h-4 w-4 rounded-full border-2 border-purple-600 border-t-transparent animate-spin" />
           )}
         </div>
 
         {/* Suggestions */}
         <div className="flex flex-wrap justify-center gap-2">
-          {["Lekki", "Surulere", "Lagos"].map((loc) => (
+          {["Lekki", "Surulere", "Lagos Island", "Uyo", "Enugu"].map((loc) => (
             <button
               key={loc}
               type="button"
@@ -273,7 +253,7 @@ const StepFour: React.FC<IStepFourProps> = ({ location, setLocation }) => {
       </div>
 
       {/* Real Map */}
-      <div className="rounded-3xl border border-border bg-card overflow-hidden shadow-sm aspect-video max-w-lg mx-auto relative">
+      <div className="rounded-3xl border border-border bg-card overflow-hidden shadow-sm aspect-video max-w-xl mx-auto relative z-[1]">
         <div ref={mapContainerRef} className="absolute inset-0" />
 
         {/* Selected Location */}

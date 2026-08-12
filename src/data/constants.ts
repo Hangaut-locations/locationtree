@@ -18,6 +18,12 @@ import {
   Radio,
   Theater,
   Gamepad2,
+  MountainSnow,
+  PanelsTopLeft,
+  Home,
+  Tent,
+  Sparkles,
+  Palmtree,
 } from "lucide-react";
 
 export const Party_Types = [
@@ -92,6 +98,36 @@ export const Party_Types = [
   {
     name: "Games",
     icon: Gamepad2,
+  },
+
+  // Additional types
+  {
+    name: "Amazing views",
+    icon: MountainSnow,
+  },
+  {
+    name: "Frames",
+    icon: PanelsTopLeft,
+  },
+  {
+    name: "Homes",
+    icon: Home,
+  },
+  {
+    name: "Houseboat",
+    icon: Ship,
+  },
+  {
+    name: "Cabin",
+    icon: Tent,
+  },
+  {
+    name: "OMG!",
+    icon: Sparkles,
+  },
+  {
+    name: "Islands",
+    icon: Palmtree,
   },
 ] as const;
 

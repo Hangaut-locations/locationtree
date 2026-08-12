@@ -12,9 +12,8 @@ const StepNine: React.FC<IStepFiveProps> = ({
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
       <div className="space-y-1.5 mb-6">
-        <span className="text-sm font-bold text-purple-950 uppercase tracking-widest block">
-          Step 8
-        </span>
+        <p className="text-sm font-bold text-purple-600">Step 9</p>
+
         <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
           Give a precise description of your apartment.
         </h2>

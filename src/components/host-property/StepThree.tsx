@@ -9,7 +9,9 @@ interface IStepTwoProps {
 
 const StepThree: React.FC<IStepTwoProps> = ({ spaceType, setSpaceType }) => {
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out w-full">
+      <p className="text-sm font-bold text-purple-600">Step 3</p>
+
       <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight text-center mb-8">
         What type of place will guests have?
       </h2>

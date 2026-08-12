@@ -52,7 +52,7 @@ const StepSeven: React.FC<IStepFiveProps> = ({ photos, setPhotos }) => {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
       {/* Header */}
       <div>
-        <p className="text-sm font-bold text-purple-600">Step 6</p>
+        <p className="text-sm font-bold text-purple-600">Step 7</p>
 
         <h2 className="mt-1 text-2xl font-bold text-foreground">
           Add some photos of your place

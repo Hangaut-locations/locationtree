@@ -1,4 +1,4 @@
-import { HelpCircle } from "lucide-react";
+import { HelpCircle, SaveAllIcon } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -29,7 +29,7 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({
   const navigate = useNavigate();
 
   // Form States
-  const [category, setCategory] = useState<string>("Rooftops");
+  const [category, setCategory] = useState<string>("");
   const [spaceType, setSpaceType] = useState<"entire" | "room" | "shared">(
     "entire",
   );
@@ -150,6 +150,7 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({
             onClick={handleExit}
             className="flex items-center gap-1.5 rounded-full border border-border px-4 py-2.5 md:py-2 text-xs md:text-sm font-medium text-foreground hover:bg-muted transition-all cursor-pointer"
           >
+            <SaveAllIcon className="h-4 w-4" />
             <span>Save & Exit</span>
           </button>
         </div>
