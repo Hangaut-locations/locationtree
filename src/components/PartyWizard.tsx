@@ -57,7 +57,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
     enabled: !!partyId,
   });
 
-  console.log("partyData", partyData);
+  // console.log("partyData", partyData);
 
   const isDateValid = !!startDate && !!endDate && endDate >= startDate;
 

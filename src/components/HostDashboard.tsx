@@ -48,6 +48,11 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({
     mode: "party" | "property";
   }>(null);
 
+  const onLogout = () => {
+    sessionStorage.clear();
+    window.location.href = "/";
+  };
+
   return (
     <AppLayout>
       <div className="mx-auto max-w-3xl px-4 md:px-8 py-8 space-y-8">
@@ -67,7 +72,7 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({
             </div>
           </div>
           <button
-            // onClick={onLogout}
+            onClick={onLogout}
             className="flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer"
           >
             <LogOut className="h-4 w-4" />
