@@ -23,8 +23,8 @@ const StepTwelve: React.FC<IStepProps> = ({
         <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
           Set your base price for the spot
         </h2>
-        <p className="text-xs font-semibold text-muted-foreground">
-          For example <span className="font-bold text-foreground">$75</span>
+        <p className="text-xs text-muted-foreground">
+          For example <span className="font-semibold text-foreground">$75</span>
         </p>
       </div>
 
@@ -43,14 +43,14 @@ const StepTwelve: React.FC<IStepProps> = ({
 
       {/* Price unit selection */}
       <div className="max-w-md mx-auto">
-        <p className="text-sm font-bold text-foreground mb-3">Charge per…</p>
+        <p className="text-sm text-foreground mb-3">Charge per:</p>
         <div className="grid grid-cols-3 gap-3">
           {(["person", "hour", "night"] as const).map((mode) => (
             <button
               key={mode}
               type="button"
               onClick={() => setPriceMode(mode)}
-              className={`rounded-2xl border px-3 py-3 text-sm font-bold transition-all cursor-pointer active:scale-97 ${
+              className={`rounded-2xl border px-3 py-3 text-xs font-semibold transition-all cursor-pointer active:scale-97 ${
                 priceMode === mode
                   ? "border-purple-950 dark:border-purple-600 bg-purple-950/5 dark:bg-purple-800/15"
                   : "border-border/80 bg-card hover:border-gray-400"

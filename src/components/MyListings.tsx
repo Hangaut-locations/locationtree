@@ -26,7 +26,7 @@ const MyListings: React.FC = () => {
               <PartyPopper className="h-6 w-6" />
             </div>
             <div className="flex-1">
-              <p className="text-base font-semibold text-foreground">
+              <p className="text-sm font-semibold text-foreground">
                 Host a new party
               </p>
               <p className="text-xs text-muted-foreground">
@@ -43,7 +43,7 @@ const MyListings: React.FC = () => {
               <Home className="h-6 w-6" />
             </div>
             <div className="flex-1">
-              <p className="text-base font-semibold text-foreground">
+              <p className="text-sm font-semibold text-foreground">
                 List a new property
               </p>
               <p className="text-xs text-muted-foreground">

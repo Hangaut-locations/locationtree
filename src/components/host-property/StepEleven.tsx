@@ -18,7 +18,7 @@ const StepEleven: React.FC<IStepFiveProps> = ({
         <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
           Choose your booking setting
         </h2>
-        <p className="text-xs font-semibold text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           You can change this at anytime
         </p>
       </div>
@@ -39,10 +39,10 @@ const StepEleven: React.FC<IStepFiveProps> = ({
             </h4>
             <Calendar className="h-5 w-5 text-foreground shrink-0" />
           </div>
-          <p className="mt-2 text-xs font-bold text-purple-950 dark:text-purple-300">
+          <p className="mt-2 text-xs font-semibold text-orange-500 dark:text-purple-300">
             Recommended
           </p>
-          <p className="mt-1 text-sm font-semibold text-muted-foreground">
+          <p className="mt-1 text-xs text-muted-foreground">
             Stay in control early on. After a few guests, switch to Instant Book
             to let bookings happen automatically
           </p>
@@ -60,7 +60,7 @@ const StepEleven: React.FC<IStepFiveProps> = ({
           <h4 className="text-base font-bold text-foreground">
             Allow instant booking
           </h4>
-          <p className="mt-1 text-sm font-semibold text-muted-foreground">
+          <p className="mt-1 text-xs text-muted-foreground">
             Guests book automatically without needing approval.
           </p>
         </button>

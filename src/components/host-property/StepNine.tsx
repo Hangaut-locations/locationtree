@@ -17,7 +17,7 @@ const StepNine: React.FC<IStepFiveProps> = ({
         <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
           Give a precise description of your apartment.
         </h2>
-        <p className="text-xs font-semibold text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           Keep it short and sweet! Pick a fun title—you can always tweak it
           later.
         </p>
@@ -27,12 +27,12 @@ const StepNine: React.FC<IStepFiveProps> = ({
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={4}
-          maxLength={32}
+          maxLength={150}
           className="w-full min-h-52 resize-none border-2 border-foreground px-4 py-3 outline-none placeholder:text-muted-foreground/40 focus:ring-2 focus:ring-purple-600/10 rounded-2xl"
           placeholder="A stylish space designed for memorable stays, calm mornings, and easy hosting."
         />
         <p className="mt-2 text-right text-xs font-semibold text-muted-foreground">
-          {description.length}/32
+          {description.length}/150
         </p>
       </div>
     </div>

@@ -14,7 +14,7 @@ const StepEight: React.FC<IStepFiveProps> = ({ title, setTitle }) => {
         <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
           Now, let's give your apartment a title
         </h2>
-        <p className="text-xs font-semibold text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           Keep it short and sweet! Pick a fun title—you can always tweak it
           later.
         </p>

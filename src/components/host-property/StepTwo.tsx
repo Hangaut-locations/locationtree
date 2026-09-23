@@ -37,7 +37,7 @@ const StepTwo: React.FC<IStepTwoProps> = ({ category, setCategory }) => {
                 className="h-7 w-7 lg:w-10 lg:h-10 text-foreground mb-3"
               /> */}
               <cat.icon className="" />
-              <span className="text-xs font-bold text-foreground">
+              <span className="text-xs font-medium text-foreground mt-2">
                 {cat.name}
               </span>
             </button>

@@ -15,17 +15,16 @@ import StepNine from "./host-property/StepNine";
 import StepTen from "./host-property/StepTen";
 import StepEleven from "./host-property/StepEleven";
 import StepTwelve from "./host-property/StepTwelve";
-import { adminCaller, formClient } from "../interceptors/http";
+import { formClient } from "../interceptors/http";
+import toast from "react-hot-toast";
 
-interface BecomeHostWizardProps {
-  onAddListing: (newListing: Listing) => void;
+interface HostPropertyWizardProps {
+  onAddListing?: (newListing: Listing) => void;
 }
 
 type WizardStep = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
 
-export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({
-  onAddListing,
-}) => {
+export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
   const [step, setStep] = useState<WizardStep>(1);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -72,21 +71,9 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({
 
   const handleSubmit = () => {
     setLoading(true);
-    // Normalize location to match valid listing locations
-    // const normalizedLocation = ([
-    //   "Lekki",
-    //   "Surulere",
-    //   "Lagos",
-    //   "Uyo",
-    //   "Enugu",
-    // ].find((loc) => loc.toLowerCase() === location.trim().toLowerCase()) ||
-    //   "Lagos") as "Lekki" | "Lagos" | "Surulere" | "Enugu" | "Uyo";
-
-    // Mock create a new listing object
-    const finalTitle = title.trim() || `Charming ${category} Stay`;
 
     formClient
-      .post("/parties", {
+      .post("/property", {
         title,
         description,
         location,
@@ -96,11 +83,20 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({
         bathrooms,
         guest_capacity: guests,
         price: basePrice,
-        price_unit: priceMode,
         amenities,
+        property_type: category,
+        space_type: spaceType,
+        booking_setting: bookingSetting,
       })
-      .then(() => {})
-      .catch((err) => {})
+      .then(() => {
+        setTimeout(() => {
+          navigate("/host?active=listings");
+        }, 2000);
+      })
+      .catch((err) => {
+        console.log("error", err);
+        toast.error(err?.response?.data?.response || "Error creating property");
+      })
       .finally(() => {
         setLoading(false);
       });
@@ -137,15 +133,16 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({
         <div className="flex items-center gap-3">
           <button
             onClick={() => alert("Support line matches available agents.")}
-            className="flex h-10 w-10 sm:h-auto sm:w-auto items-center justify-center gap-1.5 rounded-full border border-border sm:px-4 sm:py-2 text-xs font-bold text-foreground hover:bg-muted transition-all cursor-pointer"
+            className="flex h-10 w-10 sm:h-auto sm:w-auto items-center justify-center gap-1.5 rounded-full border border-border sm:px-4 sm:py-2 text-xs font-semibold text-foreground hover:bg-muted transition-all cursor-pointer"
             aria-label="Help"
           >
             <HelpCircle className="h-4.5 w-4.5" />
             <span className="hidden sm:inline">Questions?</span>
           </button>
           <button
+            disabled
             onClick={handleExit}
-            className="flex items-center gap-1.5 rounded-full border border-border px-4 py-2.5 md:py-2 text-xs md:text-sm font-medium text-foreground hover:bg-muted transition-all cursor-pointer"
+            className="disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none flex items-center gap-1.5 rounded-full border border-border px-4 py-2.5 md:py-2 text-xs font-semibold text-foreground hover:bg-muted transition-all cursor-pointer"
           >
             <SaveAllIcon className="h-4 w-4" />
             <span>Save & Exit</span>
@@ -256,7 +253,7 @@ export const BecomeHostWizard: React.FC<BecomeHostWizardProps> = ({
             className="rounded-full bg-purple-950 hover:bg-purple-900 dark:bg-purple-800 dark:hover:bg-purple-750 text-white font-bold py-3 px-6 text-sm shadow-md active:scale-97 transition-[transform,background-color] duration-160 ease-out disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
           >
             {step === 12 ? "Publish" : "Next"}
-          </button>{" "}
+          </button>
         </div>
       </footer>
     </div>

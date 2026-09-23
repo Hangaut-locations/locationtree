@@ -28,7 +28,7 @@ const StepSix: React.FC<IStepFiveProps> = ({ amenities, setAmenities }) => {
       </div>
 
       <div className="space-y-4">
-        <p className="text-sm font-bold text-foreground">
+        <p className="text-sm font-semibold text-foreground">
           What about these guest favorites?
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -46,20 +46,20 @@ const StepSix: React.FC<IStepFiveProps> = ({ amenities, setAmenities }) => {
               key={item}
               type="button"
               onClick={() => toggleAmenity(item)}
-              className={`border-2 text-left p-5 rounded-2xl transition-all duration-200 ease cursor-pointer hover:border-gray-400 active:scale-97 ${
+              className={`border-2 text-center p-5 rounded-2xl transition-all duration-200 ease cursor-pointer hover:border-gray-400 active:scale-97 ${
                 amenities.has(item)
                   ? "border-purple-950 dark:border-purple-600 bg-purple-950/5 dark:bg-purple-800/10 text-purple-950!"
                   : "border-border/80 bg-card text-black"
               }`}
             >
-              <span className="text-sm font-semibold">{item}</span>
+              <span className="text-xs font-semibold">{item}</span>
             </button>
           ))}
         </div>
       </div>
 
       <div className="space-y-4">
-        <p className="text-sm font-bold text-foreground">
+        <p className="text-sm font-semibold text-foreground">
           Do you have any standout amenities?
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -83,20 +83,20 @@ const StepSix: React.FC<IStepFiveProps> = ({ amenities, setAmenities }) => {
               key={item}
               type="button"
               onClick={() => toggleAmenity(item)}
-              className={`border-2 text-left p-5 rounded-2xl transition-all duration-200 ease cursor-pointer hover:border-gray-400 active:scale-97 ${
+              className={`border-2 text-center p-5 rounded-2xl transition-all duration-200 ease cursor-pointer hover:border-gray-400 active:scale-97 ${
                 amenities.has(item)
                   ? "border-purple-950 dark:border-purple-600 bg-purple-950/5 dark:bg-purple-800/10 text-purple-950!"
                   : "border-border/80 bg-card text-black"
               }`}
             >
-              <span className="text-sm font-semibold">{item}</span>
+              <span className="text-xs font-semibold">{item}</span>
             </button>
           ))}
         </div>
       </div>
 
       <div className="space-y-4">
-        <p className="text-sm font-bold text-foreground">
+        <p className="text-sm font-semibold text-foreground">
           Do you have any of these safety items?
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -110,13 +110,13 @@ const StepSix: React.FC<IStepFiveProps> = ({ amenities, setAmenities }) => {
               key={item}
               type="button"
               onClick={() => toggleAmenity(item)}
-              className={`border-2 text-left p-5 rounded-2xl transition-all duration-200 ease cursor-pointer hover:border-gray-400 active:scale-97 ${
+              className={`border-2 text-center p-5 rounded-2xl transition-all duration-200 ease cursor-pointer hover:border-gray-400 active:scale-97 ${
                 amenities.has(item)
                   ? "border-purple-950 dark:border-purple-600 bg-purple-950/5 dark:bg-purple-800/10 text-purple-950!"
                   : "border-border/80 bg-card text-black"
               }`}
             >
-              <span className="text-sm font-semibold">{item}</span>
+              <span className="text-xs font-semibold">{item}</span>
             </button>
           ))}
         </div>

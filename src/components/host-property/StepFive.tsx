@@ -30,7 +30,7 @@ const StepFive: React.FC<IStepFiveProps> = ({
         <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
           Share some basics about your place
         </h2>
-        <p className="text-xs font-semibold text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           You'll add more details later, like bed types.
         </p>
       </div>

@@ -27,7 +27,7 @@ const StepThree: React.FC<IStepTwoProps> = ({ spaceType, setSpaceType }) => {
           }`}
         >
           <h4 className="text-sm font-bold text-foreground">An entire place</h4>
-          <p className="text-xs font-semibold text-muted-foreground mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             Guest have the whole place to themselves
           </p>
         </button>
@@ -43,7 +43,7 @@ const StepThree: React.FC<IStepTwoProps> = ({ spaceType, setSpaceType }) => {
           }`}
         >
           <h4 className="text-sm font-bold text-foreground">A room</h4>
-          <p className="text-xs font-semibold text-muted-foreground mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             Guest have their own room in their home, plus access to shared place
           </p>
         </button>
@@ -61,7 +61,7 @@ const StepThree: React.FC<IStepTwoProps> = ({ spaceType, setSpaceType }) => {
           <h4 className="text-sm font-bold text-foreground">
             A shared room in a hostel
           </h4>
-          <p className="text-xs font-semibold text-muted-foreground mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             Guests sleep in a shared room in a professionally managed hostel
             with staffs onsite 24/7
           </p>

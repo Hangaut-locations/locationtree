@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { Route, Routes, useNavigate, useParams } from "react-router-dom";
-import { BecomeHostWizard } from "./components/BecomeHostWizard";
+import { Route, Routes, useNavigate } from "react-router-dom";
+import { HostPropertyWizard } from "./components/HostPropertyWizard";
 import { HostChooser } from "./components/HostChooser";
 import { HostDashboard } from "./components/HostDashboard";
-import { ListingDetail } from "./components/ListingDetail";
 import { PartyWizard } from "./components/PartyWizard";
 import { ProfilePage } from "./components/ProfilePage";
 import { SupportPage } from "./components/SupportPage";
@@ -182,7 +181,7 @@ function App() {
       <Route path="/become-a-host/party" element={<PartyWizard />} />
       <Route
         path="/become-a-host/property"
-        element={<BecomeHostWizard onAddListing={handleAddNewListing} />}
+        element={<HostPropertyWizard onAddListing={handleAddNewListing} />}
       />
 
       <Route

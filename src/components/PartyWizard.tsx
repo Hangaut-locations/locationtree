@@ -33,6 +33,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
+  const [ddrafting, setDrafting] = useState(false);
   const [photos, setPhotos] = useState<string[]>([]);
   const [partyType, setPartyType] = useState<string>("");
   const [startDate, setStartDate] = useState<string>("");
@@ -73,35 +74,35 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
     if (step > 1) setStep((prev) => (prev - 1) as WizardStep);
   };
 
-  const handleExit = () => {
-    if (window.confirm("Are you sure you want to save and exit?"))
-      navigate("/host");
-  };
-
-  const handleSubmit = () => {
+  const handleSubmit = (status: "published" | "draft" = "published") => {
     setLoading(true);
 
     formClient
       .post("/parties", {
-        title,
-        description: activities,
-        location,
-        images: photos,
+        ...(title && { title }),
+        ...(activities && { description: activities }),
+        ...(location && { location }),
         bedrooms: 1,
         beds: 1,
         bathrooms: 1,
-        guest_capacity: capacity,
-        price,
-        charge_type: priceMode,
+        ...(capacity && { guest_capacity: capacity }),
+        ...(price && { price }),
+        ...(priceMode && { charge_type: priceMode }),
         amenities: [],
-        start_date: startDate,
-        end_date: endDate,
-        party_rules: rules,
+        ...(startDate && { start_date: startDate }),
+        ...(endDate && { end_date: endDate }),
+        ...(rules && { party_rules: rules }),
         is_ticket_sales,
-        party_type: partyType,
+        ...(partyType && { party_type: partyType }),
+        ...(photos.length > 0 && { images: photos }),
+        status,
       })
       .then(() => {
-        toast.success("Party created successfully");
+        toast.success(
+          status === "published"
+            ? "Party created successfully"
+            : "Party drafted successfully",
+        );
         setTimeout(() => {
           navigate("/host");
         }, 3000);
@@ -171,8 +172,14 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
             <span className="hidden sm:inline">Questions?</span>
           </button>
           <button
-            onClick={handleExit}
-            className="flex items-center gap-1.5 rounded-full border border-border px-4 py-2.5 md:py-2 text-xs font-medium text-foreground hover:bg-muted transition-all cursor-pointer"
+            title={
+              step < 8
+                ? "You can't draft if you have not specify the name of the party"
+                : "Save party as draft"
+            }
+            disabled={step < 8 || loading}
+            onClick={() => handleSubmit("draft")}
+            className="disabled:opacity-55 disabled:cursor-not-allowed flex items-center gap-1.5 rounded-full border border-border px-4 py-2.5 md:py-2 text-xs font-medium text-foreground hover:bg-muted transition-all cursor-pointer"
           >
             <SaveAllIcon className="h-4 w-4" />
             <span>Save & Exit</span>

@@ -124,7 +124,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currency = "NGN" }) => {
             ) : (
               <button
                 onClick={() => setIsAuthModal(true)}
-                className="flex items-center gap-1.5 rounded-full bg-purple-950 text-white font-semibold py-2.5 px-4 text-xs shadow-md active:scale-97 transition-all cursor-pointer"
+                className="font-semibold hover:text-purple-700 text-gray-800 duration-200 cursor-pointer"
               >
                 <LogIn className="h-3.5 w-3.5" />
                 <span>Log In</span>
@@ -292,7 +292,6 @@ export const Navbar: React.FC<NavbarProps> = ({ currency = "NGN" }) => {
           ) : (
             <button
               onClick={() => setIsAuthModal(true)}
-              // className="flex items-center gap-2 rounded-full bg-purple-950 hover:bg-purple-900 dark:bg-purple-800 dark:hover:bg-purple-750 text-white font-medium py-2.5 px-6 shadow-md transition-all hover:scale-105 active:scale-95 duration-200 cursor-pointer"
               className="font-semibold hover:text-purple-700 text-gray-800 duration-200 cursor-pointer"
             >
               {/* <LogIn className="h-4 w-4" /> */}
