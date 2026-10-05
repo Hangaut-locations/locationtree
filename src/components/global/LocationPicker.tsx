@@ -120,7 +120,13 @@ const searchPlaces = (text: string, limit: number, signal?: AbortSignal) =>
     "search",
     { q: text, countrycodes: "ng", limit: String(limit) },
     signal,
-  ).then((results) => results.map(toSuggestion));
+  ).then((results) => {
+    const suggestions = results.map(toSuggestion);
+    return suggestions.filter(
+      (suggestion, index) =>
+        suggestions.findIndex((other) => other.label === suggestion.label) === index,
+    );
+  });
 
 const LocationPicker: React.FC<LocationPickerProps> = ({
   value,
@@ -136,6 +142,7 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
 
   const [query, setQuery] = useState(value);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [searchedText, setSearchedText] = useState("");
   const [activeIndex, setActiveIndex] = useState(-1);
   const [isOpen, setIsOpen] = useState(false);
   const [searching, setSearching] = useState(false);
@@ -242,11 +249,14 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
       searchPlaces(text, 5, controller.signal)
         .then((results) => {
           setSuggestions(results);
+          setSearchedText(text);
           setActiveIndex(results.length ? 0 : -1);
           setIsOpen(true);
         })
         .catch((err: Error) => {
-          if (err.name !== "AbortError") setSuggestions([]);
+          if (err.name === "AbortError") return;
+          setSuggestions([]);
+          setSearchedText(text);
         })
         .finally(() => {
           if (!controller.signal.aborted) setSearching(false);
@@ -367,7 +377,7 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
           )}
         </div>
 
-        {isOpen && query.trim().length >= 3 && !searching && (
+        {isOpen && !searching && searchedText === query.trim() && query.trim().length >= 3 && (
           <ul
             id="location-suggestions"
             role="listbox"
