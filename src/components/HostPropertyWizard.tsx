@@ -27,6 +27,16 @@ interface HostPropertyWizardProps {
 
 type WizardStep = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
 
+type ApiError = AxiosError<{
+  message?: string;
+  data?: { field: string; messages: string[] }[];
+}>;
+
+const getErrorMessage = (err: ApiError, fallback: string) =>
+  err.response?.data?.data?.[0]?.messages?.[0] ||
+  err.response?.data?.message ||
+  fallback;
+
 export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
   const [step, setStep] = useState<WizardStep>(1);
   const [loading, setLoading] = useState(false);
