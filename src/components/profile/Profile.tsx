@@ -8,6 +8,7 @@ import { adminCaller } from "../../interceptors/http";
 import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import ProfilePageSkeleton from "../global/UserProfileSkeleton";
+import { getErrorMessage, type ApiError } from "../../lib/errors";
 
 const Profile: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -43,8 +44,8 @@ const Profile: React.FC = () => {
         qc.invalidateQueries({ queryKey: ["profile"] });
         toast.success("Profile updated successfully");
       })
-      .catch((err) => {
-        toast.error(err.response?.data?.message || "Failed to update profile");
+      .catch((err: ApiError) => {
+        toast.error(getErrorMessage(err, "Failed to update profile"));
       })
       .finally(() => {
         setLoading(false);
