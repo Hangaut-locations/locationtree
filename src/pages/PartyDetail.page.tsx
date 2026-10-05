@@ -8,13 +8,13 @@ import {
   MapPin,
   Share2,
   ShieldCheck,
-  Sparkles,
   Users,
 } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import AppLayout from "../components/layout/AppLayout";
+import HostCard from "../components/HostCard";
 import { adminCaller } from "../interceptors/http";
 import { displayPrice, formatPrice } from "../lib/currency";
 import { formatPartyWhen } from "../lib/partyTime";
@@ -171,20 +171,7 @@ const PartyDetailPage = () => {
               </p>
             </div>
 
-            <div className="flex items-center gap-4 border-b border-border py-7">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 text-amber-800">
-                <Sparkles className="h-5 w-5" />
-              </div>
-              <div>
-                <h2 className="font-semibold">
-                  A memorable gathering, hosted with care
-                </h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Your host has prepared this space for an easy, enjoyable
-                  celebration.
-                </p>
-              </div>
-            </div>
+            <HostCard host={data.host} />
 
             <div className="border-b border-border py-7">
               <h2 className="text-xl font-semibold">What this place offers</h2>

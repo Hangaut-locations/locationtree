@@ -42,6 +42,19 @@ export interface HostProfile {
   city?: string;
 }
 
+/** Host's public profile, returned with a party or property's details. */
+export interface ListingHost {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  phone?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  bio?: string;
+  createdAt?: string;
+}
+
 export interface Wallet {
   balance: number;
   transactions: WalletTransaction[];
@@ -107,6 +120,7 @@ export interface IProperty {
   beds: number;
   bathrooms: number;
   isFavorite?: boolean;
+  host?: ListingHost | null;
   createdAt: Date;
   updatedAt: Date;
 }

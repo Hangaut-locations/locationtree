@@ -1,3 +1,5 @@
+import type { ListingHost } from "./listing";
+
 export type TParty = {
   _id: string;
   ownerId: string;
@@ -21,6 +23,7 @@ export type TParty = {
   updatedAt: Date;
   party_type: string;
   isFavorite?: boolean;
+  host?: ListingHost | null;
 };
 
 export type TGroupedParties = {
