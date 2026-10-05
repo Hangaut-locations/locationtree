@@ -1,8 +1,10 @@
 import { HelpCircle, SaveAllIcon } from "lucide-react";
 import type React from "react";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import type { Listing, PriceMode } from "../types/listing";
+import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import type { AxiosError } from "axios";
+import type { IProperty, Listing } from "../types/listing";
 import StepOne from "./host-property/StepOne";
 import StepTwo from "./host-property/StepTwo";
 import StepThree from "./host-property/StepThree";
@@ -15,8 +17,9 @@ import StepNine from "./host-property/StepNine";
 import StepTen from "./host-property/StepTen";
 import StepEleven from "./host-property/StepEleven";
 import StepTwelve from "./host-property/StepTwelve";
-import { formClient } from "../interceptors/http";
+import { adminCaller, formClient } from "../interceptors/http";
 import toast from "react-hot-toast";
+import PartyTypeSkeleton from "./parties/CreatePartySkeleton";
 
 interface HostPropertyWizardProps {
   onAddListing?: (newListing: Listing) => void;
@@ -24,10 +27,34 @@ interface HostPropertyWizardProps {
 
 type WizardStep = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
 
+type ApiError = AxiosError<{
+  message?: string;
+  data?: { field: string; messages: string[] }[];
+}>;
+
+const getErrorMessage = (err: ApiError, fallback: string) =>
+  err.response?.data?.data?.[0]?.messages?.[0] ||
+  err.response?.data?.message ||
+  fallback;
+
 export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
   const [step, setStep] = useState<WizardStep>(1);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [searchParams] = useSearchParams();
+  const propertyId = searchParams.get("p");
+
+  const { data: propertyData, isLoading: propertyLoading } =
+    useQuery<IProperty>({
+      queryKey: ["property", propertyId],
+      queryFn: () =>
+        adminCaller
+          .get(`/property/${propertyId}`)
+          .then((res) => res.data?.data),
+      enabled: !!propertyId,
+      refetchOnWindowFocus: false,
+    });
 
   // Form States
   const [category, setCategory] = useState<string>("");
@@ -46,8 +73,32 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
     "approve-first" | "instant"
   >("approve-first");
   const [basePrice, setBasePrice] = useState<number>(0);
-  const [priceMode, setPriceMode] = useState<PriceMode>("person");
+  const [priceMode, setPriceMode] = useState<"person" | "hour">("person");
   const [amenities, setAmenities] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (!propertyData) return;
+    setCategory(propertyData.property_type ?? "");
+    setSpaceType(propertyData.space_type ?? "entire");
+    setLocation(propertyData.location ?? "");
+    setGuests(Number(propertyData.guest_capacity) || 1);
+    setBedrooms(Number(propertyData.bedrooms) || 0);
+    setBeds(Number(propertyData.beds) || 0);
+    setBathrooms(Number(propertyData.bathrooms) || 0);
+    setTitle(propertyData.title ?? "");
+    setDescription(propertyData.description ?? "");
+    setPhotos(propertyData.images ?? []);
+    setBookingSetting(
+      propertyData.booking_setting === "instant" ? "instant" : "approve-first",
+    );
+    setBasePrice(Number(propertyData.price) || 0);
+    setPriceMode(propertyData.charge_type === "hour" ? "hour" : "person");
+    setAmenities(new Set(propertyData.amenities ?? []));
+  }, [propertyData]);
+
+  // Drafts still go through the API's validation, so these must be filled in first.
+  const canSaveDraft =
+    !!category && !!location && !!title.trim() && !!description.trim();
 
   const handleNext = () => {
     if (step < 12) {
@@ -63,39 +114,53 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
     }
   };
 
-  const handleExit = () => {
-    if (window.confirm("Are you sure you want to save and exit?")) {
-      navigate("/");
-    }
-  };
-
-  const handleSubmit = () => {
+  const handleSubmit = (status: "published" | "draft" = "published") => {
     setLoading(true);
 
-    formClient
-      .post("/property", {
-        title,
-        description,
-        location,
-        images: photos,
-        bedrooms,
-        beds,
-        bathrooms,
-        guest_capacity: guests,
-        price: basePrice,
-        amenities,
-        property_type: category,
-        space_type: spaceType,
-        booking_setting: bookingSetting,
-      })
+    const payload = {
+      title: title.trim(),
+      description: description.trim(),
+      location,
+      images: photos,
+      bedrooms,
+      beds,
+      bathrooms,
+      guest_capacity: guests,
+      price: basePrice,
+      charge_type: priceMode,
+      amenities: Array.from(amenities),
+      property_type: category,
+      space_type: spaceType,
+      booking_setting: bookingSetting,
+      status,
+    };
+
+    const request = propertyId
+      ? formClient.patch(`/property/${propertyId}`, payload)
+      : formClient.post("/property", payload);
+
+    request
       .then(() => {
-        setTimeout(() => {
-          navigate("/host?active=listings");
-        }, 2000);
+        queryClient.invalidateQueries({ queryKey: ["my-properties"] });
+        queryClient.invalidateQueries({ queryKey: ["property", propertyId] });
+        toast.success(
+          status === "draft"
+            ? "Property saved as draft"
+            : propertyId
+              ? "Property updated successfully"
+              : "Property published successfully",
+        );
+        navigate("/host?p=listings");
       })
-      .catch((err) => {
-        console.log("error", err);
-        toast.error(err?.response?.data?.response || "Error creating property");
+      .catch((err: ApiError) => {
+        toast.error(
+          getErrorMessage(
+            err,
+            propertyId
+              ? "Error updating property, try again!"
+              : "Error creating property, try again!",
+          ),
+        );
       })
       .finally(() => {
         setLoading(false);
@@ -115,6 +180,10 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
     if (step === 12) return basePrice > 0;
     return true;
   };
+
+  if (propertyId && propertyLoading) {
+    return <PartyTypeSkeleton />;
+  }
 
   return (
     <div className="min-h-screen relative flex flex-col bg-background text-foreground transition-colors duration-300">
@@ -140,9 +209,14 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
             <span className="hidden sm:inline">Questions?</span>
           </button>
           <button
-            disabled
-            onClick={handleExit}
-            className="disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none flex items-center gap-1.5 rounded-full border border-border px-4 py-2.5 md:py-2 text-xs font-semibold text-foreground hover:bg-muted transition-all cursor-pointer"
+            title={
+              canSaveDraft
+                ? "Save property as draft"
+                : "Add a category, location, title and description to save a draft"
+            }
+            disabled={!canSaveDraft || loading}
+            onClick={() => handleSubmit("draft")}
+            className="disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 rounded-full border border-border px-4 py-2.5 md:py-2 text-xs font-semibold text-foreground hover:bg-muted transition-all cursor-pointer"
           >
             <SaveAllIcon className="h-4 w-4" />
             <span>Save & Exit</span>
@@ -252,7 +326,15 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
             disabled={!isStepValid() || loading}
             className="rounded-full bg-purple-950 hover:bg-purple-900 dark:bg-purple-800 dark:hover:bg-purple-750 text-white font-bold py-3 px-6 text-sm shadow-md active:scale-97 transition-[transform,background-color] duration-160 ease-out disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
           >
-            {step === 12 ? "Publish" : "Next"}
+            {step === 12
+              ? loading
+                ? propertyId
+                  ? "Updating..."
+                  : "Publishing..."
+                : propertyId
+                  ? "Update"
+                  : "Publish"
+              : "Next"}
           </button>
         </div>
       </footer>

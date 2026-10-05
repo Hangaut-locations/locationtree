@@ -29,7 +29,7 @@ const PartyListing: React.FC<IPartyListing> = ({ data }) => {
       ))}
 
       <DeleteListingModal
-        partyId={partyId}
+        listingId={partyId}
         isOpen={isDeleteModal}
         onClose={() => setIsDeleteModal(false)}
       />
