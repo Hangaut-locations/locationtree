@@ -19,7 +19,7 @@ const DateSelector: React.FC<IDateSelector> = ({
 }) => {
   if (!isOpen) return;
   return (
-    <div className="absolute top-16 left-1/2 -translate-x-1/2 max-h-96 overflow-y-auto bg-white rounded-2xl min-w-[700px] shadow-lg p-5 md:py-8 px-6 grid gap-x-2 gap-y-3 grid-cols-2">
+    <div className="absolute top-16 inset-x-0 z-20 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 max-h-96 overflow-y-auto bg-white rounded-2xl sm:min-w-[700px] shadow-lg p-4 sm:p-5 md:py-8 sm:px-6 grid gap-x-2 gap-y-3 grid-cols-1 sm:grid-cols-2">
       <CustomCalendar
         minDate={minDate}
         value={startDate}

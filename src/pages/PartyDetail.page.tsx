@@ -15,6 +15,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import AppLayout from "../components/layout/AppLayout";
 import HostCard from "../components/HostCard";
+import MobileBookingBar from "../components/MobileBookingBar";
 import { adminCaller } from "../interceptors/http";
 import { displayPrice, formatPrice } from "../lib/currency";
 import { formatPartyWhen } from "../lib/partyTime";
@@ -77,7 +78,7 @@ const PartyDetailPage = () => {
 
   return (
     <AppLayout>
-      <main className="mx-auto max-w-6xl px-5 pb-16 pt-6 md:px-8 md:pt-8">
+      <main className="mx-auto max-w-6xl px-5 pb-28 pt-6 md:px-8 md:pt-8 lg:pb-16">
         <div className="mb-7 flex items-center justify-between">
           <button
             type="button"
@@ -110,7 +111,7 @@ const PartyDetailPage = () => {
           </div>
         </div>
 
-        <section className="grid h-107.5 grid-cols-1 gap-2 overflow-hidden rounded-[28px] md:grid-cols-[1.5fr_1fr_1fr]">
+        <section className="relative grid h-72 grid-cols-1 gap-2 overflow-hidden rounded-3xl sm:h-96 md:h-107.5 md:grid-cols-[1.5fr_1fr_1fr] md:rounded-[28px]">
           <div className="relative min-h-70 md:row-span-2">
             <img
               src={images[activeImage]}
@@ -133,24 +134,26 @@ const PartyDetailPage = () => {
               />
             </button>
           ))}
-          <div className="absolute right-7 top-1/2 flex -translate-y-1/2 gap-2 md:hidden">
-            <button
-              type="button"
-              onClick={() => goToImage(-1)}
-              className="rounded-full bg-white/90 p-2 shadow"
-              aria-label="Previous image"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => goToImage(1)}
-              className="rounded-full bg-white/90 p-2 shadow"
-              aria-label="Next image"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
+          {images.length > 1 && (
+            <div className="absolute inset-x-3 top-1/2 flex -translate-y-1/2 justify-between md:hidden">
+              <button
+                type="button"
+                onClick={() => goToImage(-1)}
+                className="rounded-full bg-white/90 p-2 shadow"
+                aria-label="Previous image"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => goToImage(1)}
+                className="rounded-full bg-white/90 p-2 shadow"
+                aria-label="Next image"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          )}
         </section>
 
         <div className="mt-8 grid gap-12 lg:grid-cols-[1fr_360px]">
@@ -269,6 +272,12 @@ const PartyDetailPage = () => {
           </aside>
         </div>
       </main>
+      <MobileBookingBar
+        price={formatPrice(displayPrice(price, "USD"), "USD")}
+        unit={data.charge_type}
+        label="Request to book"
+        onBook={() => alert("Booking requests will be available soon.")}
+      />
     </AppLayout>
   );
 };
