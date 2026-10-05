@@ -15,6 +15,8 @@ export type TParty = {
   bathrooms: string;
   start_date: Date;
   end_date: Date;
+  start_time?: string;
+  status?: "published" | "draft";
   createdAt: Date;
   updatedAt: Date;
   party_type: string;

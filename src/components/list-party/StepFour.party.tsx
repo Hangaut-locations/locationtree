@@ -1,5 +1,9 @@
 import { ImagePlus, Plus, Upload, X } from "lucide-react";
 import type { ChangeEvent, Dispatch, SetStateAction } from "react";
+import toast from "react-hot-toast";
+import { compressImage } from "../../lib/images";
+
+const MAX_PHOTOS = 5;
 
 interface IStepProps {
   photos: string[];
@@ -12,32 +16,16 @@ const PartyStepFour: React.FC<IStepProps> = ({ photos, setPhotos }) => {
 
     if (!files || files.length === 0) return;
 
-    const imageFiles = Array.from(files).filter((file) =>
-      file.type.startsWith("image/"),
-    );
+    const imageFiles = Array.from(files)
+      .filter((file) => file.type.startsWith("image/"))
+      .slice(0, MAX_PHOTOS - photos.length);
 
-    const readers = imageFiles.map(
-      (file) =>
-        new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-
-          reader.onload = () => {
-            if (typeof reader.result === "string") {
-              resolve(reader.result);
-            }
-          };
-
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        }),
-    );
-
-    Promise.all(readers)
+    Promise.all(imageFiles.map(compressImage))
       .then((newPhotos) => {
-        setPhotos((prev) => [...prev, ...newPhotos]);
+        setPhotos((prev) => [...prev, ...newPhotos].slice(0, MAX_PHOTOS));
       })
-      .catch((error) => {
-        console.error("Failed to upload images:", error);
+      .catch(() => {
+        toast.error("Couldn't read that photo. Try a different one.");
       });
 
     // Allows the user to select the same file again
@@ -177,14 +165,19 @@ const PartyStepFour: React.FC<IStepProps> = ({ photos, setPhotos }) => {
             ))}
           </div>
 
-          {/* Add More */}
-          <label
-            htmlFor="place-photos"
-            className="flex w-fit cursor-pointer items-center justify-center gap-2 rounded-full border border-dashed border-border bg-card px-5 py-3 text-sm font-bold text-foreground transition-colors hover:bg-muted"
-          >
-            <Plus className="h-4 w-4" />
-            Add more photos
-          </label>
+          {photos.length < MAX_PHOTOS ? (
+            <label
+              htmlFor="place-photos"
+              className="flex w-fit cursor-pointer items-center justify-center gap-2 rounded-full border border-dashed border-border bg-card px-5 py-3 text-sm font-bold text-foreground transition-colors hover:bg-muted"
+            >
+              <Plus className="h-4 w-4" />
+              Add more photos
+            </label>
+          ) : (
+            <p className="text-xs font-semibold text-muted-foreground">
+              You can add up to {MAX_PHOTOS} photos.
+            </p>
+          )}
         </>
       )}
     </div>

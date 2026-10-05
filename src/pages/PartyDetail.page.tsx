@@ -17,6 +17,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import AppLayout from "../components/layout/AppLayout";
 import { adminCaller } from "../interceptors/http";
 import { displayPrice, formatPrice } from "../lib/currency";
+import { formatPartyWhen } from "../lib/partyTime";
 import type { TParty } from "../types/parties";
 
 const PartyDetailPage = () => {
@@ -211,7 +212,7 @@ const PartyDetailPage = () => {
                 </p>
                 <p className="flex gap-3">
                   <CalendarDays className="h-5 w-5 shrink-0 text-foreground" />{" "}
-                  Available for your selected date
+                  {formatPartyWhen(data) || "Date to be announced"}
                 </p>
                 <p className="flex gap-3">
                   <ShieldCheck className="h-5 w-5 shrink-0 text-foreground" />{" "}
