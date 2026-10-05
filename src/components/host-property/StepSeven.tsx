@@ -1,5 +1,8 @@
 import { ImagePlus, Plus, Upload, X } from "lucide-react";
 import type { ChangeEvent, Dispatch, SetStateAction } from "react";
+import { compressImage } from "../../lib/images";
+
+const MAX_PHOTOS = 5;
 
 interface IStepFiveProps {
   photos: string[];
@@ -16,25 +19,9 @@ const StepSeven: React.FC<IStepFiveProps> = ({ photos, setPhotos }) => {
       file.type.startsWith("image/"),
     );
 
-    const readers = imageFiles.map(
-      (file) =>
-        new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-
-          reader.onload = () => {
-            if (typeof reader.result === "string") {
-              resolve(reader.result);
-            }
-          };
-
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        }),
-    );
-
-    Promise.all(readers)
+    Promise.all(imageFiles.map(compressImage))
       .then((newPhotos) => {
-        setPhotos((prev) => [...prev, ...newPhotos]);
+        setPhotos((prev) => [...prev, ...newPhotos].slice(0, MAX_PHOTOS));
       })
       .catch((error) => {
         console.error("Failed to upload images:", error);
@@ -60,6 +47,7 @@ const StepSeven: React.FC<IStepFiveProps> = ({ photos, setPhotos }) => {
 
         <p className="mt-2 text-sm text-muted-foreground">
           Showcase the atmosphere, layout, and highlights in a polished gallery.
+          You can add up to {MAX_PHOTOS} photos.
         </p>
       </div>
 
@@ -207,13 +195,15 @@ const StepSeven: React.FC<IStepFiveProps> = ({ photos, setPhotos }) => {
           </div>
 
           {/* Add More */}
-          <label
-            htmlFor="place-photos"
-            className="flex w-fit cursor-pointer items-center justify-center gap-2 rounded-full border border-dashed border-border bg-card px-5 py-3 text-sm font-bold text-foreground transition-colors hover:bg-muted"
-          >
-            <Plus className="h-4 w-4" />
-            Add more photos
-          </label>
+          {photos.length < MAX_PHOTOS && (
+            <label
+              htmlFor="place-photos"
+              className="flex w-fit cursor-pointer items-center justify-center gap-2 rounded-full border border-dashed border-border bg-card px-5 py-3 text-sm font-bold text-foreground transition-colors hover:bg-muted"
+            >
+              <Plus className="h-4 w-4" />
+              Add more photos
+            </label>
+          )}
         </>
       )}
     </div>

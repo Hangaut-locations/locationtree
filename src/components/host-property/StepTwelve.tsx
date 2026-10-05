@@ -1,6 +1,6 @@
 import type { Dispatch, SetStateAction } from "react";
 
-type TMode = "person" | "hour" | "night";
+type TMode = "person" | "hour";
 
 interface IStepProps {
   basePrice: number;
@@ -44,8 +44,8 @@ const StepTwelve: React.FC<IStepProps> = ({
       {/* Price unit selection */}
       <div className="max-w-md mx-auto">
         <p className="text-sm text-foreground mb-3">Charge per:</p>
-        <div className="grid grid-cols-3 gap-3">
-          {(["person", "hour", "night"] as const).map((mode) => (
+        <div className="grid grid-cols-2 gap-3">
+          {(["person", "hour"] as const).map((mode) => (
             <button
               key={mode}
               type="button"

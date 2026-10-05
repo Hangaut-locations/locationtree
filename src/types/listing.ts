@@ -93,15 +93,24 @@ export interface IProperty {
   description: string;
   location: string;
   images: string[];
+  amenities: string[];
+  status: "draft" | "published";
+  space_type: "entire" | "room" | "shared";
+  property_type: string;
+  booking_setting: "approve-first" | "instant";
   guest_capacity: number;
   charge_type: "person" | "hour";
-  party_rules: string;
-  is_ticket_sales: string;
+  property_rules?: string;
   price: number;
+  bedrooms: number;
   beds: number;
   bathrooms: number;
-  start_date: Date;
-  end_date: Date;
+  isFavorite?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
+
+export type TGroupedProperties = {
+  caption: string;
+  properties: IProperty[];
+};
