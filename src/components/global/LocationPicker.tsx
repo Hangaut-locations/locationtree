@@ -1,7 +1,9 @@
 import { Crosshair, LoaderCircle, MapPin, Search, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
+import { maplibreGL } from "@maplibre/maplibre-gl-leaflet";
 import "leaflet/dist/leaflet.css";
+import "maplibre-gl/dist/maplibre-gl.css";
 
 interface LocationPickerProps {
   value: string;
@@ -46,6 +48,10 @@ interface Suggestion {
 }
 
 const NOMINATIM_URL = "https://nominatim.openstreetmap.org";
+// Free vector map style; no API key or usage limits.
+const MAP_STYLE_URL = "https://tiles.openfreemap.org/styles/liberty";
+const MAP_ATTRIBUTION =
+  '<a href="https://openfreemap.org" target="_blank">OpenFreeMap</a> &copy; <a href="https://www.openmaptiles.org/" target="_blank">OpenMapTiles</a> Data from <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>';
 const DEFAULT_CENTER: Coordinates = { lat: 6.5244, lng: 3.3792 };
 const SEARCH_DEBOUNCE_MS = 450;
 
@@ -171,17 +177,11 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
     const map = L.map(mapContainerRef.current, {
       zoomControl: false,
       attributionControl: true,
+      maxZoom: 19,
     }).setView(DEFAULT_CENTER, 12);
 
-    L.tileLayer(
-      "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
-      {
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-        subdomains: "abcd",
-        maxZoom: 20,
-      },
-    ).addTo(map);
+    maplibreGL({ style: MAP_STYLE_URL }).addTo(map);
+    map.attributionControl.addAttribution(MAP_ATTRIBUTION);
     L.control.zoom({ position: "bottomright" }).addTo(map);
 
     const marker = L.marker(DEFAULT_CENTER, {
