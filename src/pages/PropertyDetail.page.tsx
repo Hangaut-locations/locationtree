@@ -15,6 +15,7 @@ import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import AppLayout from "../components/layout/AppLayout";
+import HostCard from "../components/HostCard";
 import useAuth from "../components/hooks/useAuth";
 import useAppContext from "../components/hooks/useAppContext";
 import { adminCaller } from "../interceptors/http";
@@ -247,6 +248,8 @@ const PropertyDetailPage = () => {
                 <Bath className="h-5 w-5" /> {data.bathrooms} bathrooms
               </p>
             </div>
+
+            <HostCard host={data.host} />
 
             {data.amenities?.length > 0 && (
               <div className="border-b border-border py-7">
