@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import type { HostProfile, Listing, WalletTransaction } from "../types/listing";
 import { ListingEditor } from "./ListingEditor";
 import { WalletView } from "./WalletView";
@@ -42,7 +43,13 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({
   onDeposit,
   onWithdraw,
 }) => {
-  const [section, setSection] = useState<Section>("profile");
+  const [searchParams] = useSearchParams();
+  const [section, setSection] = useState<Section>(() => {
+    const requested = searchParams.get("p");
+    return requested === "listings" || requested === "wallet"
+      ? requested
+      : "profile";
+  });
   const [editing, setEditing] = useState<null | {
     listing: Listing | null;
     mode: "party" | "property";

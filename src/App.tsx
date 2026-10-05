@@ -22,6 +22,8 @@ import type {
 import AllPage from "./pages/All.page";
 import PartiesPage from "./pages/PartyLists.page";
 import PartyDetailPage from "./pages/PartyDetail.page";
+import PropertiesPage from "./pages/PropertyLists.page";
+import PropertyDetailPage from "./pages/PropertyDetail.page";
 import "./App.css";
 
 const DEFAULT_PROFILE: HostProfile = {
@@ -167,7 +169,8 @@ function App() {
       <Route path="/" element={<AllPage />} />
       <Route path="/parties" element={<PartiesPage />} />
       <Route path="/parties/:id" element={<PartyDetailPage />} />
-      <Route path="/homes" element={<PartiesPage />} />
+      <Route path="/homes" element={<PropertiesPage />} />
+      <Route path="/homes/:id" element={<PropertyDetailPage />} />
       <Route
         path="/become-a-host"
         element={

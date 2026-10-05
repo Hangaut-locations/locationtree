@@ -10,7 +10,9 @@ import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
 
 interface DeleteListingModalProps {
-  partyId: string;
+  listingId: string;
+  /** API collection the listing belongs to. */
+  resource?: "parties" | "property";
   isOpen: boolean;
   onClose: () => void;
 }
@@ -18,7 +20,8 @@ interface DeleteListingModalProps {
 export const DeleteListingModal: React.FC<DeleteListingModalProps> = ({
   isOpen,
   onClose,
-  partyId,
+  listingId,
+  resource = "parties",
 }) => {
   const [loading, setLoading] = useState(false);
   const qc = useQueryClient();
@@ -27,9 +30,11 @@ export const DeleteListingModal: React.FC<DeleteListingModalProps> = ({
     setLoading(true);
 
     adminCaller
-      .delete(`/parties/${partyId}`)
-      .then((res) => {
-        qc.invalidateQueries({ queryKey: ["my-parties"] });
+      .delete(`/${resource}/${listingId}`)
+      .then(() => {
+        qc.invalidateQueries({
+          queryKey: [resource === "parties" ? "my-parties" : "my-properties"],
+        });
         toast.success("Listing deleted successfully");
         onClose();
       })

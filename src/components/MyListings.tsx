@@ -4,17 +4,22 @@ import { useQuery } from "@tanstack/react-query";
 import { adminCaller } from "../interceptors/http";
 import PartyListing from "./PartyList.host";
 import PropertyListing from "./PropertyList";
+import type { IProperty } from "../types/listing";
 
 const MyListings: React.FC = () => {
-  const { data: parties = [], isLoading } = useQuery({
+  const { data: parties = [] } = useQuery({
     queryKey: ["my-parties"],
     queryFn: () => adminCaller.get("/parties/mine").then((res) => res.data),
     refetchOnWindowFocus: false,
   });
 
-  console.log("parties data", parties);
+  const { data: properties = [] } = useQuery<IProperty[]>({
+    queryKey: ["my-properties"],
+    queryFn: () => adminCaller.get("/property/mine").then((res) => res.data),
+    refetchOnWindowFocus: false,
+  });
 
-  const listings = (parties || [])?.length + (parties || []).length;
+  const listingsCount = (parties?.length ?? 0) + (properties?.length ?? 0);
 
   return (
     <div className="w-full space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
@@ -55,7 +60,7 @@ const MyListings: React.FC = () => {
         </Link>
       </div>
 
-      {listings.length === 0 ? (
+      {listingsCount === 0 ? (
         <div className="rounded-3xl border border-dashed border-border bg-card p-10 text-center">
           <CalendarDays className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
           <p className="text-sm font-semibold text-foreground">
@@ -68,7 +73,7 @@ const MyListings: React.FC = () => {
       ) : (
         <div className="space-y-8">
           <PartyListing data={parties} />
-          {/* <PropertyListing data={parties} /> */}
+          <PropertyListing data={properties} />
         </div>
       )}
     </div>
