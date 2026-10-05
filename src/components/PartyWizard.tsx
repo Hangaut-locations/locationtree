@@ -18,9 +18,11 @@ import PartyStepTwo from "./list-party/StepTwo.party";
 import PartyStepFour from "./list-party/StepFour.party";
 import { adminCaller, formClient } from "../interceptors/http";
 import toast from "react-hot-toast";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import PartyTypeSkeleton from "./parties/CreatePartySkeleton";
 import type { TParty } from "../types/parties";
+import { getErrorMessage, type ApiError } from "../lib/errors";
+import { formatPartyWhen, toDateInput } from "../lib/partyTime";
 
 interface PartyWizardProps {
   // onAddListing: (listing: Listing) => void;
@@ -38,6 +40,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
   const [partyType, setPartyType] = useState<string>("");
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
+  const [startTime, setStartTime] = useState<string>("");
   const [location, setLocation] = useState<string>("");
   const [capacity, setCapacity] = useState<number>(10);
   const [priceMode, setPriceMode] = useState<"person" | "hour">("person");
@@ -48,9 +51,10 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
   const [is_ticket_sales, setIsTicketsales] = useState<boolean>(true);
   const searchParams = new URLSearchParams(window.location.search);
   const partyId = searchParams.get("p");
+  const queryClient = useQueryClient();
 
   const { data: partyData, isLoading } = useQuery<TParty>({
-    queryKey: [partyId],
+    queryKey: ["party", partyId],
     queryFn: async () =>
       await adminCaller
         .get(`/parties/${partyId}`)
@@ -60,7 +64,8 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
 
   // console.log("partyData", partyData);
 
-  const isDateValid = !!startDate && !!endDate && endDate >= startDate;
+  const isDateValid =
+    !!startDate && !!endDate && endDate >= startDate && !!startTime;
 
   const handleNext = () => {
     if (step < 9) {
@@ -77,39 +82,55 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
   const handleSubmit = (status: "published" | "draft" = "published") => {
     setLoading(true);
 
-    formClient
-      .post("/parties", {
-        ...(title && { title }),
-        ...(activities && { description: activities }),
-        ...(location && { location }),
-        bedrooms: 1,
-        beds: 1,
-        bathrooms: 1,
-        ...(capacity && { guest_capacity: capacity }),
-        ...(price && { price }),
-        ...(priceMode && { charge_type: priceMode }),
-        amenities: [],
-        ...(startDate && { start_date: startDate }),
-        ...(endDate && { end_date: endDate }),
-        ...(rules && { party_rules: rules }),
-        is_ticket_sales,
-        ...(partyType && { party_type: partyType }),
-        ...(photos.length > 0 && { images: photos }),
-        status,
-      })
+    const payload = {
+      ...(title && { title: title.trim() }),
+      ...(activities && { description: activities.trim() }),
+      ...(location && { location }),
+      bedrooms: 1,
+      beds: 1,
+      bathrooms: 1,
+      ...(capacity && { guest_capacity: capacity }),
+      ...(price && { price }),
+      ...(priceMode && { charge_type: priceMode }),
+      ...(startDate && { start_date: startDate }),
+      ...(endDate && { end_date: endDate }),
+      ...(startTime && { start_time: startTime }),
+      ...(rules && { party_rules: rules.trim() }),
+      is_ticket_sales,
+      ...(partyType && { party_type: partyType }),
+      ...(photos.length > 0 && { images: photos }),
+      status,
+    };
+
+    // Editing must update the same party, not create a new one.
+    const request = partyId
+      ? formClient.patch(`/parties/${partyId}`, payload)
+      : formClient.post("/parties", payload);
+
+    request
       .then(() => {
         toast.success(
-          status === "published"
-            ? "Party created successfully"
-            : "Party drafted successfully",
+          status === "draft"
+            ? "Party saved as draft"
+            : partyId
+              ? "Party updated successfully"
+              : "Party created successfully",
         );
-        setTimeout(() => {
-          navigate("/host");
-        }, 3000);
+        queryClient.invalidateQueries({ queryKey: ["party"] });
+        queryClient.invalidateQueries({ queryKey: ["my-parties"] });
+        queryClient.invalidateQueries({
+          queryKey: ["parties-grouped-by-location"],
+        });
+        navigate("/host?p=listings");
       })
-      .catch((err) => {
+      .catch((err: ApiError) => {
         toast.error(
-          err?.response?.data?.message || "Error creating party, try again!",
+          getErrorMessage(
+            err,
+            partyId
+              ? "Couldn't update the party, try again."
+              : "Couldn't create the party, try again.",
+          ),
         );
       })
       .finally(() => {
@@ -131,16 +152,19 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
 
   useEffect(() => {
     if (partyData) {
-      setTitle(partyData?.title);
-      setStartDate(partyData?.start_date as any);
-      setEndDate(partyData?.end_date as any);
-      setPartyType(partyData?.party_type as any);
-      setLocation(partyData?.location);
-      setPhotos(partyData?.images);
-      setPrice(Number(partyData?.price));
-      setPriceMode(partyData?.charge_type);
-      setActivities(partyData?.description);
-      setRules(partyData?.party_rules);
+      setTitle(partyData.title ?? "");
+      setStartDate(toDateInput(partyData.start_date));
+      setEndDate(toDateInput(partyData.end_date));
+      setStartTime(partyData.start_time ?? "");
+      setPartyType(partyData.party_type ?? "");
+      setLocation(partyData.location ?? "");
+      setPhotos(partyData.images ?? []);
+      setPrice(Number(partyData.price) || 0);
+      setPriceMode(partyData.charge_type ?? "person");
+      setCapacity(Number(partyData.guest_capacity) || 10);
+      setIsTicketsales(String(partyData.is_ticket_sales) !== "false");
+      setActivities(partyData.description ?? "");
+      setRules(partyData.party_rules ?? "");
     }
   }, [partyData]);
 
@@ -243,8 +267,10 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
             <PartyStepTwo
               endDate={endDate}
               startDate={startDate}
+              startTime={startTime}
               setEndDate={setEndDate}
               setStartDate={setStartDate}
+              setStartTime={setStartTime}
             />
           )}
 
@@ -461,7 +487,12 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
                 </h2>
                 <p className="text-xs text-muted-foreground">
                   <span className="text-foreground">{partyType}</span> ·{" "}
-                  {startDate} → {endDate} · {capacity} guests
+                  {formatPartyWhen({
+                    start_date: startDate,
+                    end_date: endDate,
+                    start_time: startTime,
+                  })}{" "}
+                  · {capacity} guests
                 </p>
               </div>
 

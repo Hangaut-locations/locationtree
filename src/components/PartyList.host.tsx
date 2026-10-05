@@ -1,6 +1,6 @@
 import { EyeIcon, Pencil, Trash2 } from "lucide-react";
 import type { IParty } from "../types/listing";
-import { formatDate } from "../../lib/utils";
+import { formatPartyWhen } from "../lib/partyTime";
 import { useState } from "react";
 import { DeleteListingModal } from "./parties/DeleteListingModal";
 import { useNavigate } from "react-router-dom";
@@ -64,9 +64,9 @@ const ListingRow: React.FC<{
         </p>
         <p className="text-[11px] text-muted-foreground">
           {listing.location} · {listing.guest_capacity} guests · $
-          {listing.price}/{listing.price}
-          {listing.start_date && listing.end_date
-            ? ` · ${formatDate(listing.start_date as any)} → ${formatDate(listing.end_date as any)}`
+          {listing.price} / {listing.charge_type ?? "person"}
+          {listing.start_date
+            ? ` · ${formatPartyWhen(listing)}`
             : ""}
         </p>
       </div>

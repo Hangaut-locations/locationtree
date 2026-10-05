@@ -82,6 +82,7 @@ export interface IParty {
   bathrooms: number;
   start_date: Date;
   end_date: Date;
+  start_time?: string;
   createdAt: Date;
   updatedAt: Date;
 }
