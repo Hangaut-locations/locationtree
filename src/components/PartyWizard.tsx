@@ -120,7 +120,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
   const isStepValid = () => {
     if (step === 1) return !!partyType;
     if (step === 2) return isDateValid;
-    if (step === 3) return !!location;
+    if (step === 3) return (location || "").trim().length >= 3;
     if (step === 4) return photos.length > 0;
     if (step === 5) return price > 0;
     if (step === 6) return activities.trim().length > 0;

@@ -243,6 +243,7 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
     const controller = new AbortController();
     searchAbortRef.current = controller;
     setSearching(true);
+    setError("");
 
     // Nominatim allows about one request per second, so wait for typing to pause.
     const timer = window.setTimeout(() => {
@@ -257,6 +258,7 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
           if (err.name === "AbortError") return;
           setSuggestions([]);
           setSearchedText(text);
+          setError("Address search isn't responding. Your typed address will be used, or tap the map.");
         })
         .finally(() => {
           if (!controller.signal.aborted) setSearching(false);
@@ -351,6 +353,8 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
+              // Typed text counts as the location, so hosts aren't stuck when search can't find their address.
+              onChange(e.target.value.trim());
               setIsOpen(true);
             }}
             onFocus={() => suggestions.length && setIsOpen(true)}
@@ -366,6 +370,7 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
                 type="button"
                 onClick={() => {
                   setQuery("");
+                  onChange("");
                   setSuggestions([]);
                 }}
                 className="rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -411,7 +416,7 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
               ))
             ) : (
               <li className="px-3 py-4 text-center text-xs text-muted-foreground">
-                No places found. Try a nearby area or landmark.
+                No matches. Your typed address will be used, or try a nearby area or landmark.
               </li>
             )}
           </ul>
