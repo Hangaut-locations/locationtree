@@ -7,7 +7,6 @@ import {
   type Dispatch,
   type SetStateAction,
 } from "react";
-import { SiApple, SiGoogle } from "react-icons/si";
 import { DialogTitle } from "../../../components/ui/dialog";
 import type { AuthScreen } from "../AuthModal";
 import { axiosClient } from "../../interceptors/http";
@@ -213,32 +212,6 @@ export const SignIn: React.FC<AuthModalProps> = ({
               className="text-purple-750 dark:text-purple-300 hover:underline cursor-pointer"
             >
               Forgot password?
-            </button>
-          </div>
-
-          {/* Continuing parameters divider */}
-          <div className="relative flex items-center justify-center my-6">
-            <div className="absolute inset-x-0 h-px bg-border/60" />
-            <span className="relative px-3 text-xs font-semibold text-muted-foreground bg-card">
-              or continue with
-            </span>
-          </div>
-
-          {/* Social Authentication buttons */}
-          <div className="grid grid-cols-2 gap-3.5">
-            <button
-              type="button"
-              className="flex items-center justify-center gap-2 rounded-2xl border border-purple-950/20 dark:border-purple-300/20 hover:bg-muted/40 transition-colors py-3 font-bold text-sm text-foreground cursor-pointer"
-            >
-              <SiApple className="h-5 w-5 text-foreground" />
-              <span>Apple</span>
-            </button>
-            <button
-              type="button"
-              className="flex items-center justify-center gap-2 rounded-2xl border border-purple-950/20 dark:border-purple-300/20 hover:bg-muted/40 transition-colors py-3 font-bold text-sm text-foreground cursor-pointer"
-            >
-              <SiGoogle className="h-4.5 w-4.5 text-red-500" />
-              <span>Google</span>
             </button>
           </div>
 
