@@ -88,11 +88,25 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
     setBasePrice(Number(propertyData.price) || 0);
     setPriceMode(propertyData.charge_type === "hour" ? "hour" : "person");
     setAmenities(new Set(propertyData.amenities ?? []));
+
+    if (propertyData.status === "draft") {
+      // Steps that must be filled in, in order, so the host lands on the first unfinished one.
+      const requiredSteps: [WizardStep, boolean][] = [
+        [2, !!propertyData.property_type],
+        [3, !!propertyData.space_type],
+        [4, (propertyData.location ?? "").trim().length >= 3],
+        [7, (propertyData.images?.length ?? 0) > 0],
+        [8, !!propertyData.title?.trim()],
+        [9, !!propertyData.description?.trim()],
+        [12, Number(propertyData.price) > 0],
+      ];
+      const unfinished = requiredSteps.find(([, done]) => !done);
+      setStep(unfinished ? unfinished[0] : 12);
+    }
   }, [propertyData]);
 
-  // Drafts still go through the API's validation, so these must be filled in first.
-  const canSaveDraft =
-    !!category && !!location && !!title.trim() && !!description.trim();
+  const canSaveDraft = !!category;
+  const isDraft = propertyData?.status === "draft";
 
   const handleNext = () => {
     if (step < 12) {
@@ -111,11 +125,12 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
   const handleSubmit = (status: "published" | "draft" = "published") => {
     setLoading(true);
 
+    // A draft may stop before these steps; the API refuses empty strings for them.
     const payload = {
-      title: title.trim(),
-      description: description.trim(),
+      ...(title.trim() && { title: title.trim() }),
+      ...(description.trim() && { description: description.trim() }),
       property_rules: rules.trim(),
-      location,
+      ...(location.trim() && { location }),
       images: photos,
       bedrooms,
       beds,
@@ -140,8 +155,8 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
         queryClient.invalidateQueries({ queryKey: ["property", propertyId] });
         toast.success(
           status === "draft"
-            ? "Property saved as draft"
-            : propertyId
+            ? "Property saved as draft. Finish it anytime from My listings."
+            : propertyId && !isDraft
               ? "Property updated successfully"
               : "Property published successfully",
         );
@@ -205,7 +220,7 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
             title={
               canSaveDraft
                 ? "Save property as draft"
-                : "Add a category, location, title and description to save a draft"
+                : "Pick a category first to save a draft"
             }
             disabled={!canSaveDraft || loading}
             onClick={() => handleSubmit("draft")}
@@ -323,10 +338,10 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
           >
             {step === 12
               ? loading
-                ? propertyId
+                ? propertyId && !isDraft
                   ? "Updating..."
                   : "Publishing..."
-                : propertyId
+                : propertyId && !isDraft
                   ? "Update"
                   : "Publish"
               : "Next"}

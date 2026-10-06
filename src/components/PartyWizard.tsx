@@ -113,10 +113,10 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
       .then(() => {
         toast.success(
           status === "draft"
-            ? "Party saved as draft"
-            : partyId
+            ? "Party saved as draft. Finish it anytime from My listings."
+            : partyId && !isDraft
               ? "Party updated successfully"
-              : "Party created successfully",
+              : "Party published successfully",
         );
         queryClient.invalidateQueries({ queryKey: ["party"] });
         queryClient.invalidateQueries({ queryKey: ["my-parties"] });
@@ -167,8 +167,26 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
       setIsTicketsales(String(partyData.is_ticket_sales) !== "false");
       setActivities(partyData.description ?? "");
       setRules(partyData.party_rules ?? "");
+
+      if (partyData.status === "draft") {
+        // Same order as the steps, so the host lands on the first unfinished one.
+        const stepDone = [
+          !!partyData.party_type,
+          !!partyData.start_date && !!partyData.end_date && !!partyData.start_time,
+          (partyData.location ?? "").trim().length >= 3,
+          (partyData.images?.length ?? 0) > 0,
+          Number(partyData.price) > 0,
+          !!partyData.description?.trim(),
+          !!partyData.party_rules?.trim(),
+          !!partyData.title?.trim(),
+        ];
+        const firstUnfinished = stepDone.indexOf(false);
+        setStep((firstUnfinished === -1 ? 9 : firstUnfinished + 1) as WizardStep);
+      }
     }
   }, [partyData]);
+
+  const isDraft = partyData?.status === "draft";
 
   if (partyId && isLoading) {
     return <PartyTypeSkeleton />;
@@ -199,11 +217,11 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
           </button>
           <button
             title={
-              step < 8
-                ? "You can't draft if you have not specify the name of the party"
-                : "Save party as draft"
+              partyType
+                ? "Save party as draft"
+                : "Pick a party type first to save a draft"
             }
-            disabled={step < 8 || loading}
+            disabled={!partyType || loading}
             onClick={() => handleSubmit("draft")}
             className="disabled:opacity-55 disabled:cursor-not-allowed flex items-center gap-1.5 rounded-full border border-border px-4 py-2.5 md:py-2 text-xs font-medium text-foreground hover:bg-muted transition-all cursor-pointer"
           >
@@ -574,10 +592,10 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
           >
             {step === 9
               ? loading
-                ? partyData
+                ? partyData && !isDraft
                   ? "Updating..."
                   : "Publishing..."
-                : partyData
+                : partyData && !isDraft
                   ? "Update"
                   : "Publish"
               : "Next"}
