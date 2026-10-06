@@ -53,7 +53,7 @@ export const HostChooser: React.FC<HostChooserProps> = ({
         </button>
         <div className="flex items-center h-12 max-w-37.5">
           <img
-            src="/images/logo.png"
+            src="/logo.png"
             alt="Hangout Logo"
             className="h-full w-full object-contain"
           />

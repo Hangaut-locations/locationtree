@@ -183,7 +183,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
           onClick={() => navigate("/host?p=listings")}
         >
           <img
-            src="/images/logo.png"
+            src="/logo.png"
             alt="Hangout Logo"
             className="h-full w-full object-contain"
           />
