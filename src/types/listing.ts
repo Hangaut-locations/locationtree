@@ -97,6 +97,7 @@ export interface IParty {
   start_date: Date;
   end_date: Date;
   start_time?: string;
+  status?: "draft" | "published";
   createdAt: Date;
   updatedAt: Date;
 }

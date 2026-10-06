@@ -31,6 +31,7 @@ const PartyListing: React.FC<IPartyListing> = ({ data }) => {
           kind="party"
           image={listing.images?.[0]}
           title={listing.title}
+          draft={listing.status === "draft"}
           details={[
             listing.location,
             `${listing.guest_capacity} guests`,

@@ -30,13 +30,7 @@ const PropertyListing: React.FC<IPropertyListing> = ({ data }) => {
           kind="property"
           image={property.images?.[0]}
           title={property.title}
-          badge={
-            property.status === "draft" && (
-              <span className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-800">
-                Draft
-              </span>
-            )
-          }
+          draft={property.status === "draft"}
           details={`${property.location} · ${property.guest_capacity} guests · $${property.price} / ${property.charge_type}`}
           onView={() => navigate(`/homes/${property._id}`)}
           onEdit={() => navigate(`/become-a-host/property?p=${property._id}`)}
