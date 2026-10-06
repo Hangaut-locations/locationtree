@@ -23,6 +23,7 @@ import PartyTypeSkeleton from "./parties/CreatePartySkeleton";
 import type { TParty } from "../types/parties";
 import { getErrorMessage, type ApiError } from "../lib/errors";
 import { formatPartyWhen, toDateInput } from "../lib/partyTime";
+import useRequireLogin from "./hooks/useRequireLogin";
 
 interface PartyWizardProps {
   // onAddListing: (listing: Listing) => void;
@@ -31,6 +32,7 @@ interface PartyWizardProps {
 type WizardStep = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 
 export const PartyWizard: React.FC<PartyWizardProps> = () => {
+  useRequireLogin("/become-a-host");
   const [step, setStep] = useState<WizardStep>(1);
   const navigate = useNavigate();
 

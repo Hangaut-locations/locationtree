@@ -20,6 +20,7 @@ import StepTwelve from "./host-property/StepTwelve";
 import { adminCaller, formClient } from "../interceptors/http";
 import toast from "react-hot-toast";
 import PartyTypeSkeleton from "./parties/CreatePartySkeleton";
+import useRequireLogin from "./hooks/useRequireLogin";
 
 interface HostPropertyWizardProps {
   onAddListing?: (newListing: Listing) => void;
@@ -28,6 +29,7 @@ interface HostPropertyWizardProps {
 type WizardStep = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
 
 export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
+  useRequireLogin("/become-a-host");
   const [step, setStep] = useState<WizardStep>(1);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();

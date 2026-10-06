@@ -8,6 +8,9 @@ import useAppContext from "./hooks/useAppContext";
 import { AllIcon, HomeIcon, PartiesIcon } from "./svgs";
 import { SearchHeader } from "./SearchHeader";
 
+const becomeHostClass =
+  "flex items-center gap-1.5 rounded-full bg-purple-950 text-white font-semibold py-2.5 px-4 text-xs shadow-md hover:bg-purple-900 active:scale-97 transition-all cursor-pointer whitespace-nowrap";
+
 interface NavbarProps {
   currency?: CurrencyCode;
 }
@@ -107,10 +110,20 @@ export const Navbar: React.FC<NavbarProps> = ({ currency = "NGN" }) => {
             {data ? (
               <>
                 <button
-                  // onClick={onBecomeHostClick}
-                  className="flex items-center gap-1.5 rounded-full bg-purple-950 text-white font-semibold py-2.5 px-4 text-xs shadow-md active:scale-97 transition-all cursor-pointer whitespace-nowrap"
+                  onClick={() => navigate(location.includes("host") ? "/" : "/host")}
+                  className={becomeHostClass}
                 >
-                  Become a Host
+                  {location.includes("host") ? (
+                    <>
+                      <User className="h-3.5 w-3.5" />
+                      <span>Switch to Guest</span>
+                    </>
+                  ) : (
+                    <>
+                      <Briefcase className="h-3.5 w-3.5" />
+                      <span>Switch to Host</span>
+                    </>
+                  )}
                 </button>
                 <div className="h-10 w-10 rounded-full capitalize border border-border overflow-hidden bg-muted flex items-center justify-center cursor-pointer hover:scale-105 active:scale-97 transition-all">
                   <h1>{avatar}</h1>
@@ -122,13 +135,21 @@ export const Navbar: React.FC<NavbarProps> = ({ currency = "NGN" }) => {
                 </div>
               </>
             ) : (
-              <button
-                onClick={() => setIsAuthModal(true)}
-                className="font-semibold hover:text-purple-700 text-gray-800 duration-200 cursor-pointer"
-              >
-                <LogIn className="h-3.5 w-3.5" />
-                <span>Log In</span>
-              </button>
+              <>
+                <button
+                  onClick={() => navigate("/become-a-host")}
+                  className={becomeHostClass}
+                >
+                  Become a Host
+                </button>
+                <button
+                  onClick={() => setIsAuthModal(true)}
+                  className="flex items-center gap-1 text-sm font-semibold hover:text-purple-700 text-gray-800 duration-200 cursor-pointer whitespace-nowrap"
+                >
+                  <LogIn className="h-3.5 w-3.5" />
+                  <span>Log In</span>
+                </button>
+              </>
             )}
           </div>
         </div>
@@ -234,7 +255,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currency = "NGN" }) => {
                     <button
                       onClick={() => {
                         setUserMenuOpen(false);
-                        // onSwitchView(viewMode === "host" ? "guest" : "host");
+                        navigate(location.includes("host") ? "/" : "/host");
                       }}
                       className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-bold text-foreground hover:bg-muted transition-colors cursor-pointer"
                     >
@@ -290,13 +311,20 @@ export const Navbar: React.FC<NavbarProps> = ({ currency = "NGN" }) => {
               </div>
             </>
           ) : (
-            <button
-              onClick={() => setIsAuthModal(true)}
-              className="font-semibold hover:text-purple-700 text-gray-800 duration-200 cursor-pointer"
-            >
-              {/* <LogIn className="h-4 w-4" /> */}
-              <span className="text-sm">Log In</span>
-            </button>
+            <>
+              <button
+                onClick={() => navigate("/become-a-host")}
+                className={becomeHostClass}
+              >
+                Become a Host
+              </button>
+              <button
+                onClick={() => setIsAuthModal(true)}
+                className="font-semibold hover:text-purple-700 text-gray-800 duration-200 cursor-pointer"
+              >
+                <span className="text-sm">Log In</span>
+              </button>
+            </>
           )}
         </div>
       </div>
