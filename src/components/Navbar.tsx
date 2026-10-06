@@ -110,10 +110,20 @@ export const Navbar: React.FC<NavbarProps> = ({ currency = "NGN" }) => {
             {data ? (
               <>
                 <button
-                  onClick={() => navigate("/become-a-host")}
+                  onClick={() => navigate(location.includes("host") ? "/" : "/host")}
                   className={becomeHostClass}
                 >
-                  Become a Host
+                  {location.includes("host") ? (
+                    <>
+                      <User className="h-3.5 w-3.5" />
+                      <span>Switch to Guest</span>
+                    </>
+                  ) : (
+                    <>
+                      <Briefcase className="h-3.5 w-3.5" />
+                      <span>Switch to Host</span>
+                    </>
+                  )}
                 </button>
                 <div className="h-10 w-10 rounded-full capitalize border border-border overflow-hidden bg-muted flex items-center justify-center cursor-pointer hover:scale-105 active:scale-97 transition-all">
                   <h1>{avatar}</h1>
@@ -245,7 +255,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currency = "NGN" }) => {
                     <button
                       onClick={() => {
                         setUserMenuOpen(false);
-                        // onSwitchView(viewMode === "host" ? "guest" : "host");
+                        navigate(location.includes("host") ? "/" : "/host");
                       }}
                       className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-bold text-foreground hover:bg-muted transition-colors cursor-pointer"
                     >
