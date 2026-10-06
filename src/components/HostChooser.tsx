@@ -1,5 +1,9 @@
 import { CalendarDays, ChevronLeft, Home, PartyPopper } from "lucide-react";
 import type React from "react";
+import { useEffect } from "react";
+import { AuthModal } from "./AuthModal";
+import useAppContext from "./hooks/useAppContext";
+import useAuth from "./hooks/useAuth";
 
 interface HostChooserProps {
   onBack: () => void;
@@ -7,11 +11,36 @@ interface HostChooserProps {
   onProperty: () => void;
 }
 
+// Survives the page reload that happens after logging in.
+const PENDING_CHOICE_KEY = "host_choice_after_login";
+
 export const HostChooser: React.FC<HostChooserProps> = ({
   onBack,
   onParty,
   onProperty,
 }) => {
+  const { data: user, isLoading } = useAuth();
+  const { setIsAuthModal } = useAppContext();
+
+  const choose = (choice: "party" | "property") => {
+    if (!user) {
+      sessionStorage.setItem(PENDING_CHOICE_KEY, choice);
+      setIsAuthModal(true);
+      return;
+    }
+    if (choice === "party") onParty();
+    else onProperty();
+  };
+
+  useEffect(() => {
+    if (isLoading || !user) return;
+    const pending = sessionStorage.getItem(PENDING_CHOICE_KEY);
+    if (!pending) return;
+    sessionStorage.removeItem(PENDING_CHOICE_KEY);
+    if (pending === "party") onParty();
+    else if (pending === "property") onProperty();
+  }, [isLoading, user, onParty, onProperty]);
+
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
       <header className="sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur-md px-4 py-4 md:px-8 flex items-center gap-3">
@@ -49,7 +78,7 @@ export const HostChooser: React.FC<HostChooserProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Option 1: Host a party */}
             <button
-              onClick={onParty}
+              onClick={() => choose("party")}
               className="group flex flex-col items-start text-left p-8 rounded-3xl border border-border bg-card hover:border-purple-950/40 hover:shadow-lg transition-all duration-200 cursor-pointer active:scale-98"
             >
               <div className="h-14 w-14 rounded-2xl bg-purple-950/10 text-purple-950 dark:text-purple-300 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
@@ -72,7 +101,7 @@ export const HostChooser: React.FC<HostChooserProps> = ({
 
             {/* Option 2: List a property */}
             <button
-              onClick={onProperty}
+              onClick={() => choose("property")}
               className="group flex flex-col items-start text-left p-8 rounded-3xl border border-border bg-card hover:border-purple-950/40 hover:shadow-lg transition-all duration-200 cursor-pointer active:scale-98"
             >
               <div className="h-14 w-14 rounded-2xl bg-purple-950/10 text-purple-950 dark:text-purple-300 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
@@ -92,8 +121,15 @@ export const HostChooser: React.FC<HostChooserProps> = ({
               </div>
             </button>
           </div>
+
+          {!isLoading && !user && (
+            <p className="text-center text-sm text-muted-foreground">
+              You'll be asked to log in or create an account before you start.
+            </p>
+          )}
         </div>
       </main>
+      <AuthModal />
     </div>
   );
 };
