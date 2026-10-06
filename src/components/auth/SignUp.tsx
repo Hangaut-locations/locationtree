@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 import type React from "react";
 import { useState, type Dispatch, type SetStateAction } from "react";
-import { SiApple, SiGoogle } from "react-icons/si";
 import type { AuthScreen } from "../AuthModal";
 import { axiosClient } from "../../interceptors/http";
 import toast from "react-hot-toast";
@@ -209,32 +208,6 @@ export const SignUp: React.FC<AuthModalProps> = ({ setScreen, onClose }) => {
         >
           {loading ? "Signing up" : "Sign Up"}
         </button>
-
-        {/* Continuing parameters divider */}
-        <div className="relative flex items-center justify-center mb-6">
-          <div className="absolute inset-x-0 h-px bg-border/60" />
-          <span className="relative px-3 text-xs font-semibold text-muted-foreground bg-card">
-            or signup with
-          </span>
-        </div>
-
-        {/* Social Authentication buttons */}
-        <div className="grid grid-cols-2 gap-3.5">
-          <button
-            type="button"
-            className="flex items-center justify-center gap-2 rounded-2xl border border-purple-950/20 dark:border-purple-300/20 hover:bg-muted/40 transition-colors py-3 font-medium text-sm text-foreground cursor-pointer"
-          >
-            <SiApple className="h-5 w-5 text-foreground" />
-            <span>Apple</span>
-          </button>
-          <button
-            type="button"
-            className="flex items-center justify-center gap-2 rounded-2xl border border-purple-950/20 dark:border-purple-300/20 hover:bg-muted/40 transition-colors py-3 font-medium text-sm text-foreground cursor-pointer"
-          >
-            <SiGoogle className="h-4.5 w-4.5 text-red-500" />
-            <span>Google</span>
-          </button>
-        </div>
 
         {/* Swap Trigger footer */}
         <div className="text-center text-xs font-semibold text-muted-foreground">
