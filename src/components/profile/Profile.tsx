@@ -94,7 +94,7 @@ const Profile: React.FC = () => {
         </div>
 
         <div className="border-t border-border/50 pt-6 space-y-4">
-          <div className="w-full grid md:grid-cols-2 gap-4">
+          <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
             <label className="block space-y-1.5">
               <span className="text-xs font-medium text-muted-foreground">
                 First name
@@ -135,7 +135,7 @@ const Profile: React.FC = () => {
             onChange={(value) => setCountry(value)}
             type="country"
           />
-          <div className="w-full grid md:grid-cols-2 gap-4">
+          <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
             <LocationSelect
               label="State"
               country={country}
@@ -154,7 +154,7 @@ const Profile: React.FC = () => {
             />
           </div>
 
-          <div className="w-full grid md:grid-cols-2 gap-4">
+          <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
             <label className="block space-y-1.5">
               <span className="text-xs font-medium text-muted-foreground">
                 Home address

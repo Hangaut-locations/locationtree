@@ -88,7 +88,7 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({
         </div>
 
         {/* Section tabs */}
-        <div className="flex items-center gap-2 border-b border-border/60 pb-4 overflow-x-auto">
+        <div className="flex items-center gap-1.5 border-b border-border/60 pb-4 overflow-x-auto sm:gap-2">
           {(
             [
               { id: "profile", label: "Profile", icon: User },
@@ -101,7 +101,7 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({
               <button
                 key={t.id}
                 onClick={() => setSection(t.id)}
-                className={`flex items-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-medium transition-all cursor-pointer ${
+                className={`flex flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-3 py-2.5 text-sm font-medium transition-all cursor-pointer sm:flex-none sm:px-5 ${
                   section === t.id
                     ? "bg-purple-950 text-white dark:bg-purple-800"
                     : "bg-muted/15 text-purple-950 dark:text-purple-300 hover:bg-muted/30"
