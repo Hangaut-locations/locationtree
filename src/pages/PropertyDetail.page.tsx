@@ -16,6 +16,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import AppLayout from "../components/layout/AppLayout";
 import HostCard from "../components/HostCard";
+import MobileBookingBar from "../components/MobileBookingBar";
 import useAuth from "../components/hooks/useAuth";
 import useAppContext from "../components/hooks/useAppContext";
 import { adminCaller } from "../interceptors/http";
@@ -124,7 +125,7 @@ const PropertyDetailPage = () => {
 
   return (
     <AppLayout>
-      <main className="mx-auto max-w-6xl px-5 pb-16 pt-6 md:px-8 md:pt-8">
+      <main className="mx-auto max-w-6xl px-5 pb-28 pt-6 md:px-8 md:pt-8 lg:pb-16">
         {data.status === "draft" && (
           <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
             This property is a draft. Only you can see it until you publish it
@@ -165,7 +166,7 @@ const PropertyDetailPage = () => {
           </div>
         </div>
 
-        <section className="relative grid h-107.5 grid-cols-1 gap-2 overflow-hidden rounded-[28px] md:grid-cols-[1.5fr_1fr_1fr]">
+        <section className="relative grid h-72 grid-cols-1 gap-2 overflow-hidden rounded-3xl sm:h-96 md:h-107.5 md:grid-cols-[1.5fr_1fr_1fr] md:rounded-[28px]">
           <div className="relative min-h-70 md:row-span-2">
             <img
               src={images[activeImage]}
@@ -189,7 +190,7 @@ const PropertyDetailPage = () => {
             </button>
           ))}
           {images.length > 1 && (
-            <div className="absolute right-4 top-1/2 flex -translate-y-1/2 gap-2 md:hidden">
+            <div className="absolute inset-x-3 top-1/2 flex -translate-y-1/2 justify-between md:hidden">
               <button
                 type="button"
                 onClick={() => goToImage(-1)}
@@ -319,6 +320,12 @@ const PropertyDetailPage = () => {
           </aside>
         </div>
       </main>
+      <MobileBookingBar
+        price={formatPrice(displayPrice(price, "USD"), "USD")}
+        unit={data.charge_type}
+        label={data.booking_setting === "instant" ? "Book now" : "Request to book"}
+        onBook={() => alert("Booking requests will be available soon.")}
+      />
     </AppLayout>
   );
 };

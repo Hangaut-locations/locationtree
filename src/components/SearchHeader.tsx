@@ -48,7 +48,10 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
   }, []);
 
   return (
-    <div ref={headerRef} className="mx-auto mb-6 mt-3 w-max min-w-[700px]">
+    <div
+      ref={headerRef}
+      className="mx-auto mb-6 mt-3 w-full px-4 sm:w-max sm:min-w-[700px] sm:px-0"
+    >
       <div
         className={`relative
       ${activeBtn > 0 && "bg-[#EBEBEB]!"}
@@ -61,7 +64,7 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
           ease transition-all duration-150 text-xs font-semibold pl-7 py-3 rounded-full z-10`}
         >
           <button
-            className={`${activeBtn < 2 && "border-r"} hover:border-none relative flex flex-col items-start justify-center w-full`}
+            className={`${activeBtn < 2 && "sm:border-r"} hover:border-none relative flex flex-col items-start justify-center w-full`}
           >
             <p className="tracking-wider text-[#222] text-[11px]">Where</p>
             <div className="flex items-center gap-1.5">
@@ -96,7 +99,7 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
             relative py-3 pl-7 text-xs rounded-full z-10 hover:border-none`}
         >
           <button
-            className={`${activeBtn > 0 && "border-r"} font-semibold hover:border-none relative flex flex-col items-start justify-center w-full`}
+            className={`${activeBtn > 0 && "sm:border-r"} font-semibold hover:border-none relative flex flex-col items-start justify-center w-full`}
           >
             <p className="tracking-wider text-[#222] text-[11px]">When</p>
             <p
@@ -159,7 +162,7 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
           </button>
 
           {activeBtn === 3 && (
-            <div className="absolute top-16 right-0 max-h-96 overflow-y-auto bg-white rounded-2xl min-w-[700px] shadow-lg p-5 md:p-8 lg:p-10 grid gap-x-2 gap-y-3 grid-cols-2 sm:grid-cols-4 md:grid-cols-3">
+            <div className="absolute top-16 inset-x-0 z-20 sm:left-auto sm:right-0 max-h-96 overflow-y-auto bg-white rounded-2xl sm:min-w-[700px] shadow-lg p-5 md:p-8 lg:p-10 grid gap-x-2 gap-y-3 grid-cols-2 sm:grid-cols-4 md:grid-cols-3">
               {partiesCategories.map((itm, idx) => (
                 <button
                   key={idx}

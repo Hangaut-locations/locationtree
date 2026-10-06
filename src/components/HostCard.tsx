@@ -1,4 +1,4 @@
-import { CalendarDays, MapPin, Phone } from "lucide-react";
+import { CalendarDays, Mail, MapPin, Phone } from "lucide-react";
 import type { ListingHost } from "../types/listing";
 
 const HostCard = ({ host }: { host?: ListingHost | null }) => {
@@ -49,6 +49,15 @@ const HostCard = ({ host }: { host?: ListingHost | null }) => {
             className="flex items-center gap-2 font-medium hover:underline"
           >
             <Phone className="h-4 w-4 shrink-0" /> {host.phone}
+          </a>
+        )}
+        {host.email && (
+          <a
+            href={`mailto:${host.email}`}
+            className="flex min-w-0 items-center gap-2 font-medium hover:underline"
+          >
+            <Mail className="h-4 w-4 shrink-0" />
+            <span className="truncate">{host.email}</span>
           </a>
         )}
       </div>
