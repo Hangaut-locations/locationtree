@@ -16,6 +16,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import AppLayout from "../components/layout/AppLayout";
 import HostCard from "../components/HostCard";
+import ListingRules from "../components/ListingRules";
 import MobileBookingBar from "../components/MobileBookingBar";
 import useAuth from "../components/hooks/useAuth";
 import useAppContext from "../components/hooks/useAppContext";
@@ -266,14 +267,7 @@ const PropertyDetailPage = () => {
               </div>
             )}
 
-            {data.property_rules && (
-              <div className="py-7">
-                <h2 className="text-xl font-semibold">House rules</h2>
-                <p className="mt-3 whitespace-pre-line text-sm text-muted-foreground">
-                  {data.property_rules}
-                </p>
-              </div>
-            )}
+            <ListingRules title="House rules" rules={data.property_rules} />
           </div>
 
           <aside className="lg:relative">

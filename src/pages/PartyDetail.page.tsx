@@ -15,6 +15,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import AppLayout from "../components/layout/AppLayout";
 import HostCard from "../components/HostCard";
+import ListingRules from "../components/ListingRules";
 import MobileBookingBar from "../components/MobileBookingBar";
 import { adminCaller } from "../interceptors/http";
 import { displayPrice, formatPrice } from "../lib/currency";
@@ -192,6 +193,8 @@ const PartyDetailPage = () => {
                 ))}
               </div>
             </div>
+
+            <ListingRules title="Party rules" rules={data.party_rules} />
 
             <div className="py-7">
               <h2 className="text-xl font-semibold">Things to know</h2>

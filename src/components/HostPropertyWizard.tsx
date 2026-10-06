@@ -60,6 +60,7 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
   const [bathrooms, setBathrooms] = useState<number>(1);
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
+  const [rules, setRules] = useState<string>("");
   const [photos, setPhotos] = useState<string[]>([]);
   const [bookingSetting, setBookingSetting] = useState<
     "approve-first" | "instant"
@@ -79,6 +80,7 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
     setBathrooms(Number(propertyData.bathrooms) || 0);
     setTitle(propertyData.title ?? "");
     setDescription(propertyData.description ?? "");
+    setRules(propertyData.property_rules ?? "");
     setPhotos(propertyData.images ?? []);
     setBookingSetting(
       propertyData.booking_setting === "instant" ? "instant" : "approve-first",
@@ -112,6 +114,7 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
     const payload = {
       title: title.trim(),
       description: description.trim(),
+      property_rules: rules.trim(),
       location,
       images: photos,
       bedrooms,
@@ -274,6 +277,8 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
             <StepNine
               description={description}
               setDescription={setDescription}
+              rules={rules}
+              setRules={setRules}
             />
           )}
 
