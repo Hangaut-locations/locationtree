@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import useAppContext from "../hooks/useAppContext";
 import { adminCaller } from "../../interceptors/http";
+import CardImageCarousel from "../CardImageCarousel";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -61,20 +62,8 @@ export const PartyListCard: React.FC<PartyListCardProps> = ({
     >
       <div>
         {/* Image Carousel Container */}
-        <div className="relative aspect-[4/3 w-full overflow- bg-">
-          <div className="absolute inset-0 z-5 bg-black opacity-10 rounded-2xl"></div>
-          {/* Images */}
-          <div>
-            {/* {party.images.map((img, index) => ( */}
-            <img
-              key={index}
-              src={party.images[0]}
-              alt={`${party.title} - view`}
-              className="h-40 w-full object-cover select-none card-image- rounded-3xl"
-              loading="lazy"
-            />
-            {/* ))} */}
-          </div>
+        <div className="relative w-full">
+          <CardImageCarousel images={party.images} title={party.title} />
 
           {/* Wishlist Button */}
           <button

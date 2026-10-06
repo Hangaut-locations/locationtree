@@ -8,6 +8,7 @@ import type { IProperty } from "../../types/listing";
 import useAuth from "../hooks/useAuth";
 import useAppContext from "../hooks/useAppContext";
 import { adminCaller } from "../../interceptors/http";
+import CardImageCarousel from "../CardImageCarousel";
 import { favoritesQueryKey, removeFavoriteByTarget } from "../../lib/favorites";
 
 interface PropertyListCardProps {
@@ -60,13 +61,7 @@ export const PropertyListCard: React.FC<PropertyListCardProps> = ({
       }}
     >
       <div className="relative w-full">
-        <div className="absolute inset-0 z-5 bg-black opacity-10 rounded-2xl"></div>
-        <img
-          src={property.images?.[0]}
-          alt={`${property.title} - view`}
-          className="h-40 w-full object-cover select-none rounded-3xl"
-          loading="lazy"
-        />
+        <CardImageCarousel images={property.images} title={property.title} />
 
         <button
           onClick={(e) => {
