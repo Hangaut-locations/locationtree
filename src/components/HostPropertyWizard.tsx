@@ -184,7 +184,7 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
           onClick={() => navigate("/")}
         >
           <img
-            src="/images/logo.png"
+            src="/logo.png"
             alt="Hangout Logo"
             className="h-full w-full object-contain"
           />
