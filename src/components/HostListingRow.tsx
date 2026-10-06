@@ -5,7 +5,7 @@ interface HostListingRowProps {
   image?: string;
   title: string;
   details: string;
-  badge?: React.ReactNode;
+  draft?: boolean;
   kind: "party" | "property";
   onView: () => void;
   onEdit: () => void;
@@ -19,7 +19,7 @@ const HostListingRow: React.FC<HostListingRowProps> = ({
   image,
   title,
   details,
-  badge,
+  draft,
   kind,
   onView,
   onEdit,
@@ -38,12 +38,16 @@ const HostListingRow: React.FC<HostListingRowProps> = ({
     <div className="min-w-0 flex-1">
       <div className="flex items-start gap-2">
         <p className="line-clamp-2 text-sm font-semibold text-foreground sm:truncate">
-          {title}
+          {title || (kind === "party" ? "Untitled party" : "Untitled property")}
         </p>
-        {badge}
+        {draft && (
+          <span className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-800">
+            Draft
+          </span>
+        )}
       </div>
       <p className="mt-0.5 text-xs text-muted-foreground sm:text-[11px]">
-        {details}
+        {draft ? "Not published yet. Pick up where you left off." : details}
       </p>
     </div>
     <div className="flex w-full justify-end gap-2 border-t border-border pt-3 sm:w-auto sm:border-0 sm:pt-0">
@@ -57,16 +61,28 @@ const HostListingRow: React.FC<HostListingRowProps> = ({
         <EyeIcon className="h-4 w-4" />
         <span className="sm:hidden">View</span>
       </button>
-      <button
-        type="button"
-        title={`Edit ${kind}`}
-        onClick={onEdit}
-        className={`${actionClass} text-foreground hover:bg-muted`}
-        aria-label={`Edit ${kind}`}
-      >
-        <Pencil className="h-4 w-4" />
-        <span className="sm:hidden">Edit</span>
-      </button>
+      {draft ? (
+        <button
+          type="button"
+          title={`Finish ${kind}`}
+          onClick={onEdit}
+          className="flex h-9 items-center justify-center gap-1.5 rounded-full bg-purple-950 px-4 text-xs font-semibold text-white transition-colors hover:bg-purple-900 cursor-pointer sm:h-8"
+        >
+          <Pencil className="h-4 w-4" />
+          <span>Finish</span>
+        </button>
+      ) : (
+        <button
+          type="button"
+          title={`Edit ${kind}`}
+          onClick={onEdit}
+          className={`${actionClass} text-foreground hover:bg-muted`}
+          aria-label={`Edit ${kind}`}
+        >
+          <Pencil className="h-4 w-4" />
+          <span className="sm:hidden">Edit</span>
+        </button>
+      )}
       <button
         type="button"
         title={`Delete ${kind}`}
