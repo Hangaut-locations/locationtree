@@ -1,4 +1,11 @@
-import { Briefcase, Heart, LogIn, Menu, User } from "lucide-react";
+import {
+  Briefcase,
+  CalendarCheck,
+  Heart,
+  LogIn,
+  Menu,
+  User,
+} from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import type { CurrencyCode } from "../lib/currency";
@@ -7,6 +14,7 @@ import useAuth from "./hooks/useAuth";
 import useAppContext from "./hooks/useAppContext";
 import { AllIcon, HomeIcon, PartiesIcon } from "./svgs";
 import { SearchHeader } from "./SearchHeader";
+import { logout } from "../lib/session";
 
 const becomeHostClass =
   "flex items-center gap-1.5 rounded-full bg-purple-950 text-white font-semibold py-2.5 px-4 text-xs shadow-md hover:bg-purple-900 active:scale-97 transition-all cursor-pointer whitespace-nowrap";
@@ -17,7 +25,7 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ currency = "NGN" }) => {
   const { data, isLoading } = useAuth();
-  const { setIsAuthModal } = useAppContext();
+  const { setIsAuthModal, setIsSideMenu } = useAppContext();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [isActive, setIsActive] = useState<"all" | "homes" | "parties">("all");
   const menuRef = useRef<HTMLDivElement>(null);
@@ -78,7 +86,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currency = "NGN" }) => {
         <div className="flex w-full lg:w-auto items-center justify-between lg:justify-start gap-4">
           {/* Menu button (opens settings side menu) */}
           <button
-            // onClick={onMenuClick}
+            onClick={() => setIsSideMenu(true)}
             className="flex items-center gap-2 rounded-full border border-border px-3.5 py-2.5 shadow-sm hover:shadow-md active:scale-97 transition-all cursor-pointer bg-card"
             aria-label="Open menu"
           >
@@ -278,7 +286,19 @@ export const Navbar: React.FC<NavbarProps> = ({ currency = "NGN" }) => {
                     <button
                       onClick={() => {
                         setUserMenuOpen(false);
-                        // onProfileClick();
+                        navigate(
+                          `/reservations?tab=${location.includes("host") ? "hosting" : "trips"}`,
+                        );
+                      }}
+                      className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-bold text-foreground hover:bg-muted transition-colors cursor-pointer"
+                    >
+                      <CalendarCheck className="h-4 w-4" />
+                      <span>Reservations</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setUserMenuOpen(false);
+                        navigate("/profile");
                       }}
                       className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-bold text-foreground hover:bg-muted transition-colors cursor-pointer"
                     >
@@ -288,7 +308,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currency = "NGN" }) => {
                     <button
                       onClick={() => {
                         setUserMenuOpen(false);
-                        // onMenuClick();
+                        setIsSideMenu(true);
                       }}
                       className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-bold text-foreground hover:bg-muted transition-colors cursor-pointer"
                     >
@@ -299,7 +319,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currency = "NGN" }) => {
                     <button
                       onClick={() => {
                         setUserMenuOpen(false);
-                        // onLogoutClick();
+                        logout();
                       }}
                       className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-bold text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
                     >

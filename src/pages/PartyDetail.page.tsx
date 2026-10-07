@@ -17,10 +17,14 @@ import AppLayout from "../components/layout/AppLayout";
 import HostCard from "../components/HostCard";
 import ListingRules from "../components/ListingRules";
 import MobileBookingBar from "../components/MobileBookingBar";
+import PartyBookingForm from "../components/booking/PartyBookingForm";
 import { adminCaller } from "../interceptors/http";
 import { displayPrice, formatPrice } from "../lib/currency";
 import { formatPartyWhen } from "../lib/partyTime";
 import type { TParty } from "../types/parties";
+
+const scrollToBooking = () =>
+  document.getElementById("book")?.scrollIntoView({ behavior: "smooth" });
 
 const PartyDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -215,7 +219,7 @@ const PartyDetailPage = () => {
             </div>
           </div>
 
-          <aside className="lg:relative">
+          <aside id="book" className="scroll-mt-24 lg:relative">
             <div className="sticky top-24 rounded-2xl border border-border bg-card p-6 shadow-xl shadow-black/5">
               <div className="flex items-baseline justify-between">
                 <span className="text-2xl font-semibold">
@@ -225,37 +229,7 @@ const PartyDetailPage = () => {
                   per {data.charge_type}
                 </span>
               </div>
-              <div className="mt-6 grid grid-cols-2 overflow-hidden rounded-xl border border-border">
-                <label className="border-r border-border p-3">
-                  <span className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                    Date
-                  </span>
-                  <input
-                    type="date"
-                    className="mt-1 w-full bg-transparent text-sm outline-none"
-                  />
-                </label>
-                <label className="p-3">
-                  <span className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                    Guests
-                  </span>
-                  <input
-                    type="number"
-                    min="1"
-                    defaultValue="2"
-                    className="mt-1 w-full bg-transparent text-sm outline-none"
-                  />
-                </label>
-              </div>
-              <button
-                type="button"
-                onClick={() =>
-                  alert("Booking requests will be available soon.")
-                }
-                className="mt-5 w-full rounded-xl bg-purple-500 py-3.5 text-sm font-bold text-white transition hover:bg-[#d94f3d]"
-              >
-                Request to book
-              </button>
+              <PartyBookingForm party={data} />
               <p className="mt-3 text-center text-xs text-muted-foreground">
                 You won't be charged yet
               </p>
@@ -278,8 +252,8 @@ const PartyDetailPage = () => {
       <MobileBookingBar
         price={formatPrice(displayPrice(price, "USD"), "USD")}
         unit={data.charge_type}
-        label="Request to book"
-        onBook={() => alert("Booking requests will be available soon.")}
+        label="Book now"
+        onBook={scrollToBooking}
       />
     </AppLayout>
   );

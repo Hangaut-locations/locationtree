@@ -18,6 +18,7 @@ import AppLayout from "../components/layout/AppLayout";
 import HostCard from "../components/HostCard";
 import ListingRules from "../components/ListingRules";
 import MobileBookingBar from "../components/MobileBookingBar";
+import PropertyBookingForm from "../components/booking/PropertyBookingForm";
 import useAuth from "../components/hooks/useAuth";
 import useAppContext from "../components/hooks/useAppContext";
 import { adminCaller } from "../interceptors/http";
@@ -35,6 +36,9 @@ const SPACE_LABELS: Record<IProperty["space_type"], string> = {
   room: "Private room",
   shared: "Shared space",
 };
+
+const scrollToBooking = () =>
+  document.getElementById("book")?.scrollIntoView({ behavior: "smooth" });
 
 const PropertyDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -270,7 +274,7 @@ const PropertyDetailPage = () => {
             <ListingRules title="House rules" rules={data.property_rules} />
           </div>
 
-          <aside className="lg:relative">
+          <aside id="book" className="scroll-mt-24 lg:relative">
             <div className="sticky top-24 rounded-2xl border border-border bg-card p-6 shadow-xl shadow-black/5">
               <div className="flex items-baseline justify-between">
                 <span className="text-2xl font-semibold">
@@ -280,17 +284,7 @@ const PropertyDetailPage = () => {
                   per {data.charge_type}
                 </span>
               </div>
-              <button
-                type="button"
-                onClick={() =>
-                  alert("Booking requests will be available soon.")
-                }
-                className="mt-5 w-full rounded-xl bg-purple-500 py-3.5 text-sm font-bold text-white transition hover:bg-purple-600"
-              >
-                {data.booking_setting === "instant"
-                  ? "Book now"
-                  : "Request to book"}
-              </button>
+              <PropertyBookingForm property={data} />
               <p className="mt-3 text-center text-xs text-muted-foreground">
                 You won't be charged yet
               </p>
@@ -318,7 +312,7 @@ const PropertyDetailPage = () => {
         price={formatPrice(displayPrice(price, "USD"), "USD")}
         unit={data.charge_type}
         label={data.booking_setting === "instant" ? "Book now" : "Request to book"}
-        onBook={() => alert("Booking requests will be available soon.")}
+        onBook={scrollToBooking}
       />
     </AppLayout>
   );

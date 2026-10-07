@@ -1,5 +1,6 @@
 import {
   Briefcase,
+  CalendarCheck,
   CreditCard,
   DollarSign,
   Globe,
@@ -24,6 +25,8 @@ export interface SideMenuCallbacks {
   onProfile: () => void;
   onCurrency: () => void;
   onTrips: () => void;
+  onReservations: () => void;
+  onSwitchView: () => void;
   onSupport: () => void;
   onLogin: () => void;
   onLogout: () => void;
@@ -53,6 +56,12 @@ export const SideMenu: React.FC<SideMenuProps> = ({
   callbacks,
 }) => {
   if (!isOpen) return null;
+
+  const reservationsItem: MenuItem = {
+    label: "Reservations",
+    icon: CalendarCheck,
+    onClick: callbacks.onReservations,
+  };
 
   const guestItems: MenuItem[] = [
     {
@@ -174,9 +183,10 @@ export const SideMenu: React.FC<SideMenuProps> = ({
                     icon: Home,
                     onClick: callbacks.onHostEarnings, // routed to host dashboard
                   },
+                  reservationsItem,
                   ...hostItems.slice(0, 6),
                 ]
-              : guestItems.slice(0, 6),
+              : [reservationsItem, ...guestItems.slice(0, 6)],
           )}
 
           {renderList(viewMode === "host" ? "Account" : "Account", [
@@ -188,7 +198,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
             {
               label: "Switch to " + (viewMode === "host" ? "Guest" : "Host"),
               icon: viewMode === "host" ? User : Briefcase,
-              onClick: callbacks.onProfile, // handled by navbar switcher
+              onClick: callbacks.onSwitchView,
             },
             {
               label: "Contact support",
