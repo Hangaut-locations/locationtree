@@ -24,6 +24,8 @@ import PartiesPage from "./pages/PartyLists.page";
 import PartyDetailPage from "./pages/PartyDetail.page";
 import PropertiesPage from "./pages/PropertyLists.page";
 import PropertyDetailPage from "./pages/PropertyDetail.page";
+import ReservationsPage from "./pages/Reservations.page";
+import AppLayout from "./components/layout/AppLayout";
 import "./App.css";
 
 const DEFAULT_PROFILE: HostProfile = {
@@ -208,26 +210,47 @@ function App() {
       />
       <Route path="/favorites" element={<FavoritesPage />} />
       <Route path="/wishlist" element={<FavoritesPage />} />
+      <Route path="/reservations" element={<ReservationsPage />} />
       <Route
         path="/trips"
-        element={<TripsPage bookings={bookings} currency={currency} />}
+        element={
+          <AppLayout>
+            <TripsPage bookings={bookings} currency={currency} />
+          </AppLayout>
+        }
       />
       <Route
         path="/wallet"
         element={
-          <WalletView
-            mode={viewMode === "host" ? "host" : "guest"}
-            hostBalance={wallet.balance}
-            guestBalance={wallet.balance}
-            transactions={wallet.transactions}
-            onDeposit={handleDeposit}
-            onWithdraw={handleWithdraw}
-            currency={currency}
-          />
+          <AppLayout>
+            <WalletView
+              mode={viewMode === "host" ? "host" : "guest"}
+              hostBalance={wallet.balance}
+              guestBalance={wallet.balance}
+              transactions={wallet.transactions}
+              onDeposit={handleDeposit}
+              onWithdraw={handleWithdraw}
+              currency={currency}
+            />
+          </AppLayout>
         }
       />
-      <Route path="/profile" element={<ProfilePage />} />
-      <Route path="/support" element={<SupportPage />} />
+      <Route
+        path="/profile"
+        element={
+          <AppLayout>
+            <ProfilePage />
+          </AppLayout>
+        }
+      />
+      <Route
+        path="/support"
+        element={
+          <AppLayout>
+            <SupportPage />
+          </AppLayout>
+        }
+      />
       <Route
         path="*"
         element={<div className="mx-auto max-w-7xl px-6 py-16 text-center" />}
