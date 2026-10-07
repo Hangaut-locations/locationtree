@@ -1,10 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import useAuth from "../hooks/useAuth";
 import useAppContext from "../hooks/useAppContext";
-import { bookParty, tripsQueryKey } from "../../lib/bookings";
+import {
+  bookParty,
+  savePendingBooking,
+  takePendingBooking,
+  tripsQueryKey,
+} from "../../lib/bookings";
 import { displayPrice, formatPrice } from "../../lib/currency";
 import { getErrorMessage, type ApiError } from "../../lib/errors";
 import { formatPartyWhen } from "../../lib/partyTime";
@@ -13,6 +18,8 @@ import type { TParty } from "../../types/parties";
 const fieldClass = "mt-1 w-full bg-transparent text-sm outline-none";
 const labelClass =
   "block text-[10px] font-bold uppercase tracking-wider text-muted-foreground";
+
+type Choices = { guests: number; hours: number };
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, Math.round(value) || min));
@@ -30,11 +37,11 @@ const PartyBookingForm = ({ party }: { party: TParty }) => {
   const total = perHour ? price * hours : price * guests;
 
   const { mutate, isPending } = useMutation({
-    mutationFn: () =>
+    mutationFn: (choices: Choices) =>
       bookParty({
         partyId: party._id,
-        guests,
-        hours: perHour ? hours : undefined,
+        guests: choices.guests,
+        hours: perHour ? choices.hours : undefined,
       }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: tripsQueryKey });
@@ -45,12 +52,23 @@ const PartyBookingForm = ({ party }: { party: TParty }) => {
       toast.error(getErrorMessage(err, "Couldn't book this party, try again")),
   });
 
+  useEffect(() => {
+    if (!user) return;
+    const saved = takePendingBooking<Choices>(party._id);
+    if (!saved) return;
+    setGuests(saved.guests);
+    setHours(saved.hours);
+    document.getElementById("book")?.scrollIntoView({ behavior: "smooth" });
+    mutate(saved);
+  }, [user, party._id, mutate]);
+
   const handleBook = () => {
     if (!user) {
+      savePendingBooking<Choices>(party._id, { guests, hours });
       setIsAuthModal(true);
       return;
     }
-    mutate();
+    mutate({ guests, hours });
   };
 
   return (

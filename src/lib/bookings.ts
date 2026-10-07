@@ -48,6 +48,32 @@ export const bookProperty = (data: {
     .post<PropertyBooking>("/bookings/properties", data)
     .then((res) => res.data);
 
+const PENDING_BOOKING_KEY = "pending_booking";
+const PENDING_BOOKING_TTL = 15 * 60 * 1000;
+/** The login popup reloads the page a second after logging in, a booking started before that reload gets cut off. */
+const loggedInOnLoad = Boolean(sessionStorage.getItem("user_token"));
+
+/** Logging in reloads the page, so keep what the guest picked and finish the booking after. */
+export const savePendingBooking = <T>(listingId: string, choices: T) =>
+  sessionStorage.setItem(
+    PENDING_BOOKING_KEY,
+    JSON.stringify({ listingId, choices, savedAt: Date.now() }),
+  );
+
+export const takePendingBooking = <T>(listingId: string): T | null => {
+  const raw = sessionStorage.getItem(PENDING_BOOKING_KEY);
+  if (!raw || !loggedInOnLoad) return null;
+  try {
+    const saved = JSON.parse(raw) as { listingId: string; choices: T; savedAt: number };
+    if (saved.listingId !== listingId) return null;
+    sessionStorage.removeItem(PENDING_BOOKING_KEY);
+    return Date.now() - saved.savedAt < PENDING_BOOKING_TTL ? saved.choices : null;
+  } catch {
+    sessionStorage.removeItem(PENDING_BOOKING_KEY);
+    return null;
+  }
+};
+
 export const setBookingStatus = (
   kind: "parties" | "properties",
   id: string,
