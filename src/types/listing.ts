@@ -123,6 +123,7 @@ export interface IProperty {
   bathrooms: number;
   isFavorite?: boolean;
   host?: ListingHost | null;
+  published_at?: Date;
   createdAt: Date;
   updatedAt: Date;
 }

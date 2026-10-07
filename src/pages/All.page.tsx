@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Compass } from "lucide-react";
 import AppLayout from "../components/layout/AppLayout";
@@ -8,6 +9,11 @@ import useAuth from "../components/hooks/useAuth";
 import type { TGroupedParties } from "../types/parties";
 import type { TGroupedProperties } from "../types/listing";
 import { adminCaller } from "../interceptors/http";
+
+type Listing = { published_at?: Date; createdAt: Date };
+
+const newestIn = (items: Listing[]) =>
+  Math.max(0, ...items.map((item) => new Date(item.published_at ?? item.createdAt).getTime() || 0));
 
 const AllPage: React.FC = () => {
   const { data: user, isLoading: userLoading } = useAuth();
@@ -31,6 +37,20 @@ const AllPage: React.FC = () => {
   const isLoading = parties.isLoading || properties.isLoading;
   const isEmpty = !parties.data?.length && !properties.data?.length;
 
+  // parties and homes mixed together, the group with the newest listing goes on top
+  const sections = [
+    ...(parties.data ?? []).map((group) => ({
+      key: `party-${group.caption}`,
+      newest: newestIn(group.parties),
+      node: <PartyLists items={group.parties} title={group.caption} />,
+    })),
+    ...(properties.data ?? []).map((group) => ({
+      key: `property-${group.caption}`,
+      newest: newestIn(group.properties),
+      node: <PropertyLists items={group.properties} title={group.caption} />,
+    })),
+  ].sort((a, b) => b.newest - a.newest);
+
   return (
     <AppLayout>
       <div className="w-full space-y-12 max-w-7xl mx-auto p-4 lg:p-5">
@@ -49,22 +69,7 @@ const AllPage: React.FC = () => {
             </p>
           </div>
         ) : (
-          <>
-            {parties.data?.map((group) => (
-              <PartyLists
-                key={`party-${group.caption}`}
-                items={group.parties}
-                title={group.caption}
-              />
-            ))}
-            {properties.data?.map((group) => (
-              <PropertyLists
-                key={`property-${group.caption}`}
-                items={group.properties}
-                title={group.caption}
-              />
-            ))}
-          </>
+          sections.map((section) => <Fragment key={section.key}>{section.node}</Fragment>)
         )}
       </div>
     </AppLayout>

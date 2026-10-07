@@ -19,6 +19,7 @@ export type TParty = {
   end_date: Date;
   start_time?: string;
   status?: "published" | "draft";
+  published_at?: Date;
   createdAt: Date;
   updatedAt: Date;
   party_type: string;
