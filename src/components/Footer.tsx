@@ -3,9 +3,15 @@ import type React from "react";
 import { SiFacebook, SiInstagram, SiX } from "react-icons/si";
 import type { CurrencyCode } from "../lib/currency";
 
-interface FooterProps {}
+interface FooterProps {
+  currency: CurrencyCode;
+  onCurrencyClick: () => void;
+}
 
-export const Footer: React.FC<FooterProps> = ({}) => {
+export const Footer: React.FC<FooterProps> = ({
+  currency,
+  onCurrencyClick,
+}) => {
   return (
     <footer className="w-full border-t border-border bg-muted/30 pt-12 pb-8 transition-colors duration-300">
       <div className="mx-auto max-w-7xl px-4 md:px-8">
@@ -257,12 +263,13 @@ export const Footer: React.FC<FooterProps> = ({}) => {
                 <span>English (US)</span>
               </button>
               <button
-                // onClick={onCurrencyClick}
+                type="button"
+                onClick={onCurrencyClick}
                 className="flex items-center gap-1 hover:text-foreground transition-colors cursor-pointer focus:outline-none"
                 aria-label="Choose currency"
               >
                 <DollarSign className="h-4 w-4" />
-                {/* <span>{currency}</span> */}
+                <span>{currency}</span>
               </button>
             </div>
 

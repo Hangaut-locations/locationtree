@@ -46,7 +46,7 @@ const PropertyDetailPage = () => {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { data: user } = useAuth();
-  const { setIsAuthModal } = useAppContext();
+  const { setIsAuthModal, currency } = useAppContext();
   const [activeImage, setActiveImage] = useState(0);
   const [saving, setSaving] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
@@ -278,7 +278,7 @@ const PropertyDetailPage = () => {
             <div className="sticky top-24 rounded-2xl border border-border bg-card p-6 shadow-xl shadow-black/5">
               <div className="flex items-baseline justify-between">
                 <span className="text-2xl font-semibold">
-                  {formatPrice(displayPrice(price, "USD"), "USD")}
+                  {formatPrice(displayPrice(price, currency), currency)}
                 </span>
                 <span className="text-sm text-muted-foreground">
                   per {data.charge_type}
@@ -309,7 +309,7 @@ const PropertyDetailPage = () => {
         </div>
       </main>
       <MobileBookingBar
-        price={formatPrice(displayPrice(price, "USD"), "USD")}
+        price={formatPrice(displayPrice(price, currency), currency)}
         unit={data.charge_type}
         label={data.booking_setting === "instant" ? "Book now" : "Request to book"}
         onBook={scrollToBooking}

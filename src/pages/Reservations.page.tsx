@@ -80,7 +80,7 @@ const chipClass = (active: boolean) =>
 const ReservationsPage = () => {
   const qc = useQueryClient();
   const { data: user, isLoading: userLoading } = useAuth();
-  const { setIsAuthModal } = useAppContext();
+  const { setIsAuthModal, currency } = useAppContext();
   const [searchParams, setSearchParams] = useSearchParams();
   const tab: Tab = searchParams.get("tab") === "hosting" ? "hosting" : "trips";
   const [filter, setFilter] = useState<Filter>("all");
@@ -225,7 +225,7 @@ const ReservationsPage = () => {
 
         <div className="flex items-center justify-between gap-3 sm:flex-col sm:items-end">
           <p className="text-sm font-bold text-foreground">
-            {formatPrice(displayPrice(booking.total, "USD"), "USD")}
+            {formatPrice(displayPrice(booking.total, currency), currency)}
           </p>
           <div className="flex gap-2">
             {canAnswer && (

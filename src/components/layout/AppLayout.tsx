@@ -5,17 +5,23 @@ import { Footer } from "../Footer";
 import { SideMenu } from "../SideMenu";
 import useAuth from "../hooks/useAuth";
 import useAppContext from "../hooks/useAppContext";
-import type { CurrencyCode } from "../../lib/currency";
-import { loadState } from "../../lib/storage";
+import { CurrencyModal } from "../CurrencyModal";
 import { logout } from "../../lib/session";
 
 const AppLayout = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const { data } = useAuth();
-  const { isSideMenu, setIsSideMenu, setIsAuthModal } = useAppContext();
+  const {
+    isSideMenu,
+    setIsSideMenu,
+    setIsAuthModal,
+    isCurrencyModal,
+    setIsCurrencyModal,
+    currency,
+    setCurrency,
+  } = useAppContext();
   const isLoggedIn = Boolean(data);
   const viewMode = window.location.pathname.includes("host") ? "host" : "guest";
-  const currency = loadState<CurrencyCode>("currency", "USD");
 
   const goTo = (path: string) => {
     setIsSideMenu(false);
@@ -30,7 +36,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
     onProfile: () => goTo("/profile"),
     onCurrency: () => {
       setIsSideMenu(false);
-      // setCurrencyOpen(true);
+      setIsCurrencyModal(true);
     },
     onTrips: () => goTo("/reservations?tab=trips"),
     onReservations: () =>
@@ -53,10 +59,8 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
       <Navbar />
       <main className="grow">{children}</main>
       <Footer
-      
-
-      //   currency={currency}
-      //   onCurrencyClick={() => setCurrencyOpen(true)}
+        currency={currency}
+        onCurrencyClick={() => setIsCurrencyModal(true)}
       />
 
       {/* <FilterModal
@@ -69,12 +73,12 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
 
       <AuthModal />
 
-      {/* <CurrencyModal
-      // isOpen={currencyOpen}
-      // onClose={() => setCurrencyOpen(false)}
-      // currency={currency}
-      // onCurrencyChange={setCurrency}
-      /> */}
+      <CurrencyModal
+        isOpen={isCurrencyModal}
+        onClose={() => setIsCurrencyModal(false)}
+        currency={currency}
+        onCurrencyChange={setCurrency}
+      />
 
       <SideMenu
         isOpen={isSideMenu}

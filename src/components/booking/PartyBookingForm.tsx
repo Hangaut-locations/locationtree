@@ -28,7 +28,7 @@ const PartyBookingForm = ({ party }: { party: TParty }) => {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { data: user } = useAuth();
-  const { setIsAuthModal } = useAppContext();
+  const { setIsAuthModal, currency } = useAppContext();
   const perHour = party.charge_type === "hour";
   const capacity = Number(party.guest_capacity) || 1;
   const price = Number(party.price) || 0;
@@ -109,11 +109,11 @@ const PartyBookingForm = ({ party }: { party: TParty }) => {
       </div>
       <div className="mt-4 flex justify-between text-sm">
         <span className="text-muted-foreground">
-          {formatPrice(displayPrice(price, "USD"), "USD")} x{" "}
+          {formatPrice(displayPrice(price, currency), currency)} x{" "}
           {perHour ? `${hours} hour${hours === 1 ? "" : "s"}` : `${guests} guest${guests === 1 ? "" : "s"}`}
         </span>
         <span className="font-semibold">
-          {formatPrice(displayPrice(total, "USD"), "USD")}
+          {formatPrice(displayPrice(total, currency), currency)}
         </span>
       </div>
       <button
