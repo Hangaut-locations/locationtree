@@ -28,7 +28,7 @@ export const PartyListCard: React.FC<PartyListCardProps> = ({
   const navigate = useNavigate();
   const { data } = useAuth();
   const qc = useQueryClient();
-  const { setIsAuthModal } = useAppContext();
+  const { setIsAuthModal, currency } = useAppContext();
 
   const handleFavorite = () => {
     if (data) {
@@ -96,7 +96,7 @@ export const PartyListCard: React.FC<PartyListCardProps> = ({
           <div className="w-full flex justify-start gap-1 items-center text-xs text-gray-500">
             <div className="flex items-center gap-1">
               <h1 className="font-medium">
-                {formatPrice(displayPrice(Number(party?.price), "USD"), "USD")}
+                {formatPrice(displayPrice(Number(party?.price), currency), currency)}
               </h1>
               <span className="text-muted-foreground">
                 per {party.charge_type}

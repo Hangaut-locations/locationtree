@@ -8,7 +8,6 @@ import {
 } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
-import type { CurrencyCode } from "../lib/currency";
 import { useNavigate } from "react-router-dom";
 import useAuth from "./hooks/useAuth";
 import useAppContext from "./hooks/useAppContext";
@@ -19,13 +18,9 @@ import { logout } from "../lib/session";
 const becomeHostClass =
   "flex items-center gap-1.5 rounded-full bg-purple-950 text-white font-semibold py-2.5 px-4 text-xs shadow-md hover:bg-purple-900 active:scale-97 transition-all cursor-pointer whitespace-nowrap";
 
-interface NavbarProps {
-  currency?: CurrencyCode;
-}
-
-export const Navbar: React.FC<NavbarProps> = ({ currency = "NGN" }) => {
+export const Navbar: React.FC = () => {
   const { data, isLoading } = useAuth();
-  const { setIsAuthModal, setIsSideMenu } = useAppContext();
+  const { setIsAuthModal, setIsSideMenu, currency } = useAppContext();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [isActive, setIsActive] = useState<"all" | "homes" | "parties">("all");
   const menuRef = useRef<HTMLDivElement>(null);

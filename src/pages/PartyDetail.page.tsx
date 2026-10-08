@@ -14,6 +14,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import AppLayout from "../components/layout/AppLayout";
+import useAppContext from "../components/hooks/useAppContext";
 import HostCard from "../components/HostCard";
 import ListingRules from "../components/ListingRules";
 import MobileBookingBar from "../components/MobileBookingBar";
@@ -30,6 +31,7 @@ const scrollToBooking = () =>
 const PartyDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { currency } = useAppContext();
   const [activeImage, setActiveImage] = useState(0);
   const [isSaved, setIsSaved] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
@@ -223,7 +225,7 @@ const PartyDetailPage = () => {
             <div className="sticky top-24 rounded-2xl border border-border bg-card p-6 shadow-xl shadow-black/5">
               <div className="flex items-baseline justify-between">
                 <span className="text-2xl font-semibold">
-                  {formatPrice(displayPrice(price, "USD"), "USD")}
+                  {formatPrice(displayPrice(price, currency), currency)}
                 </span>
                 <span className="text-sm text-muted-foreground">
                   per {data.charge_type}
@@ -250,7 +252,7 @@ const PartyDetailPage = () => {
         </div>
       </main>
       <MobileBookingBar
-        price={formatPrice(displayPrice(price, "USD"), "USD")}
+        price={formatPrice(displayPrice(price, currency), currency)}
         unit={data.charge_type}
         label="Book now"
         onBook={scrollToBooking}

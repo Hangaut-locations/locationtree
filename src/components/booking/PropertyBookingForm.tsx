@@ -34,7 +34,7 @@ const PropertyBookingForm = ({ property }: { property: IProperty }) => {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { data: user } = useAuth();
-  const { setIsAuthModal } = useAppContext();
+  const { setIsAuthModal, currency } = useAppContext();
   const instant = property.booking_setting === "instant";
   const capacity = Number(property.guest_capacity) || 1;
   const price = Number(property.price) || 0;
@@ -192,13 +192,13 @@ const PropertyBookingForm = ({ property }: { property: IProperty }) => {
 
       <div className="mt-4 flex justify-between text-sm">
         <span className="text-muted-foreground">
-          {formatPrice(displayPrice(price, "USD"), "USD")} x{" "}
+          {formatPrice(displayPrice(price, currency), currency)} x{" "}
           {property.charge_type === "hour"
             ? `${hours} hour${hours === 1 ? "" : "s"}`
             : `${guests} guest${guests === 1 ? "" : "s"}`}
         </span>
         <span className="font-semibold">
-          {formatPrice(displayPrice(total, "USD"), "USD")}
+          {formatPrice(displayPrice(total, currency), currency)}
         </span>
       </div>
       <button

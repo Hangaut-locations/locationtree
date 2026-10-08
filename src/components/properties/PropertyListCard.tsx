@@ -24,7 +24,7 @@ export const PropertyListCard: React.FC<PropertyListCardProps> = ({
   const navigate = useNavigate();
   const { data: user } = useAuth();
   const qc = useQueryClient();
-  const { setIsAuthModal } = useAppContext();
+  const { setIsAuthModal, currency } = useAppContext();
 
   const handleFavorite = () => {
     if (!user) {
@@ -90,7 +90,7 @@ export const PropertyListCard: React.FC<PropertyListCardProps> = ({
         <div className="w-full flex justify-start gap-1 items-center text-xs text-gray-500">
           <div className="flex items-center gap-1">
             <h1 className="font-medium">
-              {formatPrice(displayPrice(Number(property.price), "USD"), "USD")}
+              {formatPrice(displayPrice(Number(property.price), currency), currency)}
             </h1>
             <span className="text-muted-foreground">
               per {property.charge_type}
