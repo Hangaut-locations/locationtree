@@ -19,6 +19,7 @@ import HostCard from "../components/HostCard";
 import ListingRules from "../components/ListingRules";
 import MobileBookingBar from "../components/MobileBookingBar";
 import PropertyBookingForm from "../components/booking/PropertyBookingForm";
+import ShareModal from "../components/ShareModal";
 import useAuth from "../components/hooks/useAuth";
 import useAppContext from "../components/hooks/useAppContext";
 import { adminCaller } from "../interceptors/http";
@@ -48,6 +49,7 @@ const PropertyDetailPage = () => {
   const { setIsAuthModal } = useAppContext();
   const [activeImage, setActiveImage] = useState(0);
   const [saving, setSaving] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
 
   const { data, isLoading, isError } = useQuery<IProperty>({
     queryKey: ["property", id],
@@ -150,9 +152,7 @@ const PropertyDetailPage = () => {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() =>
-                navigator.clipboard?.writeText(window.location.href)
-              }
+              onClick={() => setIsShareOpen(true)}
               className="flex items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold hover:bg-muted"
             >
               <Share2 className="h-4 w-4" /> Share
@@ -313,6 +313,14 @@ const PropertyDetailPage = () => {
         unit={data.charge_type}
         label={data.booking_setting === "instant" ? "Book now" : "Request to book"}
         onBook={scrollToBooking}
+      />
+      <ShareModal
+        open={isShareOpen}
+        onClose={() => setIsShareOpen(false)}
+        kind="place"
+        title={data.title}
+        image={images[0]}
+        details={[SPACE_LABELS[data.space_type], data.location].filter(Boolean).join(" · ")}
       />
     </AppLayout>
   );
