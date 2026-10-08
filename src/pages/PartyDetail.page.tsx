@@ -18,6 +18,7 @@ import HostCard from "../components/HostCard";
 import ListingRules from "../components/ListingRules";
 import MobileBookingBar from "../components/MobileBookingBar";
 import PartyBookingForm from "../components/booking/PartyBookingForm";
+import ShareModal from "../components/ShareModal";
 import { adminCaller } from "../interceptors/http";
 import { displayPrice, formatPrice } from "../lib/currency";
 import { formatPartyWhen } from "../lib/partyTime";
@@ -31,6 +32,7 @@ const PartyDetailPage = () => {
   const navigate = useNavigate();
   const [activeImage, setActiveImage] = useState(0);
   const [isSaved, setIsSaved] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
 
   const { data, isLoading, isError } = useQuery<TParty>({
     queryKey: ["party", id],
@@ -96,9 +98,7 @@ const PartyDetailPage = () => {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() =>
-                navigator.clipboard?.writeText(window.location.href)
-              }
+              onClick={() => setIsShareOpen(true)}
               className="flex items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold hover:bg-muted"
             >
               <Share2 className="h-4 w-4" /> Share
@@ -254,6 +254,14 @@ const PartyDetailPage = () => {
         unit={data.charge_type}
         label="Book now"
         onBook={scrollToBooking}
+      />
+      <ShareModal
+        open={isShareOpen}
+        onClose={() => setIsShareOpen(false)}
+        kind="party"
+        title={data.title}
+        image={images[0]}
+        details={[formatPartyWhen(data), data.location].filter(Boolean).join(" · ")}
       />
     </AppLayout>
   );
