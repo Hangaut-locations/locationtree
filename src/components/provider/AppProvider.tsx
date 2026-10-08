@@ -1,11 +1,12 @@
 import {
   createContext,
+  useEffect,
   useState,
   type Dispatch,
   type ReactNode,
   type SetStateAction,
 } from "react";
-import type { CurrencyCode } from "../../lib/currency";
+import { type CurrencyCode, refreshRates } from "../../lib/currency";
 import { loadState, saveState } from "../../lib/storage";
 
 interface IAppProvider {
@@ -32,6 +33,14 @@ const AppProvider = ({ children }: IAppProvider) => {
   const [currency, setCurrencyState] = useState<CurrencyCode>(() =>
     loadState<CurrencyCode>("currency", "USD"),
   );
+
+  const [, setRatesVersion] = useState(0);
+
+  useEffect(() => {
+    refreshRates().then((changed) => {
+      if (changed) setRatesVersion((v) => v + 1);
+    });
+  }, []);
 
   const setCurrency = (code: CurrencyCode) => {
     setCurrencyState(code);
