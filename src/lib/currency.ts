@@ -1,9 +1,11 @@
-// Lightweight, mock currency-conversion API.
+// Currency conversion for display. Prices are stored in USD.
 // Supports: NGN (Nigerian Naira), USD, EUR, GBP.
 //
-// In production this would be an external endpoint (e.g. fetch rates from an
-// exchange-rate service). For this mock we simulate a small network delay and
-// resolve static conversion rates relative to USD.
+// Live rates come from open.er-api.com (free, updates once a day). They are
+// cached in localStorage and the fixed rates below are only used until the
+// first fetch works.
+
+import { loadState, saveState } from "./storage"
 
 export type CurrencyCode = "USD" | "EUR" | "GBP" | "NGN"
 
@@ -15,32 +17,57 @@ export const CURRENCIES: { code: CurrencyCode; symbol: string; name: string }[] 
 ]
 
 // Rates relative to 1 USD.
-export const RATES_BASE_USD: Record<CurrencyCode, number> = {
+export type Rates = Record<CurrencyCode, number>
+
+export const FALLBACK_RATES: Rates = {
   USD: 1,
   EUR: 0.92,
   GBP: 0.79,
   NGN: 1600,
 }
 
-const LATENCY = 120
+const RATES_URL = "https://open.er-api.com/v6/latest/USD"
+const RATES_KEY = "currency_rates"
+const RATES_MAX_AGE = 6 * 60 * 60 * 1000
 
-/**
- * Converts `amount` from `from` currency to `to` currency.
- * Simulates an API call by returning a Promise.
- */
-export async function convertCurrency(amount: number, from: CurrencyCode, to: CurrencyCode): Promise<number> {
-  await new Promise((resolve) => setTimeout(resolve, LATENCY))
-  const baseUsd = amount / RATES_BASE_USD[from]
-  return baseUsd * RATES_BASE_USD[to]
+type CachedRates = { rates: Rates; fetchedAt: number }
+
+const cached = loadState<CachedRates | null>(RATES_KEY, null)
+let rates: Rates = cached?.rates ?? FALLBACK_RATES
+
+const pickRates = (all: Record<string, unknown>): Rates | null => {
+  const picked = {} as Rates
+  for (const { code } of CURRENCIES) {
+    const rate = Number(all[code])
+    if (!Number.isFinite(rate) || rate <= 0) return null
+    picked[code] = rate
+  }
+  return picked
+}
+
+/** Fetches today's rates unless the cached ones are still fresh. Resolves true when rates changed. */
+export async function refreshRates(): Promise<boolean> {
+  if (cached && Date.now() - cached.fetchedAt < RATES_MAX_AGE) return false
+  try {
+    const response = await fetch(RATES_URL)
+    if (!response.ok) return false
+    const body = await response.json()
+    const fresh = body?.result === "success" ? pickRates(body.rates ?? {}) : null
+    if (!fresh) return false
+    rates = fresh
+    saveState<CachedRates>(RATES_KEY, { rates: fresh, fetchedAt: Date.now() })
+    return true
+  } catch {
+    return false
+  }
 }
 
 export function symbolFor(code: CurrencyCode): string {
   return CURRENCIES.find((c) => c.code === code)?.symbol ?? "$"
 }
 
-/** Synchronous conversion (used for instant display updates). */
 export function convertNow(amount: number, from: CurrencyCode, to: CurrencyCode): number {
-  return (amount / RATES_BASE_USD[from]) * RATES_BASE_USD[to]
+  return (amount / rates[from]) * rates[to]
 }
 
 /** Convert a price stored in USD to another display currency. */

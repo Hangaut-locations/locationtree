@@ -81,8 +81,16 @@ export const CurrencyModal: React.FC<CurrencyModalProps> = ({
         </div>
 
         <p className="mt-5 text-[11px] font-semibold text-muted-foreground">
-          The conversion API refreshes live rates. Amounts shown across the app
-          update automatically.
+          Rates update daily. Amounts shown across the app update
+          automatically.{" "}
+          <a
+            href="https://www.exchangerate-api.com"
+            target="_blank"
+            rel="noreferrer"
+            className="underline hover:text-foreground"
+          >
+            Rates By Exchange Rate API
+          </a>
         </p>
       </DialogContent>
     </Dialog>
