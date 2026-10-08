@@ -8,8 +8,16 @@ const PREVIEW_BOTS =
   /facebookexternalhit|facebot|whatsapp|twitterbot|telegrambot|slackbot|linkedinbot|discordbot|pinterest|skypeuripreview|applebot|googlebot|bingbot|redditbot|snapchat|embedly|iframely/i;
 
 const ROUTES = [
-  { pattern: /^\/parties\/([a-f0-9]{24})\/?$/i, endpoint: "parties" },
-  { pattern: /^\/homes\/([a-f0-9]{24})\/?$/i, endpoint: "property" },
+  {
+    pattern: /^\/parties\/([a-f0-9]{24})\/?$/i,
+    endpoint: "parties",
+    title: (name: string) => `Join me at ${name} on Hangaut`,
+  },
+  {
+    pattern: /^\/homes\/([a-f0-9]{24})\/?$/i,
+    endpoint: "property",
+    title: (name: string) => `${name} | Hangaut`,
+  },
 ];
 
 type Listing = {
@@ -75,7 +83,7 @@ export const getPreview = async (
     .join(". ");
 
   return {
-    title: `${listing.title} | Hangaut`,
+    title: route.title(listing.title),
     description: shorten(description || "Find it on Hangaut", 200),
     image: listing.images?.find(Boolean),
     url: url.toString(),
