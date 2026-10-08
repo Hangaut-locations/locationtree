@@ -227,7 +227,7 @@ export const Footer: React.FC<FooterProps> = ({
           {/* Copyright & Links */}
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 text-center">
             <span>© 2026 Hangout, Inc.</span>
-            <span>·</span>
+            {/* <span>·</span>
             <a
               href="#"
               className="hover:text-foreground hover:underline transition-colors text-xs"
@@ -247,7 +247,7 @@ export const Footer: React.FC<FooterProps> = ({
               className="hover:text-foreground hover:underline transition-colors text-xs"
             >
               Sitemap
-            </a>
+            </a> */}
           </div>
 
           {/* Socials & Language / Currency */}

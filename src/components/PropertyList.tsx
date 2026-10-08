@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import type { IProperty } from "../types/listing";
 import { DeleteListingModal } from "./parties/DeleteListingModal";
 import HostListingRow from "./HostListingRow";
+import useAppContext from "./hooks/useAppContext";
+import { displayPrice, formatPrice } from "../lib/currency";
 
 interface IPropertyListing {
   data: IProperty[];
@@ -10,6 +12,7 @@ interface IPropertyListing {
 
 const PropertyListing: React.FC<IPropertyListing> = ({ data }) => {
   const navigate = useNavigate();
+  const { currency } = useAppContext();
   const [isDeleteModal, setIsDeleteModal] = useState(false);
   const [propertyId, setPropertyId] = useState<string>("");
 
@@ -31,7 +34,7 @@ const PropertyListing: React.FC<IPropertyListing> = ({ data }) => {
           image={property.images?.[0]}
           title={property.title}
           draft={property.status === "draft"}
-          details={`${property.location} · ${property.guest_capacity} guests · $${property.price} / ${property.charge_type}`}
+          details={`${property.location} · ${property.guest_capacity} guests · ${formatPrice(displayPrice(Number(property.price), currency), currency)} / ${property.charge_type}`}
           onView={() => navigate(`/homes/${property._id}`)}
           onEdit={() => navigate(`/become-a-host/property?p=${property._id}`)}
           onDelete={() => onDelete(property._id)}

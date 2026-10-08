@@ -4,6 +4,8 @@ import { useState } from "react";
 import { DeleteListingModal } from "./parties/DeleteListingModal";
 import { useNavigate } from "react-router-dom";
 import HostListingRow from "./HostListingRow";
+import useAppContext from "./hooks/useAppContext";
+import { displayPrice, formatPrice } from "../lib/currency";
 
 interface IPartyListing {
   data: IParty[];
@@ -11,6 +13,7 @@ interface IPartyListing {
 
 const PartyListing: React.FC<IPartyListing> = ({ data }) => {
   const navigate = useNavigate();
+  const { currency } = useAppContext();
   const [isDeleteModal, setIsDeleteModal] = useState(false);
   const [partyId, setPartyId] = useState<string>("");
 
@@ -35,7 +38,7 @@ const PartyListing: React.FC<IPartyListing> = ({ data }) => {
           details={[
             listing.location,
             `${listing.guest_capacity} guests`,
-            `$${listing.price} / ${listing.charge_type ?? "person"}`,
+            `${formatPrice(displayPrice(Number(listing.price), currency), currency)} / ${listing.charge_type ?? "person"}`,
             listing.start_date ? formatPartyWhen(listing) : "",
           ]
             .filter(Boolean)
