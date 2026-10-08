@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
@@ -10,6 +10,8 @@ import {
   getTakenTimes,
   nigeriaDateTime,
   overlaps,
+  savePendingBooking,
+  takePendingBooking,
   takenTimesQueryKey,
   todayInNigeria,
   tripsQueryKey,
@@ -22,6 +24,8 @@ const HOUR_MS = 60 * 60 * 1000;
 const fieldClass = "mt-1 w-full bg-transparent text-sm outline-none";
 const labelClass =
   "block text-[10px] font-bold uppercase tracking-wider text-muted-foreground";
+
+type Choices = { date: string; startTime: string; hours: number; guests: number };
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, Math.round(value) || min));
@@ -64,13 +68,13 @@ const PropertyBookingForm = ({ property }: { property: IProperty }) => {
   const inPast = start <= new Date();
 
   const { mutate, isPending } = useMutation({
-    mutationFn: () =>
+    mutationFn: (choices: Choices) =>
       bookProperty({
         propertyId: property._id,
-        date,
-        start_time: startTime,
-        hours,
-        guests,
+        date: choices.date,
+        start_time: choices.startTime,
+        hours: choices.hours,
+        guests: choices.guests,
       }),
     onSuccess: (booking) => {
       qc.invalidateQueries({ queryKey: tripsQueryKey });
@@ -88,12 +92,26 @@ const PropertyBookingForm = ({ property }: { property: IProperty }) => {
     },
   });
 
+  useEffect(() => {
+    if (!user) return;
+    const saved = takePendingBooking<Choices>(property._id);
+    if (!saved) return;
+    setDate(saved.date);
+    setStartTime(saved.startTime);
+    setHours(saved.hours);
+    setGuests(saved.guests);
+    document.getElementById("book")?.scrollIntoView({ behavior: "smooth" });
+    mutate(saved);
+  }, [user, property._id, mutate]);
+
   const handleBook = () => {
+    const choices = { date, startTime, hours, guests };
     if (!user) {
+      savePendingBooking<Choices>(property._id, choices);
       setIsAuthModal(true);
       return;
     }
-    mutate();
+    mutate(choices);
   };
 
   return (
