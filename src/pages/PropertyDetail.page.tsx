@@ -20,6 +20,7 @@ import ListingRules from "../components/ListingRules";
 import MobileBookingBar from "../components/MobileBookingBar";
 import PropertyBookingForm from "../components/booking/PropertyBookingForm";
 import ShareModal from "../components/ShareModal";
+import ImageViewer from "../components/ImageViewer";
 import useAuth from "../components/hooks/useAuth";
 import useAppContext from "../components/hooks/useAppContext";
 import { adminCaller } from "../interceptors/http";
@@ -50,6 +51,7 @@ const PropertyDetailPage = () => {
   const [activeImage, setActiveImage] = useState(0);
   const [saving, setSaving] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
+  const [viewerIndex, setViewerIndex] = useState<number | null>(null);
 
   const { data, isLoading, isError } = useQuery<IProperty>({
     queryKey: ["property", id],
@@ -172,18 +174,23 @@ const PropertyDetailPage = () => {
         </div>
 
         <section className="relative grid h-72 grid-cols-1 gap-2 overflow-hidden rounded-3xl sm:h-96 md:h-107.5 md:grid-cols-[1.5fr_1fr_1fr] md:rounded-[28px]">
-          <div className="relative min-h-70 md:row-span-2">
+          <button
+            type="button"
+            onClick={() => setViewerIndex(activeImage)}
+            className="relative min-h-70 cursor-zoom-in md:row-span-2"
+            aria-label="Open photos full screen"
+          >
             <img
               src={images[activeImage]}
               alt={data.title}
               className="h-full w-full object-cover"
             />
-          </div>
+          </button>
           {images.slice(1, 5).map((image, index) => (
             <button
               type="button"
               key={image}
-              onClick={() => setActiveImage(index + 1)}
+              onClick={() => setViewerIndex(index + 1)}
               className="hidden overflow-hidden md:block"
               aria-label={`View image ${index + 2}`}
             >
@@ -313,6 +320,13 @@ const PropertyDetailPage = () => {
         unit={data.charge_type}
         label={data.booking_setting === "instant" ? "Book now" : "Request to book"}
         onBook={scrollToBooking}
+      />
+      <ImageViewer
+        images={images}
+        title={data.title}
+        open={viewerIndex !== null}
+        startIndex={viewerIndex ?? 0}
+        onClose={() => setViewerIndex(null)}
       />
       <ShareModal
         open={isShareOpen}
