@@ -243,10 +243,10 @@ const PartyDetailPage = () => {
                 You won't be charged yet
               </p>
               <div className="mt-6 space-y-3 border-t border-border pt-5 text-sm">
-                <div className="flex justify-between">
+                {/* <div className="flex justify-between">
                   <span>Host rating</span>
                   <span className="font-semibold">4.9 / 5</span>
-                </div>
+                </div> */}
                 <div className="flex justify-between">
                   <span>Capacity</span>
                   <span className="font-semibold">

@@ -1,6 +1,7 @@
-import { HeartIcon, Star } from "lucide-react";
+import { HeartIcon } from "lucide-react";
 import type React from "react";
 import { displayPrice, formatPrice } from "../../lib/currency";
+import { formatPartyWhen } from "../../lib/partyTime";
 import type { TParty } from "../../types/parties";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
@@ -103,13 +104,19 @@ export const PartyListCard: React.FC<PartyListCardProps> = ({
               </span>
             </div>
             {/* Rating and Reviews */}
-            <div className="flex items-center gap-1">
+            {/* <div className="flex items-center gap-1">
               <Star className="h-2 w-2 fill-gray-500 text-gray-500" />
               <span className="text-foreground">
                 {(party?.rating || 1)?.toFixed(1)}
               </span>
-            </div>
+            </div> */}
           </div>
+
+          {party.start_date && (
+            <p className="text-left text-xs text-muted-foreground">
+              {formatPartyWhen(party)}
+            </p>
+          )}
 
           {/* Guests details */}
           {/* <p className="mt-1 text-xs text-muted-foreground">
