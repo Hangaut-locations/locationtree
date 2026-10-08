@@ -1,5 +1,5 @@
 import { next } from "@vercel/functions";
-import { linkPreview } from "./server/linkPreview.ts";
+import { linkPreview } from "./server/linkPreview.js";
 
 export const config = { matcher: ["/parties/:id", "/homes/:id"] };
 
