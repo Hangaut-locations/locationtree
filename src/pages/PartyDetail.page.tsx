@@ -17,6 +17,7 @@ import AppLayout from "../components/layout/AppLayout";
 import useAppContext from "../components/hooks/useAppContext";
 import HostCard from "../components/HostCard";
 import ListingRules from "../components/ListingRules";
+import ListingReviews from "../components/ListingReviews";
 import MobileBookingBar from "../components/MobileBookingBar";
 import PartyBookingForm from "../components/booking/PartyBookingForm";
 import ShareModal from "../components/ShareModal";
@@ -226,7 +227,7 @@ const PartyDetailPage = () => {
 
             <ListingRules title="Party rules" rules={data.party_rules} />
 
-            <div className="py-7">
+            <div className="border-b border-border py-7">
               <h2 className="text-xl font-semibold">Things to know</h2>
               <div className="mt-5 grid gap-4 text-sm text-muted-foreground sm:grid-cols-2">
                 <p className="flex gap-3">
@@ -243,6 +244,8 @@ const PartyDetailPage = () => {
                 </p>
               </div>
             </div>
+
+            <ListingReviews type="party" id={data._id} />
           </div>
 
           <aside id="book" className="scroll-mt-24 lg:relative">

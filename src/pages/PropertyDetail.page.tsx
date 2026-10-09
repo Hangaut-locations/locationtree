@@ -17,6 +17,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import AppLayout from "../components/layout/AppLayout";
 import HostCard from "../components/HostCard";
 import ListingRules from "../components/ListingRules";
+import ListingReviews from "../components/ListingReviews";
 import MobileBookingBar from "../components/MobileBookingBar";
 import PropertyBookingForm from "../components/booking/PropertyBookingForm";
 import ShareModal from "../components/ShareModal";
@@ -289,6 +290,8 @@ const PropertyDetailPage = () => {
             )}
 
             <ListingRules title="House rules" rules={data.property_rules} />
+
+            <ListingReviews type="property" id={data._id} />
           </div>
 
           <aside id="book" className="scroll-mt-24 lg:relative">
