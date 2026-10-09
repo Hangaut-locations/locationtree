@@ -1,14 +1,20 @@
 import { Calendar } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
+import type { Visibility } from "../../types/listing";
+import VisibilityChoice from "../VisibilityChoice";
 
 interface IStepFiveProps {
   bookingSetting: string;
   setBookingSetting: Dispatch<SetStateAction<any>>;
+  visibility: Visibility;
+  setVisibility: (value: Visibility) => void;
 }
 
 const StepEleven: React.FC<IStepFiveProps> = ({
   bookingSetting,
   setBookingSetting,
+  visibility,
+  setVisibility,
 }) => {
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
@@ -64,6 +70,12 @@ const StepEleven: React.FC<IStepFiveProps> = ({
             Guests book automatically without needing approval.
           </p>
         </button>
+
+        <VisibilityChoice
+          kind="property"
+          value={visibility}
+          onChange={setVisibility}
+        />
       </div>
     </div>
   );

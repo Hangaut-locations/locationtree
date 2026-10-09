@@ -6,6 +6,7 @@ interface HostListingRowProps {
   title: string;
   details: string;
   draft?: boolean;
+  isPrivate?: boolean;
   kind: "party" | "property";
   onView: () => void;
   onEdit: () => void;
@@ -20,6 +21,7 @@ const HostListingRow: React.FC<HostListingRowProps> = ({
   title,
   details,
   draft,
+  isPrivate,
   kind,
   onView,
   onEdit,
@@ -43,6 +45,14 @@ const HostListingRow: React.FC<HostListingRowProps> = ({
         {draft && (
           <span className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-800">
             Draft
+          </span>
+        )}
+        {isPrivate && (
+          <span
+            title="Hidden from search. Only people with the link can see it."
+            className="shrink-0 rounded-full bg-purple-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-purple-900"
+          >
+            Private
           </span>
         )}
       </div>

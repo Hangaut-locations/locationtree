@@ -35,6 +35,7 @@ const PartyListing: React.FC<IPartyListing> = ({ data }) => {
           image={listing.images?.[0]}
           title={listing.title}
           draft={listing.status === "draft"}
+          isPrivate={listing.visibility === "private"}
           details={[
             listing.location,
             `${listing.guest_capacity} guests`,

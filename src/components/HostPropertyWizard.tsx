@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getErrorMessage, type ApiError } from "../lib/errors";
-import type { IProperty, Listing } from "../types/listing";
+import type { IProperty, Listing, Visibility } from "../types/listing";
 import StepOne from "./host-property/StepOne";
 import StepTwo from "./host-property/StepTwo";
 import StepThree from "./host-property/StepThree";
@@ -68,6 +68,7 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
   const [bookingSetting, setBookingSetting] = useState<
     "approve-first" | "instant"
   >("approve-first");
+  const [visibility, setVisibility] = useState<Visibility>("public");
   const [basePrice, setBasePrice] = useState<number>(0);
   const [priceMode, setPriceMode] = useState<"person" | "hour">("person");
   const [amenities, setAmenities] = useState<Set<string>>(new Set());
@@ -88,6 +89,7 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
     setBookingSetting(
       propertyData.booking_setting === "instant" ? "instant" : "approve-first",
     );
+    setVisibility(propertyData.visibility === "private" ? "private" : "public");
     setBasePrice(priceForInput(Number(propertyData.price) || 0, currency));
     setPriceMode(propertyData.charge_type === "hour" ? "hour" : "person");
     setAmenities(new Set(propertyData.amenities ?? []));
@@ -145,6 +147,7 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
       property_type: category,
       space_type: spaceType,
       booking_setting: bookingSetting,
+      visibility,
       status,
     };
 
@@ -307,6 +310,8 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
             <StepEleven
               bookingSetting={bookingSetting}
               setBookingSetting={setBookingSetting}
+              visibility={visibility}
+              setVisibility={setVisibility}
             />
           )}
 

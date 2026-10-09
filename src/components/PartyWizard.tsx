@@ -1,5 +1,6 @@
 import {
   CalendarDays,
+  Eye,
   HelpCircle,
   MapPin,
   Minus,
@@ -26,6 +27,8 @@ import { formatPartyWhen, toDateInput } from "../lib/partyTime";
 import useRequireLogin from "./hooks/useRequireLogin";
 import useAppContext from "./hooks/useAppContext";
 import { priceForInput, priceToUSD, symbolFor } from "../lib/currency";
+import type { Visibility } from "../types/listing";
+import VisibilityChoice from "./VisibilityChoice";
 
 interface PartyWizardProps {
   // onAddListing: (listing: Listing) => void;
@@ -56,6 +59,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
   const [activities, setActivities] = useState<string>("");
   const [rules, setRules] = useState<string>("");
   const [is_ticket_sales, setIsTicketsales] = useState<boolean>(true);
+  const [visibility, setVisibility] = useState<Visibility>("public");
   const searchParams = new URLSearchParams(window.location.search);
   const partyId = searchParams.get("p");
   const queryClient = useQueryClient();
@@ -104,6 +108,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
       ...(startTime && { start_time: startTime }),
       ...(rules && { party_rules: rules.trim() }),
       is_ticket_sales,
+      visibility,
       ...(partyType && { party_type: partyType }),
       ...(photos.length > 0 && { images: photos }),
       status,
@@ -170,6 +175,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
       setPriceMode(partyData.charge_type ?? "person");
       setCapacity(Number(partyData.guest_capacity) || 10);
       setIsTicketsales(String(partyData.is_ticket_sales) !== "false");
+      setVisibility(partyData.visibility === "private" ? "private" : "public");
       setActivities(partyData.description ?? "");
       setRules(partyData.party_rules ?? "");
 
@@ -498,6 +504,12 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
                   ✓
                 </span>
               </button>
+
+              <VisibilityChoice
+                kind="party"
+                value={visibility}
+                onChange={setVisibility}
+              />
             </div>
           )}
 
@@ -564,6 +576,16 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
                   </span>
                   <span className="text-foreground">
                     {is_ticket_sales ? "Tickets required" : "Free RSVP"}
+                  </span>
+                </div>
+                <div className="flex justify-between text-xs font-semibold text-muted-foreground">
+                  <span className="flex items-center gap-1.5">
+                    <Eye className="h-3.5 w-3.5" /> Who can see it
+                  </span>
+                  <span className="text-foreground">
+                    {visibility === "private"
+                      ? "Private, link only"
+                      : "Public"}
                   </span>
                 </div>
               </div>
