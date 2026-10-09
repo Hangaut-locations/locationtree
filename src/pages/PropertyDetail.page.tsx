@@ -12,7 +12,7 @@ import {
   Users,
 } from "lucide-react";
 import { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import AppLayout from "../components/layout/AppLayout";
 import HostCard from "../components/HostCard";
@@ -21,17 +21,11 @@ import MobileBookingBar from "../components/MobileBookingBar";
 import PropertyBookingForm from "../components/booking/PropertyBookingForm";
 import ShareModal from "../components/ShareModal";
 import ImageViewer from "../components/ImageViewer";
-import useAuth from "../components/hooks/useAuth";
 import useAppContext from "../components/hooks/useAppContext";
+import useFavorite from "../components/hooks/useFavorite";
 import { adminCaller } from "../interceptors/http";
 import { displayPrice, formatPrice } from "../lib/currency";
 import { isPrivateError, linkKey, listingLink } from "../lib/privateLink";
-import {
-  favoritesQueryKey,
-  getFavorites,
-  isTargetFavorited,
-  removeFavoriteByTarget,
-} from "../lib/favorites";
 import type { IProperty } from "../types/listing";
 
 const SPACE_LABELS: Record<IProperty["space_type"], string> = {
@@ -46,11 +40,8 @@ const scrollToBooking = () =>
 const PropertyDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const qc = useQueryClient();
-  const { data: user } = useAuth();
-  const { setIsAuthModal, currency } = useAppContext();
+  const { currency } = useAppContext();
   const [activeImage, setActiveImage] = useState(0);
-  const [saving, setSaving] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [viewerIndex, setViewerIndex] = useState<number | null>(null);
 
@@ -65,36 +56,7 @@ const PropertyDetailPage = () => {
     retry: false,
   });
 
-  const { data: favorites = [] } = useQuery({
-    queryKey: favoritesQueryKey,
-    queryFn: getFavorites,
-    enabled: Boolean(user),
-    refetchOnWindowFocus: false,
-  });
-
-  const isSaved = Boolean(id) && isTargetFavorited(favorites, id as string);
-
-  const toggleSaved = () => {
-    if (!user) {
-      setIsAuthModal(true);
-      return;
-    }
-    if (!id) return;
-
-    setSaving(true);
-    const request = isSaved
-      ? removeFavoriteByTarget(id)
-      : adminCaller.post("/favorites", { targetId: id, targetType: "Property" });
-
-    request
-      .then(() =>
-        Promise.all([
-          qc.invalidateQueries({ queryKey: favoritesQueryKey }),
-          qc.invalidateQueries({ queryKey: ["properties-grouped-by-location"] }),
-        ]),
-      )
-      .finally(() => setSaving(false));
-  };
+  const { isSaved, saving, toggleSaved } = useFavorite("property", id);
 
   if (isLoading) {
     return (
@@ -337,6 +299,10 @@ const PropertyDetailPage = () => {
         open={viewerIndex !== null}
         startIndex={viewerIndex ?? 0}
         onClose={() => setViewerIndex(null)}
+        isSaved={isSaved}
+        saving={saving}
+        onToggleSaved={toggleSaved}
+        onShare={() => setIsShareOpen(true)}
       />
       <ShareModal
         open={isShareOpen}
