@@ -177,6 +177,12 @@ const PartyDetailPage = () => {
                 <span className="flex items-center gap-1">
                   <MapPin className="h-4 w-4" /> {data.location}
                 </span>
+                {data.party_type && (
+                  <>
+                    <span>·</span>
+                    <span>{data.party_type}</span>
+                  </>
+                )}
                 <span>·</span>
                 <span>{data.charge_type} booking</span>
               </div>
