@@ -13,6 +13,7 @@ import {
 import { displayPrice, formatPrice } from "../../lib/currency";
 import { getErrorMessage, type ApiError } from "../../lib/errors";
 import { formatPartyWhen, partyLengthInDays } from "../../lib/partyTime";
+import { linkKey } from "../../lib/privateLink";
 import type { TParty } from "../../types/parties";
 
 const fieldClass = "mt-1 w-full bg-transparent text-sm outline-none";
@@ -52,6 +53,7 @@ const PartyBookingForm = ({ party }: { party: TParty }) => {
         guests: choices.guests,
         hours: perHour ? choices.hours : undefined,
         days: perDay ? choices.days : undefined,
+        key: linkKey(),
       }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: tripsQueryKey });

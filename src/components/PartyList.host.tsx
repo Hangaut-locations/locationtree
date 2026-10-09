@@ -31,6 +31,8 @@ const PartyListing: React.FC<IPartyListing> = ({ data }) => {
       {data.map((listing) => (
         <HostListingRow
           key={listing._id}
+          id={listing._id}
+          privateKey={listing.private_key}
           kind="party"
           image={listing.images?.[0]}
           title={listing.title}

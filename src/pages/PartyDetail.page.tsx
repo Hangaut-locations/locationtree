@@ -24,6 +24,7 @@ import ImageViewer from "../components/ImageViewer";
 import { adminCaller } from "../interceptors/http";
 import { displayPrice, formatPrice } from "../lib/currency";
 import { formatPartyWhen } from "../lib/partyTime";
+import { isPrivateError, linkKey, listingLink } from "../lib/privateLink";
 import type { TParty } from "../types/parties";
 
 const scrollToBooking = () =>
@@ -38,13 +39,17 @@ const PartyDetailPage = () => {
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [viewerIndex, setViewerIndex] = useState<number | null>(null);
 
-  const { data, isLoading, isError } = useQuery<TParty>({
-    queryKey: ["party", id],
+  const key = linkKey();
+  const { data, isLoading, isError, error } = useQuery<TParty>({
+    queryKey: ["party", id, key],
     enabled: Boolean(id),
+    retry: (count, err) => !isPrivateError(err) && count < 3,
     queryFn: () =>
-      adminCaller.get(`/parties/${id}`).then((response) => {
-        return response.data?.data ?? response.data;
-      }),
+      adminCaller
+        .get(`/parties/${id}`, { params: { key } })
+        .then((response) => {
+          return response.data?.data ?? response.data;
+        }),
   });
 
   if (isLoading) {
@@ -63,9 +68,15 @@ const PartyDetailPage = () => {
     return (
       <AppLayout>
         <div className="mx-auto flex min-h-[60vh] max-w-6xl flex-col items-center justify-center px-5 text-center">
-          <h1 className="text-2xl font-semibold">This party is unavailable</h1>
+          <h1 className="text-2xl font-semibold">
+            {isPrivateError(error)
+              ? "This party is private"
+              : "This party is unavailable"}
+          </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            We could not load the details for this listing.
+            {isPrivateError(error)
+              ? "Only people with the host's link can see it. Ask the host to send you the link."
+              : "We could not load the details for this listing."}
           </p>
           <button
             type="button"
@@ -284,6 +295,7 @@ const PartyDetailPage = () => {
         title={data.title}
         image={images[0]}
         details={[formatPartyWhen(data), data.location].filter(Boolean).join(" · ")}
+        url={listingLink("party", data._id, data.private_key ?? key)}
       />
     </AppLayout>
   );

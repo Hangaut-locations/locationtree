@@ -3,6 +3,7 @@ import { Check, Copy, Mail, MessageSquare, Share } from "lucide-react";
 import { FaFacebook, FaTelegram, FaWhatsapp, FaXTwitter } from "react-icons/fa6";
 import { toast } from "react-hot-toast";
 import { Dialog, DialogContent, DialogTitle } from "../../components/ui/dialog";
+import { copyText } from "../lib/clipboard";
 
 type ShareModalProps = {
   open: boolean;
@@ -11,26 +12,11 @@ type ShareModalProps = {
   title: string;
   image?: string;
   details?: string;
+  url?: string;
 };
 
-const copyText = async (text: string, container: HTMLElement) => {
-  try {
-    await navigator.clipboard.writeText(text);
-  } catch {
-    // clipboard api only works on https / localhost. the textarea has to sit inside the popup or focusing it closes the popup
-    const input = document.createElement("textarea");
-    input.value = text;
-    input.className = "sr-only";
-    container.appendChild(input);
-    input.select();
-    document.execCommand("copy");
-    input.remove();
-  }
-};
-
-const ShareModal = ({ open, onClose, kind, title, image, details }: ShareModalProps) => {
+const ShareModal = ({ open, onClose, kind, title, image, details, url = window.location.href }: ShareModalProps) => {
   const [copied, setCopied] = useState(false);
-  const url = window.location.href;
   const message =
     kind === "party" ? `Join me at ${title} on Hangaut` : `Check out ${title} on Hangaut`;
   const text = encodeURIComponent(message);

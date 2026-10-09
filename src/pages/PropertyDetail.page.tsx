@@ -25,6 +25,7 @@ import useAuth from "../components/hooks/useAuth";
 import useAppContext from "../components/hooks/useAppContext";
 import { adminCaller } from "../interceptors/http";
 import { displayPrice, formatPrice } from "../lib/currency";
+import { isPrivateError, linkKey, listingLink } from "../lib/privateLink";
 import {
   favoritesQueryKey,
   getFavorites,
@@ -53,11 +54,14 @@ const PropertyDetailPage = () => {
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [viewerIndex, setViewerIndex] = useState<number | null>(null);
 
-  const { data, isLoading, isError } = useQuery<IProperty>({
-    queryKey: ["property", id],
+  const key = linkKey();
+  const { data, isLoading, isError, error } = useQuery<IProperty>({
+    queryKey: ["property", id, key],
     enabled: Boolean(id),
     queryFn: () =>
-      adminCaller.get(`/property/${id}`).then((response) => response.data?.data),
+      adminCaller
+        .get(`/property/${id}`, { params: { key } })
+        .then((response) => response.data?.data),
     retry: false,
   });
 
@@ -108,9 +112,15 @@ const PropertyDetailPage = () => {
     return (
       <AppLayout>
         <div className="mx-auto flex min-h-[60vh] max-w-6xl flex-col items-center justify-center px-5 text-center">
-          <h1 className="text-2xl font-semibold">This home is unavailable</h1>
+          <h1 className="text-2xl font-semibold">
+            {isPrivateError(error)
+              ? "This home is private"
+              : "This home is unavailable"}
+          </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            It may have been removed by the host.
+            {isPrivateError(error)
+              ? "Only people with the host's link can see it. Ask the host to send you the link."
+              : "It may have been removed by the host."}
           </p>
           <button
             type="button"
@@ -335,6 +345,7 @@ const PropertyDetailPage = () => {
         title={data.title}
         image={images[0]}
         details={[SPACE_LABELS[data.space_type], data.location].filter(Boolean).join(" · ")}
+        url={listingLink("property", data._id, data.private_key ?? key)}
       />
     </AppLayout>
   );
