@@ -80,6 +80,8 @@ export interface Booking {
   total: number;
 }
 
+export type Visibility = "public" | "private";
+
 export interface IParty {
   _id: string;
   ownerId: string;
@@ -98,6 +100,7 @@ export interface IParty {
   end_date: Date;
   start_time?: string;
   status?: "draft" | "published";
+  visibility?: Visibility;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -111,6 +114,7 @@ export interface IProperty {
   images: string[];
   amenities: string[];
   status: "draft" | "published";
+  visibility?: Visibility;
   space_type: "entire" | "room" | "shared";
   property_type: string;
   booking_setting: "approve-first" | "instant";

@@ -34,6 +34,7 @@ const PropertyListing: React.FC<IPropertyListing> = ({ data }) => {
           image={property.images?.[0]}
           title={property.title}
           draft={property.status === "draft"}
+          isPrivate={property.visibility === "private"}
           details={`${property.location} · ${property.guest_capacity} guests · ${formatPrice(displayPrice(Number(property.price), currency), currency)} / ${property.charge_type}`}
           onView={() => navigate(`/homes/${property._id}`)}
           onEdit={() => navigate(`/become-a-host/property?p=${property._id}`)}

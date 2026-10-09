@@ -1,4 +1,4 @@
-import type { ListingHost } from "./listing";
+import type { ListingHost, Visibility } from "./listing";
 
 export type TParty = {
   _id: string;
@@ -19,6 +19,7 @@ export type TParty = {
   end_date: Date;
   start_time?: string;
   status?: "published" | "draft";
+  visibility?: Visibility;
   published_at?: Date;
   createdAt: Date;
   updatedAt: Date;
