@@ -28,6 +28,19 @@ export const formatPartyWhen = (party: {
   return party.start_time ? `${days} · starts ${formatStartTime(party.start_time)}` : days;
 };
 
+/** Start and end date both count, so a one-day party is 1. Same rule as the API. */
+export const partyLengthInDays = (
+  startDate?: Date | string,
+  endDate?: Date | string,
+) => {
+  if (!startDate || !endDate) return 1;
+  const days =
+    Math.round(
+      (new Date(endDate).getTime() - new Date(startDate).getTime()) / 86_400_000,
+    ) + 1;
+  return Math.max(days, 1);
+};
+
 /** API date -> "YYYY-MM-DD" for date inputs. */
 export const toDateInput = (date?: Date | string) =>
   date ? new Date(date).toISOString().slice(0, 10) : "";
