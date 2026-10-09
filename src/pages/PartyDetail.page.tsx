@@ -100,7 +100,7 @@ const PartyDetailPage = () => {
 
   return (
     <AppLayout>
-      <main className="mx-auto max-w-6xl px-5 pb-28 pt-6 md:px-8 md:pt-8 lg:pb-16">
+      <main className="mx-auto max-w-6xl px-5 pb-10 pt-6 md:px-8 md:pt-8 lg:pb-16">
         <div className="mb-7 flex items-center justify-between">
           <button
             type="button"
