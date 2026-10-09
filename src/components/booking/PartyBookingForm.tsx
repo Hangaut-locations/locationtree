@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import useAuth from "../hooks/useAuth";
 import useAppContext from "../hooks/useAppContext";
+import CountInput from "../CountInput";
 import {
   bookParty,
   savePendingBooking,
@@ -21,9 +22,6 @@ const labelClass =
   "block text-[10px] font-bold uppercase tracking-wider text-muted-foreground";
 
 type Choices = { guests: number; hours: number; days?: number };
-
-const clamp = (value: number, min: number, max: number) =>
-  Math.min(max, Math.max(min, Math.round(value) || min));
 
 const PartyBookingForm = ({ party }: { party: TParty }) => {
   const navigate = useNavigate();
@@ -97,26 +95,22 @@ const PartyBookingForm = ({ party }: { party: TParty }) => {
           className={`p-3 ${perHour || perDay ? "border-r border-border" : "col-span-2"}`}
         >
           <span className={labelClass}>Guests</span>
-          <input
-            type="number"
+          <CountInput
             min={1}
             max={capacity}
             value={guests}
-            onChange={(e) =>
-              setGuests(clamp(Number(e.target.value), 1, capacity))
-            }
+            onChange={setGuests}
             className={fieldClass}
           />
         </label>
         {perHour && (
           <label className="p-3">
             <span className={labelClass}>Hours</span>
-            <input
-              type="number"
+            <CountInput
               min={1}
               max={24}
               value={hours}
-              onChange={(e) => setHours(clamp(Number(e.target.value), 1, 24))}
+              onChange={setHours}
               className={fieldClass}
             />
           </label>
@@ -124,14 +118,11 @@ const PartyBookingForm = ({ party }: { party: TParty }) => {
         {perDay && (
           <label className="p-3">
             <span className={labelClass}>Days</span>
-            <input
-              type="number"
+            <CountInput
               min={1}
               max={partyDays}
               value={days}
-              onChange={(e) =>
-                setDays(clamp(Number(e.target.value), 1, partyDays))
-              }
+              onChange={setDays}
               className={fieldClass}
             />
           </label>

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import useAuth from "../hooks/useAuth";
 import useAppContext from "../hooks/useAppContext";
+import CountInput from "../CountInput";
 import {
   bookProperty,
   formatClockRange,
@@ -27,9 +28,6 @@ const labelClass =
   "block text-[10px] font-bold uppercase tracking-wider text-muted-foreground";
 
 type Choices = { date: string; startTime: string; hours: number; guests: number };
-
-const clamp = (value: number, min: number, max: number) =>
-  Math.min(max, Math.max(min, Math.round(value) || min));
 
 const PropertyBookingForm = ({ property }: { property: IProperty }) => {
   const navigate = useNavigate();
@@ -140,25 +138,21 @@ const PropertyBookingForm = ({ property }: { property: IProperty }) => {
         </label>
         <label className="border-r border-border p-3">
           <span className={labelClass}>Hours</span>
-          <input
-            type="number"
+          <CountInput
             min={1}
             max={24}
             value={hours}
-            onChange={(e) => setHours(clamp(Number(e.target.value), 1, 24))}
+            onChange={setHours}
             className={fieldClass}
           />
         </label>
         <label className="p-3">
           <span className={labelClass}>Guests</span>
-          <input
-            type="number"
+          <CountInput
             min={1}
             max={capacity}
             value={guests}
-            onChange={(e) =>
-              setGuests(clamp(Number(e.target.value), 1, capacity))
-            }
+            onChange={setGuests}
             className={fieldClass}
           />
         </label>
