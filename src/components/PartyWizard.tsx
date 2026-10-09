@@ -24,6 +24,8 @@ import type { TParty } from "../types/parties";
 import { getErrorMessage, type ApiError } from "../lib/errors";
 import { formatPartyWhen, toDateInput } from "../lib/partyTime";
 import useRequireLogin from "./hooks/useRequireLogin";
+import useAppContext from "./hooks/useAppContext";
+import { priceForInput, priceToUSD, symbolFor } from "../lib/currency";
 
 interface PartyWizardProps {
   // onAddListing: (listing: Listing) => void;
@@ -35,6 +37,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
   useRequireLogin("/become-a-host");
   const [step, setStep] = useState<WizardStep>(1);
   const navigate = useNavigate();
+  const { currency } = useAppContext();
 
   const [loading, setLoading] = useState(false);
   const [ddrafting, setDrafting] = useState(false);
@@ -46,7 +49,9 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
   const [location, setLocation] = useState<string>("");
   const [capacity, setCapacity] = useState<number>(10);
   const [priceMode, setPriceMode] = useState<"person" | "hour">("person");
-  const [price, setPrice] = useState<number>(50);
+  const [price, setPrice] = useState<number>(() =>
+    priceForInput(50, currency),
+  );
   const [title, setTitle] = useState<string>("");
   const [activities, setActivities] = useState<string>("");
   const [rules, setRules] = useState<string>("");
@@ -92,7 +97,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
       beds: 1,
       bathrooms: 1,
       ...(capacity && { guest_capacity: capacity }),
-      ...(price && { price }),
+      ...(price && { price: priceToUSD(price, currency) }),
       ...(priceMode && { charge_type: priceMode }),
       ...(startDate && { start_date: startDate }),
       ...(endDate && { end_date: endDate }),
@@ -161,7 +166,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
       setPartyType(partyData.party_type ?? "");
       setLocation(partyData.location ?? "");
       setPhotos(partyData.images ?? []);
-      setPrice(Number(partyData.price) || 0);
+      setPrice(priceForInput(Number(partyData.price) || 0, currency));
       setPriceMode(partyData.charge_type ?? "person");
       setCapacity(Number(partyData.guest_capacity) || 10);
       setIsTicketsales(String(partyData.is_ticket_sales) !== "false");
@@ -371,14 +376,15 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
 
               <div className="flex items-center justify-center gap-3 max-w-md mx-auto">
                 <span className="text-5xl font-semibold text-foreground">
-                  $
+                  {symbolFor(currency)}
                 </span>
                 <input
                   type="number"
                   min={1}
                   value={price}
                   onChange={(e) => setPrice(Number(e.target.value) || 0)}
-                  className="w-32 border-r border-border/60 bg-transparent text-center text-5xl font-semibold text-foreground outline-none"
+                  style={{ width: `${Math.max(String(price).length, 2) + 1}ch` }}
+                  className="max-w-full border-r border-border/60 bg-transparent text-center text-5xl font-semibold text-foreground outline-none"
                 />
                 <span className="text-sm font-semibold text-muted-foreground">
                   / {priceMode}
@@ -518,14 +524,15 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
 
               <div className="flex items-center justify-center gap-3">
                 <span className="text-6xl sm:text-7xl font-semibold text-foreground">
-                  $
+                  {symbolFor(currency)}
                 </span>
                 <input
                   type="number"
                   min={1}
                   value={price}
                   onChange={(e) => setPrice(Number(e.target.value) || 0)}
-                  className="w-40 border-r border-border/60 bg-transparent text-center text-6xl sm:text-7xl font-semibold text-foreground outline-none"
+                  style={{ width: `${Math.max(String(price).length, 2) + 1}ch` }}
+                  className="max-w-full border-r border-border/60 bg-transparent text-center text-6xl sm:text-7xl font-semibold text-foreground outline-none"
                 />
               </div>
               <p className="text-sm font-semibold text-muted-foreground">

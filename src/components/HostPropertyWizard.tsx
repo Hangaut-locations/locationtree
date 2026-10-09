@@ -21,6 +21,8 @@ import { adminCaller, formClient } from "../interceptors/http";
 import toast from "react-hot-toast";
 import PartyTypeSkeleton from "./parties/CreatePartySkeleton";
 import useRequireLogin from "./hooks/useRequireLogin";
+import useAppContext from "./hooks/useAppContext";
+import { priceForInput, priceToUSD } from "../lib/currency";
 
 interface HostPropertyWizardProps {
   onAddListing?: (newListing: Listing) => void;
@@ -34,6 +36,7 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { currency } = useAppContext();
   const [searchParams] = useSearchParams();
   const propertyId = searchParams.get("p");
 
@@ -85,7 +88,7 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
     setBookingSetting(
       propertyData.booking_setting === "instant" ? "instant" : "approve-first",
     );
-    setBasePrice(Number(propertyData.price) || 0);
+    setBasePrice(priceForInput(Number(propertyData.price) || 0, currency));
     setPriceMode(propertyData.charge_type === "hour" ? "hour" : "person");
     setAmenities(new Set(propertyData.amenities ?? []));
 
@@ -136,7 +139,7 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
       beds,
       bathrooms,
       guest_capacity: guests,
-      price: basePrice,
+      price: priceToUSD(basePrice, currency),
       charge_type: priceMode,
       amenities: Array.from(amenities),
       property_type: category,

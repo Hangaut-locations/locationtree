@@ -75,6 +75,23 @@ export function displayPrice(amountUSD: number, to: CurrencyCode): number {
   return convertNow(amountUSD, "USD", to)
 }
 
+/** Rounds to what the currency shows (whole naira, cents for the rest). */
+export function roundFor(amount: number, currency: CurrencyCode): number {
+  const factor = currency === "NGN" ? 1 : 100
+  return Math.round(amount * factor) / factor
+}
+
+/** Stored USD price shown in the host's currency, for the listing forms. */
+export function priceForInput(amountUSD: number, currency: CurrencyCode): number {
+  return roundFor(displayPrice(amountUSD, currency), currency)
+}
+
+/** What the host typed in their currency, back to USD for saving. Kept to 4
+ * decimals so the same amount shows again when the listing is edited. */
+export function priceToUSD(amount: number, from: CurrencyCode): number {
+  return Math.round(convertNow(amount, from, "USD") * 10000) / 10000
+}
+
 export function formatPrice(amount: number, currency: CurrencyCode): string {
   const symbol = symbolFor(currency)
   const digits = currency === "NGN" ? 0 : 2
