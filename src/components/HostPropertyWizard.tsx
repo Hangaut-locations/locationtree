@@ -166,6 +166,9 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
               ? "Property updated successfully"
               : "Property published successfully",
         );
+        if (status === "published" && visibility === "private") {
+          toast("Use the link button in My listings to copy the private link for your guests.");
+        }
         navigate("/host?p=listings");
       })
       .catch((err: ApiError) => {

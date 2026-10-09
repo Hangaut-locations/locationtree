@@ -66,8 +66,12 @@ export const getPreview = async (
   const id = route && url.pathname.match(route.pattern)?.[1];
   if (!route || !id) return null;
 
+  // private listings only load with the key from the host's link
+  const key = url.searchParams.get("key");
+  const query = key ? `?key=${encodeURIComponent(key)}` : "";
+
   // the api can be slow to wake up, bots give up after a few seconds anyway
-  const res = await fetch(`${apiBase}/${route.endpoint}/${id}`, {
+  const res = await fetch(`${apiBase}/${route.endpoint}/${id}${query}`, {
     signal: AbortSignal.timeout(4000),
   });
   if (!res.ok) return null;

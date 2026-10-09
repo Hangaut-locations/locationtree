@@ -101,6 +101,7 @@ export interface IParty {
   start_time?: string;
   status?: "draft" | "published";
   visibility?: Visibility;
+  private_key?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -115,6 +116,7 @@ export interface IProperty {
   amenities: string[];
   status: "draft" | "published";
   visibility?: Visibility;
+  private_key?: string;
   space_type: "entire" | "room" | "shared";
   property_type: string;
   booking_setting: "approve-first" | "instant";
