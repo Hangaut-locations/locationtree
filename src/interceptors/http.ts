@@ -2,6 +2,8 @@
 
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import { renewTokenIfNeeded } from "../lib/tokenRenew";
+import { SESSION_ENDED_EVENT } from "../lib/session";
 
 export const axiosClient = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,
@@ -26,6 +28,7 @@ export const adminCaller = axios.create({
 
 adminCaller.interceptors.request.use(
   async (config) => {
+    await renewTokenIfNeeded();
     const token = sessionStorage.getItem("user_token");
 
     if (token) {
@@ -49,16 +52,7 @@ adminCaller.interceptors.request.use(
     return Promise.reject(err);
   },
 );
-let isRefreshing = false;
-let failedQueue: any[] = [];
-
-const processQueue = (error: any, token: string | null = null) => {
-  failedQueue.forEach((prom) => {
-    if (error) prom.reject(error);
-    else prom.resolve(token);
-  });
-  failedQueue = [];
-};
+let expiredNoticeShown = false;
 
 adminCaller.interceptors.response.use(
   (response) => response,
@@ -85,47 +79,19 @@ adminCaller.interceptors.response.use(
       //   return Promise.reject(error);
       // }
 
-      if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        })
-          .then((token) => {
-            originalRequest.headers.Authorization = `Bearer ${token}`;
-            return adminCaller(originalRequest);
-          })
-          .catch((err) => Promise.reject(err));
-      }
-
-      isRefreshing = true;
-
-      try {
-        const res = await axiosClient.post(
-          `${import.meta.env.VITE_BASE_URL}/auth/refreshToken`,
-          {
-            // refreshToken,
-            accessToken: sessionStorage.getItem("user_token"),
-          },
-        );
-
-        const newToken = res.data?.data?.accessToken;
-
-        sessionStorage.setItem("user_token", newToken);
-
-        processQueue(null, newToken);
-
-        originalRequest.headers.Authorization = `Bearer ${newToken}`;
-
-        return adminCaller(originalRequest);
-      } catch (refreshError) {
-        processQueue(refreshError, null);
-
-        sessionStorage.clear();
+      // token was sent but the api rejected it (expired), so they're logged out now
+      if (originalRequest.headers?.Authorization) {
+        sessionStorage.removeItem("user_token");
+        sessionStorage.removeItem("hangaut_user");
+        window.dispatchEvent(new Event(SESSION_ENDED_EVENT));
+        if (!expiredNoticeShown) {
+          expiredNoticeShown = true;
+          toast.error("Your login expired, please log in again");
+        }
         // window.location.href = `/login?redirect=${currentLocation}`;
-
-        return Promise.reject(refreshError);
-      } finally {
-        isRefreshing = false;
       }
+
+      return Promise.reject(error);
     }
 
     if (status === 500) {
@@ -138,6 +104,7 @@ adminCaller.interceptors.response.use(
 
 formClient.interceptors.request.use(
   async (config) => {
+    await renewTokenIfNeeded();
     const token = sessionStorage.getItem("user_token");
 
     if (token) {
