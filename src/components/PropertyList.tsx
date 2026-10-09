@@ -30,6 +30,8 @@ const PropertyListing: React.FC<IPropertyListing> = ({ data }) => {
       {data.map((property) => (
         <HostListingRow
           key={property._id}
+          id={property._id}
+          privateKey={property.private_key}
           kind="property"
           image={property.images?.[0]}
           title={property.title}

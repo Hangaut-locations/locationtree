@@ -33,6 +33,7 @@ export const bookParty = (data: {
   guests: number;
   hours?: number;
   days?: number;
+  key?: string;
 }) =>
   adminCaller
     .post<PartyBooking>("/bookings/parties", data)
@@ -44,6 +45,7 @@ export const bookProperty = (data: {
   start_time: string;
   hours: number;
   guests: number;
+  key?: string;
 }) =>
   adminCaller
     .post<PropertyBooking>("/bookings/properties", data)

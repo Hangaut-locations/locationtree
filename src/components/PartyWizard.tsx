@@ -152,6 +152,9 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
               ? "Party updated successfully"
               : "Party published successfully",
         );
+        if (status === "published" && visibility === "private") {
+          toast("Use the link button in My listings to copy the private link for your guests.");
+        }
         queryClient.invalidateQueries({ queryKey: ["party"] });
         queryClient.invalidateQueries({ queryKey: ["my-parties"] });
         queryClient.invalidateQueries({

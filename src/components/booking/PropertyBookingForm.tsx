@@ -18,6 +18,7 @@ import {
 } from "../../lib/bookings";
 import { displayPrice, formatPrice } from "../../lib/currency";
 import { getErrorMessage, type ApiError } from "../../lib/errors";
+import { linkKey } from "../../lib/privateLink";
 import type { IProperty } from "../../types/listing";
 
 const HOUR_MS = 60 * 60 * 1000;
@@ -75,6 +76,7 @@ const PropertyBookingForm = ({ property }: { property: IProperty }) => {
         start_time: choices.startTime,
         hours: choices.hours,
         guests: choices.guests,
+        key: linkKey(),
       }),
     onSuccess: (booking) => {
       qc.invalidateQueries({ queryKey: tripsQueryKey });

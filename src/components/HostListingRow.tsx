@@ -1,7 +1,10 @@
 import { EyeIcon, Pencil, Trash2 } from "lucide-react";
 import type React from "react";
+import PrivateLinkButtons from "./PrivateLinkButtons";
 
 interface HostListingRowProps {
+  id: string;
+  privateKey?: string;
   image?: string;
   title: string;
   details: string;
@@ -17,6 +20,8 @@ const actionClass =
   "flex h-9 items-center justify-center gap-1.5 rounded-full border border-border px-3 text-xs font-semibold transition-colors cursor-pointer sm:h-8 sm:w-8 sm:px-0";
 
 const HostListingRow: React.FC<HostListingRowProps> = ({
+  id,
+  privateKey,
   image,
   title,
   details,
@@ -60,7 +65,15 @@ const HostListingRow: React.FC<HostListingRowProps> = ({
         {draft ? "Not published yet. Pick up where you left off." : details}
       </p>
     </div>
-    <div className="flex w-full justify-end gap-2 border-t border-border pt-3 sm:w-auto sm:border-0 sm:pt-0">
+    <div className="flex w-full flex-wrap justify-end gap-2 border-t border-border pt-3 sm:w-auto sm:flex-nowrap sm:border-0 sm:pt-0">
+      {isPrivate && !draft && (
+        <PrivateLinkButtons
+          kind={kind}
+          id={id}
+          privateKey={privateKey}
+          className={actionClass}
+        />
+      )}
       <button
         type="button"
         title={`View ${kind}`}
