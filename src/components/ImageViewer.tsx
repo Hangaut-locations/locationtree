@@ -1,5 +1,5 @@
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Heart, Share2, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 interface IImageViewer {
@@ -8,10 +8,17 @@ interface IImageViewer {
   open: boolean;
   startIndex: number;
   onClose: () => void;
+  isSaved?: boolean;
+  saving?: boolean;
+  onToggleSaved?: () => void;
+  onShare?: () => void;
 }
 
 const arrowClass =
   "absolute top-1/2 hidden -translate-y-1/2 items-center justify-center rounded-full bg-white/15 p-3 text-white transition-colors hover:bg-white/25 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer sm:flex";
+
+const topButtonClass =
+  "rounded-full p-2 transition-colors hover:bg-white/10 disabled:opacity-50 cursor-pointer";
 
 const ImageViewer = ({
   images,
@@ -19,9 +26,24 @@ const ImageViewer = ({
   open,
   startIndex,
   onClose,
+  isSaved = false,
+  saving = false,
+  onToggleSaved,
+  onShare,
 }: IImageViewer) => {
   const trackRef = useRef<HTMLDivElement | null>(null);
+  const thumbsRef = useRef<HTMLDivElement | null>(null);
   const [current, setCurrent] = useState(startIndex);
+
+  useEffect(() => {
+    const strip = thumbsRef.current;
+    const thumb = strip?.children[current] as HTMLElement | undefined;
+    if (!strip || !thumb) return;
+    strip.scrollTo({
+      left: thumb.offsetLeft - (strip.clientWidth - thumb.clientWidth) / 2,
+      behavior: "smooth",
+    });
+  }, [current]);
 
   const setTrack = useCallback(
     (node: HTMLDivElement | null) => {
@@ -72,12 +94,38 @@ const ImageViewer = ({
             <span className="text-sm font-semibold">
               {current + 1} / {images.length}
             </span>
-            <DialogPrimitive.Close
-              className="rounded-full p-2 transition-colors hover:bg-white/10 cursor-pointer"
-              aria-label="Close photos"
-            >
-              <X className="h-6 w-6" />
-            </DialogPrimitive.Close>
+            <div className="flex items-center gap-1">
+              {onShare && (
+                <button
+                  type="button"
+                  onClick={onShare}
+                  className={topButtonClass}
+                  aria-label="Share"
+                >
+                  <Share2 className="h-5 w-5" />
+                </button>
+              )}
+              {onToggleSaved && (
+                <button
+                  type="button"
+                  onClick={onToggleSaved}
+                  disabled={saving}
+                  className={topButtonClass}
+                  aria-label={isSaved ? "Remove from favorites" : "Save to favorites"}
+                  aria-pressed={isSaved}
+                >
+                  <Heart
+                    className={`h-5 w-5 ${isSaved ? "fill-red-500 text-red-500" : ""}`}
+                  />
+                </button>
+              )}
+              <DialogPrimitive.Close
+                className={topButtonClass}
+                aria-label="Close photos"
+              >
+                <X className="h-6 w-6" />
+              </DialogPrimitive.Close>
+            </div>
           </div>
 
           <div className="relative min-h-0 flex-1">
@@ -123,23 +171,38 @@ const ImageViewer = ({
                 </button>
               </>
             )}
-          </div>
 
-          {images.length > 1 && (
-            <div className="flex flex-wrap justify-center gap-2 px-4 py-5">
+            {images.length > 1 && (
+              <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/80 to-transparent pt-10">
+                <div
+                  ref={thumbsRef}
+                  className="flex gap-2 overflow-x-auto px-4 pb-4 pt-1 [scrollbar-width:none] sm:justify-center [&::-webkit-scrollbar]:hidden"
+                >
               {images.map((src, index) => (
                 <button
                   type="button"
-                  key={`${src}-dot-${index}`}
+                  key={`${src}-thumb-${index}`}
                   onClick={() => goTo(index)}
-                  className={`h-2 rounded-full transition-[width,background-color] duration-200 cursor-pointer ${
-                    index === current ? "w-6 bg-white" : "w-2 bg-white/40"
+                  className={`h-14 w-20 shrink-0 overflow-hidden rounded-lg transition-[opacity,box-shadow] duration-200 cursor-pointer sm:h-16 sm:w-24 ${
+                    index === current
+                      ? "opacity-100 ring-2 ring-white"
+                      : "opacity-50 hover:opacity-80"
                   }`}
                   aria-label={`Go to photo ${index + 1}`}
-                />
+                  aria-current={index === current ? "true" : undefined}
+                >
+                  <img
+                    src={src}
+                    alt=""
+                    draggable={false}
+                    className="h-full w-full object-cover"
+                  />
+                </button>
               ))}
-            </div>
-          )}
+                </div>
+              </div>
+            )}
+          </div>
         </DialogPrimitive.Popup>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>

@@ -15,8 +15,10 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import AppLayout from "../components/layout/AppLayout";
 import useAppContext from "../components/hooks/useAppContext";
+import useFavorite from "../components/hooks/useFavorite";
 import HostCard from "../components/HostCard";
 import ListingRules from "../components/ListingRules";
+import ListingReviews from "../components/ListingReviews";
 import MobileBookingBar from "../components/MobileBookingBar";
 import PartyBookingForm from "../components/booking/PartyBookingForm";
 import ShareModal from "../components/ShareModal";
@@ -35,7 +37,7 @@ const PartyDetailPage = () => {
   const navigate = useNavigate();
   const { currency } = useAppContext();
   const [activeImage, setActiveImage] = useState(0);
-  const [isSaved, setIsSaved] = useState(false);
+  const { isSaved, saving, toggleSaved } = useFavorite("party", id);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [viewerIndex, setViewerIndex] = useState<number | null>(null);
 
@@ -120,7 +122,8 @@ const PartyDetailPage = () => {
             </button>
             <button
               type="button"
-              onClick={() => setIsSaved((saved) => !saved)}
+              onClick={toggleSaved}
+              disabled={saving}
               className="flex items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold hover:bg-muted"
             >
               <Heart
@@ -226,7 +229,7 @@ const PartyDetailPage = () => {
 
             <ListingRules title="Party rules" rules={data.party_rules} />
 
-            <div className="py-7">
+            <div className="border-b border-border py-7">
               <h2 className="text-xl font-semibold">Things to know</h2>
               <div className="mt-5 grid gap-4 text-sm text-muted-foreground sm:grid-cols-2">
                 <p className="flex gap-3">
@@ -243,6 +246,8 @@ const PartyDetailPage = () => {
                 </p>
               </div>
             </div>
+
+            <ListingReviews type="party" id={data._id} />
           </div>
 
           <aside id="book" className="scroll-mt-24 lg:relative">
@@ -287,6 +292,10 @@ const PartyDetailPage = () => {
         open={viewerIndex !== null}
         startIndex={viewerIndex ?? 0}
         onClose={() => setViewerIndex(null)}
+        isSaved={isSaved}
+        saving={saving}
+        onToggleSaved={toggleSaved}
+        onShare={() => setIsShareOpen(true)}
       />
       <ShareModal
         open={isShareOpen}
