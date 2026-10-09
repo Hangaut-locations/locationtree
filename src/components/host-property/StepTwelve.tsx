@@ -1,4 +1,6 @@
 import type { Dispatch, SetStateAction } from "react";
+import useAppContext from "../hooks/useAppContext";
+import { formatPrice, priceForInput, symbolFor } from "../../lib/currency";
 
 type TMode = "person" | "hour";
 
@@ -15,6 +17,8 @@ const StepTwelve: React.FC<IStepProps> = ({
   priceMode,
   setPriceMode,
 }) => {
+  const { currency } = useAppContext();
+
   return (
     <div className="space-y-8 text-center animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
       <div className="space-y-1.5">
@@ -24,20 +28,24 @@ const StepTwelve: React.FC<IStepProps> = ({
           Set your base price for the spot
         </h2>
         <p className="text-xs text-muted-foreground">
-          For example <span className="font-semibold text-foreground">$75</span>
+          For example{" "}
+          <span className="font-semibold text-foreground">
+            {formatPrice(priceForInput(75, currency), currency)}
+          </span>
         </p>
       </div>
 
       <div className="flex items-center justify-center gap-3">
         <span className="text-6xl sm:text-7xl font-bold text-foreground">
-          $
+          {symbolFor(currency)}
         </span>
         <input
           type="number"
           min={1}
           value={basePrice}
           onChange={(e) => setBasePrice(Number(e.target.value) || 0)}
-          className="w-40 border-r border-border/60 bg-transparent text-center text-6xl sm:text-7xl font-bold text-foreground outline-none"
+          style={{ width: `${Math.max(String(basePrice).length, 2) + 1}ch` }}
+          className="max-w-full border-r border-border/60 bg-transparent text-center text-6xl sm:text-7xl font-bold text-foreground outline-none"
         />
       </div>
 
