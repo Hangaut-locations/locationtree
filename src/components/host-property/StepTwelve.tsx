@@ -1,6 +1,7 @@
 import type { Dispatch, SetStateAction } from "react";
 import useAppContext from "../hooks/useAppContext";
 import { formatPrice, priceForInput, symbolFor } from "../../lib/currency";
+import PriceInput from "../PriceInput";
 
 type TMode = "person" | "hour";
 
@@ -39,13 +40,10 @@ const StepTwelve: React.FC<IStepProps> = ({
         <span className="text-6xl sm:text-7xl font-bold text-foreground">
           {symbolFor(currency)}
         </span>
-        <input
-          type="number"
-          min={1}
+        <PriceInput
           value={basePrice}
-          onChange={(e) => setBasePrice(Number(e.target.value) || 0)}
-          style={{ width: `${Math.max(String(basePrice).length, 2) + 1}ch` }}
-          className="max-w-full border-r border-border/60 bg-transparent text-center text-6xl sm:text-7xl font-bold text-foreground outline-none"
+          onChange={setBasePrice}
+          className="text-6xl sm:text-7xl font-bold"
         />
       </div>
 

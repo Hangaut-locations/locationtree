@@ -28,6 +28,7 @@ import { formatPartyWhen, toDateInput } from "../lib/partyTime";
 import useRequireLogin from "./hooks/useRequireLogin";
 import useAppContext from "./hooks/useAppContext";
 import { priceForInput, priceToUSD, symbolFor } from "../lib/currency";
+import PriceInput from "./PriceInput";
 import type { Visibility } from "../types/listing";
 import VisibilityChoice from "./VisibilityChoice";
 
@@ -186,6 +187,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
     if (step === 6) return activities.trim().length > 0;
     if (step === 7) return rules.trim().length > 0;
     if (step === 8) return !!title;
+    if (step === 9) return price > 0;
     return true;
   };
 
@@ -395,13 +397,10 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
                 <span className="text-5xl font-semibold text-foreground">
                   {symbolFor(currency)}
                 </span>
-                <input
-                  type="number"
-                  min={1}
+                <PriceInput
                   value={price}
-                  onChange={(e) => setPrice(Number(e.target.value) || 0)}
-                  style={{ width: `${Math.max(String(price).length, 2) + 1}ch` }}
-                  className="max-w-full border-r border-border/60 bg-transparent text-center text-5xl font-semibold text-foreground outline-none"
+                  onChange={setPrice}
+                  className="text-5xl font-semibold"
                 />
                 <span className="text-sm font-semibold text-muted-foreground">
                   / {priceMode}
@@ -549,13 +548,10 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
                 <span className="text-6xl sm:text-7xl font-semibold text-foreground">
                   {symbolFor(currency)}
                 </span>
-                <input
-                  type="number"
-                  min={1}
+                <PriceInput
                   value={price}
-                  onChange={(e) => setPrice(Number(e.target.value) || 0)}
-                  style={{ width: `${Math.max(String(price).length, 2) + 1}ch` }}
-                  className="max-w-full border-r border-border/60 bg-transparent text-center text-6xl sm:text-7xl font-semibold text-foreground outline-none"
+                  onChange={setPrice}
+                  className="text-6xl sm:text-7xl font-semibold"
                 />
               </div>
               <p className="text-sm font-semibold text-muted-foreground">
