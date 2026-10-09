@@ -144,7 +144,7 @@ const PropertyDetailPage = () => {
 
   return (
     <AppLayout>
-      <main className="mx-auto max-w-6xl px-5 pb-28 pt-6 md:px-8 md:pt-8 lg:pb-16">
+      <main className="mx-auto max-w-6xl px-5 pb-10 pt-6 md:px-8 md:pt-8 lg:pb-16">
         {data.status === "draft" && (
           <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
             This property is a draft. Only you can see it until you publish it
