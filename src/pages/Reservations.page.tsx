@@ -144,6 +144,10 @@ const ReservationsPage = () => {
     const hours = booking.charge_type === "hour" || row.kind === "properties"
       ? row.booking.hours
       : undefined;
+    const days =
+      row.kind === "parties" && booking.charge_type === "day"
+        ? row.booking.days
+        : undefined;
     const busy = isPending && variables?.row.booking._id === booking._id;
     const notStarted = row.start > now;
     const canAnswer =
@@ -192,6 +196,7 @@ const ReservationsPage = () => {
                 <Users className="h-3.5 w-3.5" /> {booking.guests} guest
                 {booking.guests === 1 ? "" : "s"}
                 {hours ? ` · ${hours} hr${hours === 1 ? "" : "s"}` : ""}
+                {days ? ` · ${days} day${days === 1 ? "" : "s"}` : ""}
               </span>
               {booking.location && (
                 <span className="flex items-center gap-1">

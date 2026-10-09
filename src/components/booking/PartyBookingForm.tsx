@@ -12,14 +12,14 @@ import {
 } from "../../lib/bookings";
 import { displayPrice, formatPrice } from "../../lib/currency";
 import { getErrorMessage, type ApiError } from "../../lib/errors";
-import { formatPartyWhen } from "../../lib/partyTime";
+import { formatPartyWhen, partyLengthInDays } from "../../lib/partyTime";
 import type { TParty } from "../../types/parties";
 
 const fieldClass = "mt-1 w-full bg-transparent text-sm outline-none";
 const labelClass =
   "block text-[10px] font-bold uppercase tracking-wider text-muted-foreground";
 
-type Choices = { guests: number; hours: number };
+type Choices = { guests: number; hours: number; days?: number };
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, Math.round(value) || min));
@@ -30,11 +30,20 @@ const PartyBookingForm = ({ party }: { party: TParty }) => {
   const { data: user } = useAuth();
   const { setIsAuthModal, currency } = useAppContext();
   const perHour = party.charge_type === "hour";
+  const perDay = party.charge_type === "day";
+  const partyDays = partyLengthInDays(party.start_date, party.end_date);
   const capacity = Number(party.guest_capacity) || 1;
   const price = Number(party.price) || 0;
   const [guests, setGuests] = useState(1);
   const [hours, setHours] = useState(2);
-  const total = perHour ? price * hours : price * guests;
+  const [days, setDays] = useState(1);
+  const total = perHour
+    ? price * hours
+    : perDay
+      ? price * days
+      : price * guests;
+  const plural = (count: number, word: string) =>
+    `${count} ${word}${count === 1 ? "" : "s"}`;
 
   const { mutate, isPending } = useMutation({
     mutationFn: (choices: Choices) =>
@@ -42,6 +51,7 @@ const PartyBookingForm = ({ party }: { party: TParty }) => {
         partyId: party._id,
         guests: choices.guests,
         hours: perHour ? choices.hours : undefined,
+        days: perDay ? choices.days : undefined,
       }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: tripsQueryKey });
@@ -58,17 +68,18 @@ const PartyBookingForm = ({ party }: { party: TParty }) => {
     if (!saved) return;
     setGuests(saved.guests);
     setHours(saved.hours);
+    setDays(saved.days ?? 1);
     document.getElementById("book")?.scrollIntoView({ behavior: "smooth" });
     mutate(saved);
   }, [user, party._id, mutate]);
 
   const handleBook = () => {
     if (!user) {
-      savePendingBooking<Choices>(party._id, { guests, hours });
+      savePendingBooking<Choices>(party._id, { guests, hours, days });
       setIsAuthModal(true);
       return;
     }
-    mutate({ guests, hours });
+    mutate({ guests, hours, days });
   };
 
   return (
@@ -80,7 +91,9 @@ const PartyBookingForm = ({ party }: { party: TParty }) => {
             {formatPartyWhen(party) || "Date to be announced"}
           </p>
         </div>
-        <label className={`p-3 ${perHour ? "border-r border-border" : "col-span-2"}`}>
+        <label
+          className={`p-3 ${perHour || perDay ? "border-r border-border" : "col-span-2"}`}
+        >
           <span className={labelClass}>Guests</span>
           <input
             type="number"
@@ -106,11 +119,30 @@ const PartyBookingForm = ({ party }: { party: TParty }) => {
             />
           </label>
         )}
+        {perDay && (
+          <label className="p-3">
+            <span className={labelClass}>Days</span>
+            <input
+              type="number"
+              min={1}
+              max={partyDays}
+              value={days}
+              onChange={(e) =>
+                setDays(clamp(Number(e.target.value), 1, partyDays))
+              }
+              className={fieldClass}
+            />
+          </label>
+        )}
       </div>
       <div className="mt-4 flex justify-between text-sm">
         <span className="text-muted-foreground">
           {formatPrice(displayPrice(price, currency), currency)} x{" "}
-          {perHour ? `${hours} hour${hours === 1 ? "" : "s"}` : `${guests} guest${guests === 1 ? "" : "s"}`}
+          {perHour
+            ? plural(hours, "hour")
+            : perDay
+              ? plural(days, "day")
+              : plural(guests, "guest")}
         </span>
         <span className="font-semibold">
           {formatPrice(displayPrice(total, currency), currency)}

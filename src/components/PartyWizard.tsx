@@ -1,5 +1,6 @@
 import {
   CalendarDays,
+  Clock,
   Eye,
   HelpCircle,
   MapPin,
@@ -36,6 +37,29 @@ interface PartyWizardProps {
 
 type WizardStep = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 
+const PRICE_MODES = [
+  {
+    id: "person",
+    icon: Users,
+    title: "Per person",
+    text: "Guests buy a ticket per seat",
+  },
+  {
+    id: "hour",
+    icon: Clock,
+    title: "Per hour",
+    text: "Guests book the whole party",
+  },
+  {
+    id: "day",
+    icon: CalendarDays,
+    title: "Per day",
+    text: "Guests book the whole party by the day",
+  },
+] as const;
+
+type PriceMode = (typeof PRICE_MODES)[number]["id"];
+
 export const PartyWizard: React.FC<PartyWizardProps> = () => {
   useRequireLogin("/become-a-host");
   const [step, setStep] = useState<WizardStep>(1);
@@ -51,7 +75,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
   const [startTime, setStartTime] = useState<string>("");
   const [location, setLocation] = useState<string>("");
   const [capacity, setCapacity] = useState<number>(10);
-  const [priceMode, setPriceMode] = useState<"person" | "hour">("person");
+  const [priceMode, setPriceMode] = useState<PriceMode>("person");
   const [price, setPrice] = useState<number>(() =>
     priceForInput(50, currency),
   );
@@ -338,45 +362,29 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
                 <p className="text-xs text-foreground">
                   How do you want to charge?
                 </p>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setPriceMode("person")}
-                    className={`flex items-center gap-2 rounded-2xl border px-4 py-4 text-left transition-all cursor-pointer active:scale-97 ${
-                      priceMode === "person"
-                        ? "border-purple-950 dark:border-purple-600 bg-purple-950/5 dark:bg-purple-800/15"
-                        : "border-border/80 bg-card hover:border-gray-400"
-                    }`}
-                  >
-                    <Users className="h-5 w-5 text-purple-950 dark:text-purple-300" />
-                    <div>
-                      <p className="text-sm font-semibold text-foreground">
-                        Per person
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Guests buy a ticket per seat
-                      </p>
-                    </div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPriceMode("hour")}
-                    className={`flex items-center gap-2 rounded-2xl border px-4 py-4 text-left transition-all cursor-pointer active:scale-97 ${
-                      priceMode === "hour"
-                        ? "border-purple-950 dark:border-purple-600 bg-purple-950/5 dark:bg-purple-800/15"
-                        : "border-border/80 bg-card hover:border-gray-400"
-                    }`}
-                  >
-                    <CalendarDays className="h-5 w-5 text-purple-950 dark:text-purple-300" />
-                    <div>
-                      <p className="text-sm font-semibold text-foreground">
-                        Per hour
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Guests book the whole party
-                      </p>
-                    </div>
-                  </button>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                  {PRICE_MODES.map((mode) => (
+                    <button
+                      key={mode.id}
+                      type="button"
+                      onClick={() => setPriceMode(mode.id)}
+                      className={`flex items-center gap-2 rounded-2xl border px-4 py-4 text-left transition-all cursor-pointer active:scale-97 ${
+                        priceMode === mode.id
+                          ? "border-purple-950 dark:border-purple-600 bg-purple-950/5 dark:bg-purple-800/15"
+                          : "border-border/80 bg-card hover:border-gray-400"
+                      }`}
+                    >
+                      <mode.icon className="h-5 w-5 shrink-0 text-purple-950 dark:text-purple-300" />
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">
+                          {mode.title}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {mode.text}
+                        </p>
+                      </div>
+                    </button>
+                  ))}
                 </div>
               </div>
 

@@ -20,7 +20,7 @@ interface BookingBase {
   title: string;
   image?: string;
   location?: string;
-  charge_type?: "person" | "hour";
+  charge_type?: "person" | "hour" | "day";
   price?: number;
   createdAt: string;
 }
@@ -28,6 +28,7 @@ interface BookingBase {
 export interface PartyBooking extends BookingBase {
   partyId: string;
   hours?: number;
+  days?: number;
   start_date?: string;
   end_date?: string;
   start_time?: string;

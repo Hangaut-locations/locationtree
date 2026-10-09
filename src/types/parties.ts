@@ -9,7 +9,7 @@ export type TParty = {
   images: [string];
   rating?: number;
   guest_capacity: string;
-  charge_type: "person" | "hour";
+  charge_type: "person" | "hour" | "day";
   party_rules: string;
   is_ticket_sales: boolean;
   price: string;

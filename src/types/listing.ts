@@ -90,7 +90,7 @@ export interface IParty {
   location: string;
   images: string[];
   guest_capacity: number;
-  charge_type: "person" | "hour";
+  charge_type: "person" | "hour" | "day";
   party_rules: string;
   is_ticket_sales: string;
   price: number;

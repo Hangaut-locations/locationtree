@@ -32,6 +32,7 @@ export const bookParty = (data: {
   partyId: string;
   guests: number;
   hours?: number;
+  days?: number;
 }) =>
   adminCaller
     .post<PartyBooking>("/bookings/parties", data)
