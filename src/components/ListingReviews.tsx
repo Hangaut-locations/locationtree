@@ -145,8 +145,8 @@ const ListingReviews = ({ type, id }: ListingReviewsProps) => {
       text: string;
     }) =>
       replyId
-        ? editReply(commentId, replyId, text)
-        : addReply(commentId, text),
+        ? editReply(commentId, replyId, text, key)
+        : addReply(commentId, text, key),
     onSuccess: ({ replies }, { commentId, replyId }) => {
       setThread(commentId, replies);
       setDraft(null);
@@ -160,7 +160,7 @@ const ListingReviews = ({ type, id }: ListingReviewsProps) => {
 
   const removeReply = useMutation({
     mutationFn: ({ commentId, replyId }: { commentId: string; replyId: string }) =>
-      deleteReply(commentId, replyId),
+      deleteReply(commentId, replyId, key),
     onSuccess: ({ replies }, { commentId }) => {
       setThread(commentId, replies);
       toast.success("Reply deleted");
@@ -351,11 +351,17 @@ const ListingReviews = ({ type, id }: ListingReviewsProps) => {
                         }`}
                       >
                         <div className="flex items-center justify-between gap-2">
-                          <p className="truncate text-xs font-semibold">
-                            {reply.fromHost
-                              ? "Host"
-                              : item.user.firstName || fullName(item.user)}
-                            {reply.mine && " (you)"}
+                          <p className="flex min-w-0 items-center gap-1.5 text-xs font-semibold">
+                            <span className="truncate">
+                              {fullName(reply.user)}
+                              {reply.mine && " (you)"}
+                            </span>
+                            {(reply.fromHost ||
+                              reply.user._id === item.user._id) && (
+                              <span className="shrink-0 rounded-full bg-purple-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-purple-700 dark:text-purple-200">
+                                {reply.fromHost ? "Host" : "Reviewer"}
+                              </span>
+                            )}
                           </p>
                           <span className="shrink-0 text-xs text-muted-foreground">
                             {reviewDate(reply.createdAt)}
@@ -395,22 +401,23 @@ const ListingReviews = ({ type, id }: ListingReviewsProps) => {
                 </ul>
               )}
 
-              {item.canReply &&
-                (draft?.commentId === item._id && !draft.replyId ? (
-                  replyEditor(
-                    item.mine
-                      ? "Reply to the host"
-                      : `Reply to ${item.user.firstName}`,
-                  )
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => startReply(item._id)}
-                    className="mt-2 flex items-center gap-1 text-xs font-semibold text-purple-600 hover:underline dark:text-purple-300"
-                  >
-                    <Reply className="h-3.5 w-3.5" /> Reply
-                  </button>
-                ))}
+              {draft?.commentId === item._id && !draft.replyId ? (
+                replyEditor(
+                  item.mine
+                    ? "Reply to the conversation"
+                    : `Reply to ${item.user.firstName}`,
+                )
+              ) : (
+                <button
+                  type="button"
+                  onClick={() =>
+                    user ? startReply(item._id) : setIsAuthModal(true)
+                  }
+                  className="mt-2 flex items-center gap-1 text-xs font-semibold text-purple-600 hover:underline dark:text-purple-300"
+                >
+                  <Reply className="h-3.5 w-3.5" /> Reply
+                </button>
+              )}
             </div>
           </li>
         ))}
