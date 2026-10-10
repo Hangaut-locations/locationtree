@@ -23,6 +23,7 @@ import PartyTypeSkeleton from "./parties/CreatePartySkeleton";
 import useRequireLogin from "./hooks/useRequireLogin";
 import useAppContext from "./hooks/useAppContext";
 import { priceForInput, priceToUSD } from "../lib/currency";
+import { todayInNigeria } from "../lib/bookings";
 
 interface HostPropertyWizardProps {
   onAddListing?: (newListing: Listing) => void;
@@ -72,6 +73,7 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
   const [basePrice, setBasePrice] = useState<number>(0);
   const [priceMode, setPriceMode] = useState<"person" | "hour">("person");
   const [amenities, setAmenities] = useState<Set<string>>(new Set());
+  const [blockedDates, setBlockedDates] = useState<string[]>([]);
 
   useEffect(() => {
     if (!propertyData) return;
@@ -93,6 +95,12 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
     setBasePrice(priceForInput(Number(propertyData.price) || 0, currency));
     setPriceMode(propertyData.charge_type === "hour" ? "hour" : "person");
     setAmenities(new Set(propertyData.amenities ?? []));
+    // past days don't matter anymore, drop them on the next save
+    setBlockedDates(
+      (propertyData.blocked_dates ?? []).filter(
+        (date) => date >= todayInNigeria(),
+      ),
+    );
 
     if (propertyData.status === "draft") {
       // Steps that must be filled in, in order, so the host lands on the first unfinished one.
@@ -144,6 +152,8 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
       price: priceToUSD(basePrice, currency),
       charge_type: priceMode,
       amenities: Array.from(amenities),
+      // sent as JSON so an empty list still clears them
+      blocked_dates: JSON.stringify(blockedDates),
       property_type: category,
       space_type: spaceType,
       booking_setting: bookingSetting,
@@ -315,6 +325,8 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
               setBookingSetting={setBookingSetting}
               visibility={visibility}
               setVisibility={setVisibility}
+              blockedDates={blockedDates}
+              setBlockedDates={setBlockedDates}
             />
           )}
 

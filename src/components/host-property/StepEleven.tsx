@@ -2,12 +2,15 @@ import { Calendar } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 import type { Visibility } from "../../types/listing";
 import VisibilityChoice from "../VisibilityChoice";
+import BlockedDates from "./BlockedDates";
 
 interface IStepFiveProps {
   bookingSetting: string;
   setBookingSetting: Dispatch<SetStateAction<any>>;
   visibility: Visibility;
   setVisibility: (value: Visibility) => void;
+  blockedDates: string[];
+  setBlockedDates: (dates: string[]) => void;
 }
 
 const StepEleven: React.FC<IStepFiveProps> = ({
@@ -15,6 +18,8 @@ const StepEleven: React.FC<IStepFiveProps> = ({
   setBookingSetting,
   visibility,
   setVisibility,
+  blockedDates,
+  setBlockedDates,
 }) => {
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
@@ -76,6 +81,8 @@ const StepEleven: React.FC<IStepFiveProps> = ({
           value={visibility}
           onChange={setVisibility}
         />
+
+        <BlockedDates dates={blockedDates} onChange={setBlockedDates} />
       </div>
     </div>
   );
