@@ -25,6 +25,7 @@ import PartyDetailPage from "./pages/PartyDetail.page";
 import PropertiesPage from "./pages/PropertyLists.page";
 import PropertyDetailPage from "./pages/PropertyDetail.page";
 import ReservationsPage from "./pages/Reservations.page";
+import CheckInPage from "./pages/CheckIn.page";
 import AppLayout from "./components/layout/AppLayout";
 import "./App.css";
 
@@ -211,6 +212,7 @@ function App() {
       <Route path="/favorites" element={<FavoritesPage />} />
       <Route path="/wishlist" element={<FavoritesPage />} />
       <Route path="/reservations" element={<ReservationsPage />} />
+      <Route path="/check-in/:partyId" element={<CheckInPage />} />
       <Route
         path="/trips"
         element={

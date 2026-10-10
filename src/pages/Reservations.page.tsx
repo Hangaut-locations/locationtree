@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { CalendarCheck, Mail, MapPin, Phone, Ticket, Users } from "lucide-react";
+import {
+  CalendarCheck,
+  Check,
+  Mail,
+  MapPin,
+  Phone,
+  Ticket,
+  Users,
+} from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useSearchParams } from "react-router-dom";
 import { toast } from "react-hot-toast";
@@ -153,6 +161,16 @@ const ReservationsPage = () => {
     const canAnswer =
       tab === "hosting" && row.kind === "properties" && booking.status === "pending";
     const canCancel = isActive(booking.status) && notStarted && !canAnswer;
+    const tickets =
+      row.kind === "parties" && booking.status === "confirmed"
+        ? (row.booking.tickets ?? [])
+        : [];
+    const checkedIn = tickets.filter((ticket) => ticket.checked_in_at).length;
+    const canCheckIn =
+      tab === "hosting" &&
+      row.kind === "parties" &&
+      booking.status === "confirmed" &&
+      row.end > now;
 
     return (
       <div
@@ -225,6 +243,37 @@ const ReservationsPage = () => {
                 </a>
               </p>
             )}
+            {tab === "trips" && tickets.some((ticket) => ticket.code) && (
+              <div className="mt-2">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Door codes, one person each
+                </p>
+                <div className="mt-1 flex flex-wrap gap-2">
+                  {tickets.map((ticket) => (
+                    <span
+                      key={ticket.code}
+                      className="flex items-center gap-1.5 rounded-lg border border-dashed border-purple-400 bg-purple-50 px-2 py-1 text-xs"
+                    >
+                      <span className="text-muted-foreground">{ticket.name}</span>
+                      <span className="font-mono font-bold tracking-wider text-purple-900">
+                        {ticket.code}
+                      </span>
+                      {ticket.checked_in_at && (
+                        <Check
+                          className="h-3.5 w-3.5 text-green-600"
+                          aria-label="Checked in"
+                        />
+                      )}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+            {tab === "hosting" && tickets.length > 0 && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                {checkedIn} of {tickets.length} checked in
+              </p>
+            )}
           </div>
         </div>
 
@@ -233,6 +282,14 @@ const ReservationsPage = () => {
             {formatPrice(displayPrice(booking.total, currency), currency)}
           </p>
           <div className="flex gap-2">
+            {canCheckIn && (
+              <Link
+                to={`/check-in/${row.booking.partyId}`}
+                className="rounded-full bg-purple-950 px-4 py-2 text-xs font-bold text-white hover:bg-purple-900"
+              >
+                Check in guests
+              </Link>
+            )}
             {canAnswer && (
               <>
                 <button
