@@ -26,6 +26,7 @@ export interface ReviewReply {
   text: string;
   createdAt: string;
   editedAt: string | null;
+  user: ReviewPerson;
   fromHost: boolean;
   mine: boolean;
 }
@@ -79,19 +80,27 @@ export const deleteComment = (commentId: string) =>
 
 type Thread = { replies: ReviewReply[] };
 
-export const addReply = (commentId: string, text: string) =>
+export const addReply = (commentId: string, text: string, key?: string) =>
   adminCaller
-    .post<Thread>(`/reviews/comments/${commentId}/replies`, { text })
+    .post<Thread>(`/reviews/comments/${commentId}/replies`, { text, key })
     .then((res) => res.data);
 
-export const editReply = (commentId: string, replyId: string, text: string) =>
+export const editReply = (
+  commentId: string,
+  replyId: string,
+  text: string,
+  key?: string,
+) =>
   adminCaller
     .patch<Thread>(`/reviews/comments/${commentId}/replies/${replyId}`, {
       text,
+      key,
     })
     .then((res) => res.data);
 
-export const deleteReply = (commentId: string, replyId: string) =>
+export const deleteReply = (commentId: string, replyId: string, key?: string) =>
   adminCaller
-    .delete<Thread>(`/reviews/comments/${commentId}/replies/${replyId}`)
+    .delete<Thread>(`/reviews/comments/${commentId}/replies/${replyId}`, {
+      params: { key },
+    })
     .then((res) => res.data);
