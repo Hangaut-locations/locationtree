@@ -10,6 +10,7 @@ import {
 import { DialogTitle } from "../../../components/ui/dialog";
 import type { AuthScreen } from "../AuthModal";
 import { axiosClient } from "../../interceptors/http";
+import { rememberLogin } from "../../lib/tokenRenew";
 import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -32,6 +33,7 @@ export const SignIn: React.FC<AuthModalProps> = ({
   // Login Form States
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [remember, setRemember] = useState(true);
 
   // Verification Code States (4 digits)
   const [code, setCode] = useState<string[]>(["", "", "", ""]);
@@ -59,11 +61,13 @@ export const SignIn: React.FC<AuthModalProps> = ({
       .post("/auth/login", {
         email,
         password,
+        remember,
       })
       .then((res) => {
         // console.log("login response", res.data);
         sessionStorage.setItem("user_token", res.data?.accessToken);
         sessionStorage.setItem("hangaut_user", JSON.stringify(res.data?.user));
+        rememberLogin(res.data?.refreshToken);
         qc.invalidateQueries({ queryKey: ["me"] });
         toast.success("You are in, enjoy your session");
         if (onClose) {
@@ -202,6 +206,8 @@ export const SignIn: React.FC<AuthModalProps> = ({
             <label className="flex items-center gap-2 text-foreground cursor-pointer">
               <input
                 type="checkbox"
+                checked={remember}
+                onChange={(e) => setRemember(e.target.checked)}
                 className="h-4.5 w-4.5 rounded-md border-border bg-card text-purple-950 focus:ring-purple-950 accent-purple-950 cursor-pointer"
               />
               <span>Remember me</span>
