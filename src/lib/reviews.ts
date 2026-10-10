@@ -17,12 +17,17 @@ export interface ListingComment {
   createdAt: string;
   user: ReviewPerson;
   mine: boolean;
-  reply?: HostReply | null;
+  replies: ReviewReply[];
+  canReply: boolean;
 }
 
-export interface HostReply {
+export interface ReviewReply {
+  _id: string;
   text: string;
   createdAt: string;
+  editedAt: string | null;
+  fromHost: boolean;
+  mine: boolean;
 }
 
 export interface ListingReviews {
@@ -31,7 +36,6 @@ export interface ListingReviews {
   likedBy: ReviewPerson[];
   comments: ListingComment[];
   canReview: boolean;
-  canReply?: boolean;
 }
 
 export const COMMENT_MAX_LENGTH = 1000;
@@ -73,12 +77,21 @@ export const addComment = (
 export const deleteComment = (commentId: string) =>
   adminCaller.delete(`/reviews/comments/${commentId}`);
 
-export const setReply = (commentId: string, reply: string) =>
+type Thread = { replies: ReviewReply[] };
+
+export const addReply = (commentId: string, text: string) =>
   adminCaller
-    .put<{ reply: HostReply }>(`/reviews/comments/${commentId}/reply`, {
-      reply,
+    .post<Thread>(`/reviews/comments/${commentId}/replies`, { text })
+    .then((res) => res.data);
+
+export const editReply = (commentId: string, replyId: string, text: string) =>
+  adminCaller
+    .patch<Thread>(`/reviews/comments/${commentId}/replies/${replyId}`, {
+      text,
     })
     .then((res) => res.data);
 
-export const deleteReply = (commentId: string) =>
-  adminCaller.delete(`/reviews/comments/${commentId}/reply`);
+export const deleteReply = (commentId: string, replyId: string) =>
+  adminCaller
+    .delete<Thread>(`/reviews/comments/${commentId}/replies/${replyId}`)
+    .then((res) => res.data);
