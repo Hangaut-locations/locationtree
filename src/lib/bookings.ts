@@ -94,6 +94,23 @@ export const todayInNigeria = (daysAhead = 0) =>
     .toISOString()
     .slice(0, 10);
 
+/** Calendar day picked in a date picker as "2026-10-20" (the picker hands back local dates). */
+export const dateKey = (date: Date) =>
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+
+export const keyToDate = (key: string) => {
+  const [year, month, day] = key.split("-").map(Number);
+  return new Date(year, month - 1, day);
+};
+
+export const formatDay = (key: string) =>
+  keyToDate(key).toLocaleDateString("en-GB", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+
 const formatClock = (date: Date) =>
   date.toLocaleTimeString("en-US", {
     hour: "numeric",
