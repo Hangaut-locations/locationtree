@@ -17,6 +17,12 @@ export interface ListingComment {
   createdAt: string;
   user: ReviewPerson;
   mine: boolean;
+  reply?: HostReply | null;
+}
+
+export interface HostReply {
+  text: string;
+  createdAt: string;
 }
 
 export interface ListingReviews {
@@ -25,6 +31,7 @@ export interface ListingReviews {
   likedBy: ReviewPerson[];
   comments: ListingComment[];
   canReview: boolean;
+  canReply?: boolean;
 }
 
 export const COMMENT_MAX_LENGTH = 1000;
@@ -65,3 +72,13 @@ export const addComment = (
 
 export const deleteComment = (commentId: string) =>
   adminCaller.delete(`/reviews/comments/${commentId}`);
+
+export const setReply = (commentId: string, reply: string) =>
+  adminCaller
+    .put<{ reply: HostReply }>(`/reviews/comments/${commentId}/reply`, {
+      reply,
+    })
+    .then((res) => res.data);
+
+export const deleteReply = (commentId: string) =>
+  adminCaller.delete(`/reviews/comments/${commentId}/reply`);
