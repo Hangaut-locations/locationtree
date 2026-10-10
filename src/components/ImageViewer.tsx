@@ -173,10 +173,10 @@ const ImageViewer = ({
             )}
 
             {images.length > 1 && (
-              <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/80 to-transparent pt-10">
+              <div className="absolute inset-x-0 top-0 bg-linear-to-b from-black/80 to-transparent pb-10">
                 <div
                   ref={thumbsRef}
-                  className="flex gap-2 overflow-x-auto px-4 pb-4 pt-1 [scrollbar-width:none] sm:justify-center [&::-webkit-scrollbar]:hidden"
+                  className="flex gap-2 overflow-x-auto px-4 pb-1 pt-2 [scrollbar-width:none] sm:justify-center [&::-webkit-scrollbar]:hidden"
                 >
               {images.map((src, index) => (
                 <button
@@ -203,6 +203,22 @@ const ImageViewer = ({
               </div>
             )}
           </div>
+
+          {images.length > 1 && (
+            <div className="flex flex-wrap justify-center gap-2 px-4 py-5">
+              {images.map((src, index) => (
+                <button
+                  type="button"
+                  key={`${src}-dot-${index}`}
+                  onClick={() => goTo(index)}
+                  className={`h-2 rounded-full transition-[width,background-color] duration-200 cursor-pointer ${
+                    index === current ? "w-6 bg-white" : "w-2 bg-white/40"
+                  }`}
+                  aria-label={`Photo ${index + 1}`}
+                />
+              ))}
+            </div>
+          )}
         </DialogPrimitive.Popup>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
