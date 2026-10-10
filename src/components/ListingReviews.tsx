@@ -9,17 +9,19 @@ import { getErrorMessage, type ApiError } from "../lib/errors";
 import { linkKey } from "../lib/privateLink";
 import {
   addComment,
+  addReply,
   COMMENT_MAX_LENGTH,
   deleteComment,
   deleteReply,
+  editReply,
   fullName,
   getReviews,
   type ListingReviews as Reviews,
   personLocation,
   type ReviewListing,
   type ReviewPerson,
+  type ReviewReply,
   reviewsQueryKey,
-  setReply,
   toggleLike,
 } from "../lib/reviews";
 
@@ -69,7 +71,11 @@ const ListingReviews = ({ type, id }: ListingReviewsProps) => {
   const { setIsAuthModal } = useAppContext();
   const [comment, setComment] = useState("");
   const [isLikesOpen, setIsLikesOpen] = useState(false);
-  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  // commentId while writing a new reply, replyId while editing one
+  const [draft, setDraft] = useState<{
+    commentId: string;
+    replyId?: string;
+  } | null>(null);
   const [replyText, setReplyText] = useState("");
   const key = linkKey();
   const queryKey = [...reviewsQueryKey(type, id), user?._id ?? "guest"];
@@ -116,13 +122,36 @@ const ListingReviews = ({ type, id }: ListingReviewsProps) => {
       toast.error(getErrorMessage(err, "Couldn't delete it, try again")),
   });
 
+  const setThread = (commentId: string, replies: ReviewReply[]) =>
+    qc.setQueryData<Reviews>(queryKey, (old) =>
+      old
+        ? {
+            ...old,
+            comments: old.comments.map((item) =>
+              item._id === commentId ? { ...item, replies } : item,
+            ),
+          }
+        : old,
+    );
+
   const saveReply = useMutation({
-    mutationFn: ({ commentId, text }: { commentId: string; text: string }) =>
-      setReply(commentId, text),
-    onSuccess: () => {
-      setReplyingTo(null);
+    mutationFn: ({
+      commentId,
+      replyId,
+      text,
+    }: {
+      commentId: string;
+      replyId?: string;
+      text: string;
+    }) =>
+      replyId
+        ? editReply(commentId, replyId, text)
+        : addReply(commentId, text),
+    onSuccess: ({ replies }, { commentId, replyId }) => {
+      setThread(commentId, replies);
+      setDraft(null);
       setReplyText("");
-      toast.success("Reply posted");
+      toast.success(replyId ? "Reply updated" : "Reply posted");
       refresh();
     },
     onError: (err: ApiError) =>
@@ -130,8 +159,10 @@ const ListingReviews = ({ type, id }: ListingReviewsProps) => {
   });
 
   const removeReply = useMutation({
-    mutationFn: deleteReply,
-    onSuccess: () => {
+    mutationFn: ({ commentId, replyId }: { commentId: string; replyId: string }) =>
+      deleteReply(commentId, replyId),
+    onSuccess: ({ replies }, { commentId }) => {
+      setThread(commentId, replies);
       toast.success("Reply deleted");
       refresh();
     },
@@ -152,15 +183,55 @@ const ListingReviews = ({ type, id }: ListingReviewsProps) => {
     if (text) post.mutate(text);
   };
 
-  const startReply = (commentId: string, text = "") => {
-    setReplyingTo(commentId);
-    setReplyText(text);
+  const startReply = (commentId: string, reply?: ReviewReply) => {
+    setDraft({ commentId, replyId: reply?._id });
+    setReplyText(reply?.text ?? "");
   };
 
   const handleReply = () => {
     const text = replyText.trim();
-    if (replyingTo && text) saveReply.mutate({ commentId: replyingTo, text });
+    if (draft && text) saveReply.mutate({ ...draft, text });
   };
+
+  const replyEditor = (placeholder: string) => (
+    <div className="mt-3 rounded-2xl border border-border p-3">
+      <textarea
+        value={replyText}
+        onChange={(e) =>
+          setReplyText(e.target.value.slice(0, COMMENT_MAX_LENGTH))
+        }
+        rows={2}
+        placeholder={placeholder}
+        className="w-full resize-none bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+      />
+      <div className="mt-2 flex items-center justify-between gap-2">
+        <span className="text-xs text-muted-foreground">
+          {replyText.length}/{COMMENT_MAX_LENGTH}
+        </span>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => setDraft(null)}
+            className="rounded-xl px-4 py-2 text-sm font-semibold hover:bg-muted"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleReply}
+            disabled={!replyText.trim() || saveReply.isPending}
+            className="rounded-xl bg-purple-500 px-4 py-2 text-sm font-bold text-white transition hover:bg-purple-600 disabled:opacity-50"
+          >
+            {saveReply.isPending
+              ? "Saving..."
+              : draft?.replyId
+                ? "Save"
+                : "Post reply"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 
   const likes = data?.likes ?? 0;
   const comments = data?.comments ?? [];
@@ -265,86 +336,81 @@ const ListingReviews = ({ type, id }: ListingReviewsProps) => {
                 </button>
               )}
 
-              {item.reply && replyingTo !== item._id && (
-                <div className="mt-3 rounded-2xl bg-muted/60 p-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-xs font-semibold">Reply from the host</p>
-                    <span className="shrink-0 text-xs text-muted-foreground">
-                      {reviewDate(item.reply.createdAt)}
-                    </span>
-                  </div>
-                  <p className="mt-1 whitespace-pre-line wrap-break-word text-sm leading-6">
-                    {item.reply.text}
-                  </p>
-                  {data?.canReply && (
-                    <div className="mt-2 flex gap-4 text-xs font-semibold">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          startReply(item._id, item.reply?.text ?? "")
-                        }
-                        className="flex items-center gap-1 hover:underline"
+              {item.replies.length > 0 && (
+                <ul className="mt-3 space-y-2">
+                  {item.replies.map((reply) =>
+                    draft?.replyId === reply._id ? (
+                      <li key={reply._id}>{replyEditor("Edit your reply")}</li>
+                    ) : (
+                      <li
+                        key={reply._id}
+                        className={`rounded-2xl p-3 ${
+                          reply.fromHost
+                            ? "bg-muted/60"
+                            : "ml-4 bg-purple-50 dark:bg-purple-900/20"
+                        }`}
                       >
-                        <Pencil className="h-3.5 w-3.5" /> Edit
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => removeReply.mutate(item._id)}
-                        disabled={removeReply.isPending}
-                        className="flex items-center gap-1 text-red-600 hover:underline disabled:opacity-50"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" /> Delete
-                      </button>
-                    </div>
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="truncate text-xs font-semibold">
+                            {reply.fromHost
+                              ? "Host"
+                              : item.user.firstName || fullName(item.user)}
+                            {reply.mine && " (you)"}
+                          </p>
+                          <span className="shrink-0 text-xs text-muted-foreground">
+                            {reviewDate(reply.createdAt)}
+                            {reply.editedAt && " · edited"}
+                          </span>
+                        </div>
+                        <p className="mt-1 whitespace-pre-line wrap-break-word text-sm leading-6">
+                          {reply.text}
+                        </p>
+                        {reply.mine && (
+                          <div className="mt-2 flex gap-4 text-xs font-semibold">
+                            <button
+                              type="button"
+                              onClick={() => startReply(item._id, reply)}
+                              className="flex items-center gap-1 hover:underline"
+                            >
+                              <Pencil className="h-3.5 w-3.5" /> Edit
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                removeReply.mutate({
+                                  commentId: item._id,
+                                  replyId: reply._id,
+                                })
+                              }
+                              disabled={removeReply.isPending}
+                              className="flex items-center gap-1 text-red-600 hover:underline disabled:opacity-50"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" /> Delete
+                            </button>
+                          </div>
+                        )}
+                      </li>
+                    ),
                   )}
-                </div>
+                </ul>
               )}
 
-              {data?.canReply && !item.reply && replyingTo !== item._id && (
-                <button
-                  type="button"
-                  onClick={() => startReply(item._id)}
-                  className="mt-2 flex items-center gap-1 text-xs font-semibold text-purple-600 hover:underline dark:text-purple-300"
-                >
-                  <Reply className="h-3.5 w-3.5" /> Reply
-                </button>
-              )}
-
-              {replyingTo === item._id && (
-                <div className="mt-3 rounded-2xl border border-border p-3">
-                  <textarea
-                    value={replyText}
-                    onChange={(e) =>
-                      setReplyText(e.target.value.slice(0, COMMENT_MAX_LENGTH))
-                    }
-                    rows={2}
-                    placeholder={`Reply to ${item.user.firstName}`}
-                    className="w-full resize-none bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                  />
-                  <div className="mt-2 flex items-center justify-between gap-2">
-                    <span className="text-xs text-muted-foreground">
-                      {replyText.length}/{COMMENT_MAX_LENGTH}
-                    </span>
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setReplyingTo(null)}
-                        className="rounded-xl px-4 py-2 text-sm font-semibold hover:bg-muted"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleReply}
-                        disabled={!replyText.trim() || saveReply.isPending}
-                        className="rounded-xl bg-purple-500 px-4 py-2 text-sm font-bold text-white transition hover:bg-purple-600 disabled:opacity-50"
-                      >
-                        {saveReply.isPending ? "Posting..." : "Post reply"}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
+              {item.canReply &&
+                (draft?.commentId === item._id && !draft.replyId ? (
+                  replyEditor(
+                    item.mine
+                      ? "Reply to the host"
+                      : `Reply to ${item.user.firstName}`,
+                  )
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => startReply(item._id)}
+                    className="mt-2 flex items-center gap-1 text-xs font-semibold text-purple-600 hover:underline dark:text-purple-300"
+                  >
+                    <Reply className="h-3.5 w-3.5" /> Reply
+                  </button>
+                ))}
             </div>
           </li>
         ))}
