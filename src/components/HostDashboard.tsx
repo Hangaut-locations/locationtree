@@ -15,6 +15,7 @@ import { HostProfilePage } from "./HostProfile";
 import AppLayout from "./layout/AppLayout";
 import MyListings from "./MyListings";
 import NotSignedInWrapper from "./auth/NotSignedInWrapper";
+import { forgetLogin } from "../lib/tokenRenew";
 
 interface HostDashboardProps {
   profile: HostProfile;
@@ -56,6 +57,7 @@ export const HostDashboard: React.FC<HostDashboardProps> = ({
   }>(null);
 
   const onLogout = () => {
+    forgetLogin();
     sessionStorage.clear();
     window.location.href = "/";
   };

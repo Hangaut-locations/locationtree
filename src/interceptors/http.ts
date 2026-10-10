@@ -2,7 +2,7 @@
 
 import axios from "axios";
 import { toast } from "react-hot-toast";
-import { renewTokenIfNeeded } from "../lib/tokenRenew";
+import { renewTokenIfNeeded, restoreLogin } from "../lib/tokenRenew";
 import { SESSION_ENDED_EVENT } from "../lib/session";
 
 export const axiosClient = axios.create({
@@ -79,8 +79,12 @@ adminCaller.interceptors.response.use(
       //   return Promise.reject(error);
       // }
 
-      // token was sent but the api rejected it (expired), so they're logged out now
+      // token was sent but the api rejected it (expired). remember me can still get a new one
       if (originalRequest.headers?.Authorization) {
+        if (await restoreLogin()) {
+          originalRequest.headers.Authorization = `Bearer ${sessionStorage.getItem("user_token")}`;
+          return adminCaller(originalRequest);
+        }
         sessionStorage.removeItem("user_token");
         sessionStorage.removeItem("hangaut_user");
         window.dispatchEvent(new Event(SESSION_ENDED_EVENT));
