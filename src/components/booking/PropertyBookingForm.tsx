@@ -1,4 +1,11 @@
 import { useEffect, useState } from "react";
+import { CalendarDays } from "lucide-react";
+import { Calendar } from "../../../components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "../../../components/ui/popover";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
@@ -7,7 +14,10 @@ import useAppContext from "../hooks/useAppContext";
 import CountInput from "../CountInput";
 import {
   bookProperty,
+  dateKey,
   formatClockRange,
+  formatDay,
+  keyToDate,
   getTakenTimes,
   nigeriaDateTime,
   overlaps,
@@ -37,7 +47,15 @@ const PropertyBookingForm = ({ property }: { property: IProperty }) => {
   const instant = property.booking_setting === "instant";
   const capacity = Number(property.guest_capacity) || 1;
   const price = Number(property.price) || 0;
-  const [date, setDate] = useState(() => todayInNigeria(1));
+  const blocked = property.blocked_dates ?? [];
+  const blockedDays = blocked.map(keyToDate);
+  const today = keyToDate(todayInNigeria());
+  const [isPickingDate, setIsPickingDate] = useState(false);
+  const [date, setDate] = useState(() => {
+    let day = 1;
+    while (blocked.includes(todayInNigeria(day)) && day < 400) day++;
+    return todayInNigeria(day);
+  });
   const [startTime, setStartTime] = useState("12:00");
   const [hours, setHours] = useState(2);
   const [guests, setGuests] = useState(1);
@@ -65,6 +83,11 @@ const PropertyBookingForm = ({ property }: { property: IProperty }) => {
     ),
   );
   const inPast = start <= new Date();
+  // a late booking can run past midnight into the next day
+  const endDay = new Date(end.getTime() - 1 + HOUR_MS)
+    .toISOString()
+    .slice(0, 10);
+  const isBlocked = blocked.includes(date) || blocked.includes(endDay);
 
   const { mutate, isPending } = useMutation({
     mutationFn: (choices: Choices) =>
@@ -117,16 +140,41 @@ const PropertyBookingForm = ({ property }: { property: IProperty }) => {
   return (
     <>
       <div className="mt-6 grid grid-cols-2 overflow-hidden rounded-xl border border-border">
-        <label className="border-b border-r border-border p-3">
+        <div className="border-b border-r border-border p-3">
           <span className={labelClass}>Date</span>
-          <input
-            type="date"
-            min={todayInNigeria()}
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className={fieldClass}
-          />
-        </label>
+          <Popover open={isPickingDate} onOpenChange={setIsPickingDate}>
+            <PopoverTrigger
+              className={`${fieldClass} flex items-center justify-between gap-2 text-left`}
+            >
+              {formatDay(date)}
+              <CalendarDays className="h-4 w-4 shrink-0 text-muted-foreground" />
+            </PopoverTrigger>
+            <PopoverContent align="start" className="w-auto p-0">
+              <Calendar
+                mode="single"
+                selected={keyToDate(date)}
+                defaultMonth={keyToDate(date)}
+                onSelect={(day) => {
+                  if (!day) return;
+                  setDate(dateKey(day));
+                  setIsPickingDate(false);
+                }}
+                disabled={[{ before: today }, ...blockedDays]}
+                startMonth={today}
+                modifiers={{ blocked: blockedDays }}
+                modifiersClassNames={{
+                  blocked: "line-through decoration-red-500",
+                }}
+                className="[--cell-size:--spacing(9)]"
+              />
+              {blocked.length > 0 && (
+                <p className="px-3 pb-3 text-xs text-muted-foreground">
+                  Crossed out days aren't available.
+                </p>
+              )}
+            </PopoverContent>
+          </Popover>
+        </div>
         <label className="border-b border-border p-3">
           <span className={labelClass}>Start time</span>
           <input
@@ -175,12 +223,19 @@ const PropertyBookingForm = ({ property }: { property: IProperty }) => {
           </div>
         </div>
       )}
-      {clashes && (
+      {isBlocked && (
+        <p className="mt-2 text-xs font-semibold text-red-500">
+          {blocked.includes(date)
+            ? "The host isn't taking bookings that day. Pick another day."
+            : "This runs into the next day, and the host isn't taking bookings then. Pick an earlier time."}
+        </p>
+      )}
+      {!isBlocked && clashes && (
         <p className="mt-2 text-xs font-semibold text-red-500">
           That time is already booked. Pick another time.
         </p>
       )}
-      {!clashes && inPast && (
+      {!isBlocked && !clashes && inPast && (
         <p className="mt-2 text-xs font-semibold text-red-500">
           Pick a time in the future.
         </p>
@@ -200,7 +255,7 @@ const PropertyBookingForm = ({ property }: { property: IProperty }) => {
       <button
         type="button"
         onClick={handleBook}
-        disabled={isPending || clashes || inPast || !startTime}
+        disabled={isPending || isBlocked || clashes || inPast || !startTime}
         className="mt-5 w-full rounded-xl bg-purple-500 py-3.5 text-sm font-bold text-white transition hover:bg-purple-600 disabled:opacity-60"
       >
         {isPending

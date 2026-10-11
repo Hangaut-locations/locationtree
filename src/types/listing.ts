@@ -120,6 +120,7 @@ export interface IProperty {
   space_type: "entire" | "room" | "shared";
   property_type: string;
   booking_setting: "approve-first" | "instant";
+  blocked_dates?: string[];
   guest_capacity: number;
   charge_type: "person" | "hour";
   property_rules?: string;
