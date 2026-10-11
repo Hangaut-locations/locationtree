@@ -25,6 +25,14 @@ interface BookingBase {
   createdAt: string;
 }
 
+/** One spot at a party. Only the guest who booked gets the codes back. */
+export interface PartyTicket {
+  name: string;
+  email: string;
+  code?: string;
+  checked_in_at?: string;
+}
+
 export interface PartyBooking extends BookingBase {
   partyId: string;
   hours?: number;
@@ -32,6 +40,34 @@ export interface PartyBooking extends BookingBase {
   start_date?: string;
   end_date?: string;
   start_time?: string;
+  tickets?: PartyTicket[];
+}
+
+export interface PartyFriend {
+  name: string;
+  email?: string;
+}
+
+export interface CheckInResult {
+  name: string;
+  booked_by: string;
+  party: string;
+  group: number;
+  group_checked_in: number;
+  checked_in_at: string;
+}
+
+export interface PartyGuestList {
+  title: string;
+  spots: number;
+  checked_in: number;
+  guests: {
+    name: string;
+    booked_by: string;
+    booking_id: string;
+    checked_in_at: string | null;
+  }[];
+  without_codes: { booked_by: string; spots: number }[];
 }
 
 export interface PropertyBooking extends BookingBase {

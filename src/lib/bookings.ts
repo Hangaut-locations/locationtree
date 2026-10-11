@@ -2,7 +2,10 @@ import { adminCaller, axiosClient } from "../interceptors/http";
 import type {
   BookingLists,
   BookingStatus,
+  CheckInResult,
   PartyBooking,
+  PartyFriend,
+  PartyGuestList,
   PropertyBooking,
   TakenTime,
 } from "../types/booking";
@@ -31,12 +34,29 @@ export const getTakenTimes = (propertyId: string) =>
 export const bookParty = (data: {
   partyId: string;
   guests: number;
+  friends?: PartyFriend[];
   hours?: number;
   days?: number;
   key?: string;
 }) =>
   adminCaller
     .post<PartyBooking>("/bookings/parties", data)
+    .then((res) => res.data);
+
+export const partyGuestsQueryKey = (partyId: string) => [
+  "bookings",
+  "guests",
+  partyId,
+];
+
+export const getPartyGuests = (partyId: string) =>
+  adminCaller
+    .get<PartyGuestList>(`/bookings/parties/${partyId}/guests`)
+    .then((res) => res.data);
+
+export const checkInGuest = (code: string) =>
+  adminCaller
+    .post<CheckInResult>("/bookings/parties/check-in", { code })
     .then((res) => res.data);
 
 export const bookProperty = (data: {
