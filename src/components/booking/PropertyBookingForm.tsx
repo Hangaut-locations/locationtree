@@ -13,14 +13,14 @@ import useAuth from "../hooks/useAuth";
 import useAppContext from "../hooks/useAppContext";
 import CountInput from "../CountInput";
 import {
+  bookedDays,
   bookProperty,
   dateKey,
-  formatClockRange,
   formatDay,
   keyToDate,
   getTakenTimes,
   nigeriaDateTime,
-  overlaps,
+  nigeriaDay,
   savePendingBooking,
   takePendingBooking,
   takenTimesQueryKey,
@@ -48,14 +48,9 @@ const PropertyBookingForm = ({ property }: { property: IProperty }) => {
   const capacity = Number(property.guest_capacity) || 1;
   const price = Number(property.price) || 0;
   const blocked = property.blocked_dates ?? [];
-  const blockedDays = blocked.map(keyToDate);
   const today = keyToDate(todayInNigeria());
   const [isPickingDate, setIsPickingDate] = useState(false);
-  const [date, setDate] = useState(() => {
-    let day = 1;
-    while (blocked.includes(todayInNigeria(day)) && day < 400) day++;
-    return todayInNigeria(day);
-  });
+  const [pickedDate, setPickedDate] = useState<string | null>(null);
   const [startTime, setStartTime] = useState("12:00");
   const [hours, setHours] = useState(2);
   const [guests, setGuests] = useState(1);
@@ -66,28 +61,23 @@ const PropertyBookingForm = ({ property }: { property: IProperty }) => {
     queryFn: () => getTakenTimes(property._id),
   });
 
-  const dayStart = nigeriaDateTime(date, "00:00");
-  const dayEnd = new Date(dayStart.getTime() + 24 * HOUR_MS);
-  const takenThatDay = taken.filter((slot) =>
-    overlaps(
-      { start: new Date(slot.start_at), end: new Date(slot.end_at) },
-      { start: dayStart, end: dayEnd },
-    ),
-  );
+  const booked = bookedDays(taken);
+  const unavailable = [...blocked, ...booked];
+  const unavailableDays = unavailable.map(keyToDate);
+  const firstFreeDay = () => {
+    let day = 1;
+    while (unavailable.includes(todayInNigeria(day)) && day < 400) day++;
+    return todayInNigeria(day);
+  };
+  const date = pickedDate ?? firstFreeDay();
+
   const start = nigeriaDateTime(date, startTime || "00:00");
   const end = new Date(start.getTime() + hours * HOUR_MS);
-  const clashes = takenThatDay.some((slot) =>
-    overlaps(
-      { start: new Date(slot.start_at), end: new Date(slot.end_at) },
-      { start, end },
-    ),
-  );
   const inPast = start <= new Date();
   // a late booking can run past midnight into the next day
-  const endDay = new Date(end.getTime() - 1 + HOUR_MS)
-    .toISOString()
-    .slice(0, 10);
+  const endDay = nigeriaDay(new Date(end.getTime() - 1));
   const isBlocked = blocked.includes(date) || blocked.includes(endDay);
+  const isBooked = booked.includes(date) || booked.includes(endDay);
 
   const { mutate, isPending } = useMutation({
     mutationFn: (choices: Choices) =>
@@ -119,7 +109,7 @@ const PropertyBookingForm = ({ property }: { property: IProperty }) => {
     if (!user) return;
     const saved = takePendingBooking<Choices>(property._id);
     if (!saved) return;
-    setDate(saved.date);
+    setPickedDate(saved.date);
     setStartTime(saved.startTime);
     setHours(saved.hours);
     setGuests(saved.guests);
@@ -156,18 +146,18 @@ const PropertyBookingForm = ({ property }: { property: IProperty }) => {
                 defaultMonth={keyToDate(date)}
                 onSelect={(day) => {
                   if (!day) return;
-                  setDate(dateKey(day));
+                  setPickedDate(dateKey(day));
                   setIsPickingDate(false);
                 }}
-                disabled={[{ before: today }, ...blockedDays]}
+                disabled={[{ before: today }, ...unavailableDays]}
                 startMonth={today}
-                modifiers={{ blocked: blockedDays }}
+                modifiers={{ unavailable: unavailableDays }}
                 modifiersClassNames={{
-                  blocked: "line-through decoration-red-500",
+                  unavailable: "line-through decoration-red-500",
                 }}
                 className="[--cell-size:--spacing(9)]"
               />
-              {blocked.length > 0 && (
+              {unavailable.length > 0 && (
                 <p className="px-3 pb-3 text-xs text-muted-foreground">
                   Crossed out days aren't available.
                 </p>
@@ -206,23 +196,6 @@ const PropertyBookingForm = ({ property }: { property: IProperty }) => {
         </label>
       </div>
 
-      {takenThatDay.length > 0 && (
-        <div className="mt-3 text-xs">
-          <p className="font-semibold text-muted-foreground">
-            Already booked that day:
-          </p>
-          <div className="mt-1.5 flex flex-wrap gap-1.5">
-            {takenThatDay.map((slot) => (
-              <span
-                key={slot.start_at}
-                className="rounded-full bg-muted px-2.5 py-1 font-semibold"
-              >
-                {formatClockRange(slot.start_at, slot.end_at)}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
       {isBlocked && (
         <p className="mt-2 text-xs font-semibold text-red-500">
           {blocked.includes(date)
@@ -230,12 +203,14 @@ const PropertyBookingForm = ({ property }: { property: IProperty }) => {
             : "This runs into the next day, and the host isn't taking bookings then. Pick an earlier time."}
         </p>
       )}
-      {!isBlocked && clashes && (
+      {!isBlocked && isBooked && (
         <p className="mt-2 text-xs font-semibold text-red-500">
-          That time is already booked. Pick another time.
+          {booked.includes(date)
+            ? "Someone already booked this day. Pick another day."
+            : "This runs into the next day, and someone already booked it. Pick an earlier time."}
         </p>
       )}
-      {!isBlocked && !clashes && inPast && (
+      {!isBlocked && !isBooked && inPast && (
         <p className="mt-2 text-xs font-semibold text-red-500">
           Pick a time in the future.
         </p>
@@ -255,7 +230,7 @@ const PropertyBookingForm = ({ property }: { property: IProperty }) => {
       <button
         type="button"
         onClick={handleBook}
-        disabled={isPending || isBlocked || clashes || inPast || !startTime}
+        disabled={isPending || isBlocked || isBooked || inPast || !startTime}
         className="mt-5 w-full rounded-xl bg-purple-500 py-3.5 text-sm font-bold text-white transition hover:bg-purple-600 disabled:opacity-60"
       >
         {isPending
