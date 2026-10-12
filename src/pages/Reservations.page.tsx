@@ -15,6 +15,7 @@ import AppLayout from "../components/layout/AppLayout";
 import useAuth from "../components/hooks/useAuth";
 import useAppContext from "../components/hooks/useAppContext";
 import {
+  formatDayRange,
   formatTimeRange,
   getReservations,
   getTrips,
@@ -145,17 +146,19 @@ const ReservationsPage = () => {
       row.kind === "parties"
         ? `/parties/${row.booking.partyId}`
         : `/homes/${row.booking.propertyId}`;
+    const homeByDay = row.kind === "properties" && !!row.booking.days;
     const when =
       row.kind === "parties"
         ? formatPartyWhen(row.booking) || "Date to be announced"
-        : formatTimeRange(row.booking.start_at, row.booking.end_at);
-    const hours = booking.charge_type === "hour" || row.kind === "properties"
-      ? row.booking.hours
-      : undefined;
-    const days =
-      row.kind === "parties" && booking.charge_type === "day"
-        ? row.booking.days
+        : homeByDay
+          ? formatDayRange(row.booking.start_at, row.booking.end_at)
+          : formatTimeRange(row.booking.start_at, row.booking.end_at);
+    const hours =
+      !homeByDay && (booking.charge_type === "hour" || row.kind === "properties")
+        ? row.booking.hours
         : undefined;
+    const days =
+      homeByDay || booking.charge_type === "day" ? row.booking.days : undefined;
     const busy = isPending && variables?.row.booking._id === booking._id;
     const notStarted = row.start > now;
     const canAnswer =
