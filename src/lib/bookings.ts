@@ -109,6 +109,28 @@ const NIGERIA_TZ = "Africa/Lagos";
 export const nigeriaDateTime = (date: string, time: string) =>
   new Date(`${date}T${time}:00+01:00`);
 
+/** Nigeria calendar day of a moment, like "2026-10-20". */
+export const nigeriaDay = (date: Date) =>
+  new Date(date.getTime() + 60 * 60 * 1000).toISOString().slice(0, 10);
+
+/** Homes take one booking a day, so a booking holds every day it touches. */
+export const bookedDays = (slots: TakenTime[]) => {
+  const days = new Set<string>();
+  for (const slot of slots) {
+    const lastDay = nigeriaDay(new Date(new Date(slot.end_at).getTime() - 1));
+    for (
+      let moment = new Date(slot.start_at);
+      ;
+      moment = new Date(moment.getTime() + 24 * 60 * 60 * 1000)
+    ) {
+      const day = nigeriaDay(moment);
+      days.add(day);
+      if (day >= lastDay) break;
+    }
+  }
+  return [...days];
+};
+
 export const todayInNigeria = (daysAhead = 0) =>
   new Date(Date.now() + 60 * 60 * 1000 + daysAhead * 24 * 60 * 60 * 1000)
     .toISOString()
@@ -153,11 +175,3 @@ export const formatTimeRange = (startAt: string, endAt: string) => {
   return `${formatDate(start)} · ${formatClock(start)} – ${formatClock(end)}`;
 };
 
-/** e.g. "2:00 PM – 5:00 PM" */
-export const formatClockRange = (startAt: string, endAt: string) =>
-  `${formatClock(new Date(startAt))} – ${formatClock(new Date(endAt))}`;
-
-export const overlaps = (
-  a: { start: Date; end: Date },
-  b: { start: Date; end: Date },
-) => a.start < b.end && a.end > b.start;
