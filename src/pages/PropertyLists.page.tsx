@@ -7,6 +7,8 @@ import PropertyCardSkeleton from "../components/parties/PropertCardSkeleton";
 import useAuth from "../components/hooks/useAuth";
 import { adminCaller } from "../interceptors/http";
 import type { TGroupedProperties } from "../types/listing";
+import SearchSummary, { NoSearchResults } from "../components/SearchSummary";
+import { filterGroups, placeMatches, useListingSearch } from "../lib/search";
 
 const PropertiesPage: React.FC = () => {
   const { data: user, isLoading: userLoading } = useAuth();
@@ -25,6 +27,15 @@ const PropertiesPage: React.FC = () => {
     refetchOnWindowFocus: false,
   });
 
+  const { search, isActive } = useListingSearch();
+  const results = isActive
+    ? filterGroups(
+        data ?? [],
+        (group) => group.properties,
+        (place, area) => placeMatches(place, search, area),
+      )
+    : [];
+
   return (
     <AppLayout>
       <div className="w-full space-y-12 max-w-7xl mx-auto p-4 lg:p-5">
@@ -34,6 +45,20 @@ const PropertiesPage: React.FC = () => {
               <PropertyCardSkeleton key={index} />
             ))}
           </div>
+        ) : isActive ? (
+          <>
+            <SearchSummary
+              search={search}
+              count={results.reduce((sum, group) => sum + group.items.length, 0)}
+            />
+            {results.length ? (
+              results.map((group) => (
+                <PropertyLists key={group.caption} items={group.items} title={group.caption} />
+              ))
+            ) : (
+              <NoSearchResults />
+            )}
+          </>
         ) : !data?.length ? (
           <div className="rounded-3xl border border-dashed border-border p-14 text-center">
             <Home className="mx-auto mb-3 h-9 w-9 text-muted-foreground" />

@@ -1,9 +1,12 @@
 import { Search, X } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
-import { Party_Types } from "../data/constants";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Party_Types, Property_Types } from "../data/constants";
 import DateSelector from "./search-header/DateSelect";
 import { formatDateShort } from "../../lib/utils";
+import { dateKey, keyToDate } from "../lib/bookings";
+import { searchToParams, useListingSearch } from "../lib/search";
 
 interface SearchHeaderProps {
   where?: string;
@@ -17,16 +20,71 @@ const partiesCategories = Party_Types.map((itm) => ({
   icon: itm.icon,
 }));
 
+const placeCategories = Property_Types.map((itm) => ({
+  id: itm.name,
+  name: itm.name,
+  icon: itm.icon,
+}));
+
+/** Search results stay on the tab you searched from. */
+const searchPathFor = (pathname: string) =>
+  pathname.startsWith("/homes") ? "/homes" : pathname.startsWith("/parties") ? "/parties" : "/";
+
 export const SearchHeader: React.FC<SearchHeaderProps> = ({
   location,
   where,
   thirdLabel,
 }) => {
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const { search } = useListingSearch();
+  const searchPath = searchPathFor(pathname);
+  const onHomes = searchPath === "/homes";
+  const onParties = searchPath === "/parties";
+  const categories = onHomes
+    ? placeCategories
+    : onParties
+      ? partiesCategories
+      : [...partiesCategories, ...placeCategories].filter(
+          (item, index, all) => all.findIndex((other) => other.name === item.name) === index,
+        );
+  const typeLabel = onHomes ? "Type of place" : onParties ? "Type of party" : "Type";
+  const typePlaceholder = onHomes ? "Add place" : onParties ? "Add party" : "Party or place";
+
   const [activeBtn, setActiveBtn] = useState(0);
-  const [destination, setDestination] = useState("");
-  const [type, setType] = useState("");
-  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
-  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [destination, setDestination] = useState(search.where);
+  const [type, setType] = useState(search.type);
+  const [startDate, setStartDate] = useState<Date | undefined>(
+    search.from ? keyToDate(search.from) : undefined,
+  );
+  const [endDate, setEndDate] = useState<Date | undefined>(
+    search.to ? keyToDate(search.to) : undefined,
+  );
+
+  // the search in the address can change from outside, like "Clear search" or the back button
+  const searchKey = `${search.where}|${search.from}|${search.to}|${search.type}`;
+  useEffect(() => {
+    const [where, from, to, searchType] = searchKey.split("|");
+    setDestination(where);
+    setType(searchType);
+    setStartDate(from ? keyToDate(from) : undefined);
+    setEndDate(to ? keyToDate(to) : undefined);
+  }, [searchKey]);
+
+  const runSearch = () => {
+    if (isDateInvalid) return;
+    const params = searchToParams({
+      where: destination,
+      from: startDate ? dateKey(startDate) : "",
+      to: endDate ? dateKey(endDate) : "",
+      type,
+    });
+    const query = params.toString();
+    navigate(query ? `${searchPath}?${query}` : searchPath);
+    setActiveBtn(0);
+    setShowDropdown(false);
+    setExpanded(false);
+  };
   const [showDropdown, setShowDropdown] = useState(false);
   const headerRef = useRef<HTMLDivElement>(null);
   const today = new Date().toISOString().split("T")[0];
@@ -78,7 +136,8 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
       type,
     ]
       .filter(Boolean)
-      .join(" · ") || "Any place · Any date · Any party";
+      .join(" · ") ||
+    `Any place · Any date · ${onHomes ? "Any type" : onParties ? "Any party" : "Any party or place"}`;
 
   const openSearch = () => {
     expandedAt.current = window.scrollY;
@@ -134,6 +193,9 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
                     // setShowDropdown(true);
                   }}
                   onFocus={() => setShowDropdown(true)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") runSearch();
+                  }}
                   className="w-[95%] bg-transparent text-foreground placeholder-muted-foreground outline-none border-none p-0 focus:ring-0"
                 />
                 <button
@@ -197,18 +259,26 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
             <button className="relative flex flex-col items-start justify-center w-full">
               <div className="w-full flex flex-col justify-center items-start relative">
                 <p className="tracking-wider text-[#222] text-[11px]">
-                  Type of party
+                  {typeLabel}
                 </p>
-                <p className="text-gray-500 font-semibold">
-                  {type || "Add party"}
+                <p
+                  className={`${type ? "text-[#222]" : "text-gray-500"} font-semibold`}
+                >
+                  {type || typePlaceholder}
                 </p>
               </div>
 
               <div className="absolute right-2 top- group">
                 {/* Search Button */}
                 <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    runSearch();
+                  }}
+                  disabled={Boolean(isDateInvalid)}
                   className="flex gap-3 h-11 w-max ease transition-all duration-300 min-w-11 items-center justify-center rounded-full bg-purple-950 dark:bg-purple-750 text-white shadow-md shadow-purple-900/20 hover:bg-purple-900 hover:md:scale-105 active:scale-97 disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
-                  aria-label="Search parties"
+                  aria-label="Search"
                 >
                   <p className="hidden pl-4 group-hover:flex font-semibold text-white text-xs">
                     Search
@@ -220,10 +290,11 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
 
             {activeBtn === 3 && (
               <div className="absolute top-16 inset-x-0 z-20 sm:left-auto sm:right-0 max-h-96 overflow-y-auto bg-white rounded-2xl sm:min-w-[700px] shadow-lg p-5 md:p-8 lg:p-10 grid gap-x-2 gap-y-3 grid-cols-2 sm:grid-cols-4 md:grid-cols-3">
-                {partiesCategories.map((itm, idx) => (
+                {categories.map((itm, idx) => (
                   <button
                     key={idx}
-                    onClick={() => setType(itm.name)}
+                    type="button"
+                    onClick={() => setType(type === itm.name ? "" : itm.name)}
                     className={`${type === itm.name ? "border-gray-400 bg-gray-50" : ""} cursor-pointer flex justify-center items-center gap-1 py-3 px-2.5 border hover:border-gray-400 ease transition-all duration-200 rounded-full`}
                   >
                     <itm.icon size={16} />
