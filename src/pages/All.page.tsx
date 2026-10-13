@@ -9,6 +9,8 @@ import useAuth from "../components/hooks/useAuth";
 import type { TGroupedParties } from "../types/parties";
 import type { TGroupedProperties } from "../types/listing";
 import { adminCaller } from "../interceptors/http";
+import SearchSummary, { NoSearchResults } from "../components/SearchSummary";
+import { filterGroups, partyMatches, placeMatches, useListingSearch } from "../lib/search";
 
 type Listing = { published_at?: Date; createdAt: Date };
 
@@ -37,17 +39,40 @@ const AllPage: React.FC = () => {
   const isLoading = parties.isLoading || properties.isLoading;
   const isEmpty = !parties.data?.length && !properties.data?.length;
 
+  const { search, isActive } = useListingSearch();
+  const partyGroups = isActive
+    ? filterGroups(
+        parties.data ?? [],
+        (group) => group.parties,
+        (party, area) => partyMatches(party, search, area),
+      )
+    : (parties.data ?? []).map((group) => ({ caption: group.caption, items: group.parties }));
+  const placeGroups = isActive
+    ? filterGroups(
+        properties.data ?? [],
+        (group) => group.properties,
+        (place, area) => placeMatches(place, search, area),
+      )
+    : (properties.data ?? []).map((group) => ({
+        caption: group.caption,
+        items: group.properties,
+      }));
+  const resultCount = [...partyGroups, ...placeGroups].reduce(
+    (sum, group) => sum + group.items.length,
+    0,
+  );
+
   // parties and homes mixed together, the group with the newest listing goes on top
   const sections = [
-    ...(parties.data ?? []).map((group) => ({
+    ...partyGroups.map((group) => ({
       key: `party-${group.caption}`,
-      newest: newestIn(group.parties),
-      node: <PartyLists items={group.parties} title={group.caption} />,
+      newest: newestIn(group.items),
+      node: <PartyLists items={group.items} title={group.caption} />,
     })),
-    ...(properties.data ?? []).map((group) => ({
+    ...placeGroups.map((group) => ({
       key: `property-${group.caption}`,
-      newest: newestIn(group.properties),
-      node: <PropertyLists items={group.properties} title={group.caption} />,
+      newest: newestIn(group.items),
+      node: <PropertyLists items={group.items} title={group.caption} />,
     })),
   ].sort((a, b) => b.newest - a.newest);
 
@@ -60,6 +85,15 @@ const AllPage: React.FC = () => {
               <PropertyCardSkeleton key={index} />
             ))}
           </div>
+        ) : isActive ? (
+          <>
+            <SearchSummary search={search} count={resultCount} />
+            {sections.length ? (
+              sections.map((section) => <Fragment key={section.key}>{section.node}</Fragment>)
+            ) : (
+              <NoSearchResults />
+            )}
+          </>
         ) : isEmpty ? (
           <div className="rounded-3xl border border-dashed border-border p-14 text-center">
             <Compass className="mx-auto mb-3 h-9 w-9 text-muted-foreground" />
