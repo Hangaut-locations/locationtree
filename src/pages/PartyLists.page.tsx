@@ -38,16 +38,16 @@ const PartiesPage: React.FC = () => {
     return url;
   }, [user, userLoading]);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading } = useQuery<TGroupedParties[]>({
     queryKey: ["parties-grouped-by-location", endpoint],
-    queryFn: () => adminCaller.get(endpoint).then((res) => res.data),
+    queryFn: () => adminCaller.get(endpoint).then((res) => res.data?.data ?? []),
     refetchOnWindowFocus: false,
   });
 
   const { search, isActive } = useListingSearch();
   const results = isActive
     ? filterGroups(
-        (data?.data ?? []) as TGroupedParties[],
+        data ?? [],
         (group) => group.parties,
         (party, area) => partyMatches(party, search, area),
       )
@@ -96,7 +96,7 @@ const PartiesPage: React.FC = () => {
           </>
         ) : (
           <>
-            {data?.data?.map((item: TGroupedParties, index: number) => (
+            {data?.map((item: TGroupedParties, index: number) => (
               <PartyLists
                 items={item.parties}
                 title={item.caption}
