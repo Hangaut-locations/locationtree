@@ -82,6 +82,13 @@ export interface Booking {
 
 export type Visibility = "public" | "private";
 
+export interface ListingVideo {
+  public_id: string;
+  url: string;
+  poster: string;
+  duration: number;
+}
+
 export interface IParty {
   _id: string;
   ownerId: string;
@@ -89,6 +96,7 @@ export interface IParty {
   description: string;
   location: string;
   images: string[];
+  video?: ListingVideo | null;
   guest_capacity: number;
   charge_type: "person" | "hour" | "day";
   party_rules: string;
@@ -113,6 +121,7 @@ export interface IProperty {
   description: string;
   location: string;
   images: string[];
+  video?: ListingVideo | null;
   amenities: string[];
   status: "draft" | "published";
   visibility?: Visibility;

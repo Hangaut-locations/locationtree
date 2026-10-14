@@ -22,6 +22,7 @@ import toast from "react-hot-toast";
 import PartyTypeSkeleton from "./parties/CreatePartySkeleton";
 import useRequireLogin from "./hooks/useRequireLogin";
 import useAppContext from "./hooks/useAppContext";
+import useListingMedia from "./hooks/useListingMedia";
 import { priceForInput, priceToUSD } from "../lib/currency";
 import { todayInNigeria } from "../lib/bookings";
 
@@ -65,7 +66,8 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [rules, setRules] = useState<string>("");
-  const [photos, setPhotos] = useState<string[]>([]);
+  const media = useListingMedia("property");
+  const { photos, setPhotos, setVideo } = media;
   const [bookingSetting, setBookingSetting] = useState<
     "approve-first" | "instant"
   >("approve-first");
@@ -90,6 +92,7 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
     setDescription(propertyData.description ?? "");
     setRules(propertyData.property_rules ?? "");
     setPhotos(propertyData.images ?? []);
+    setVideo(propertyData.video ?? null);
     setBookingSetting(
       propertyData.booking_setting === "instant" ? "instant" : "approve-first",
     );
@@ -147,6 +150,7 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
       property_rules: rules.trim(),
       ...(location.trim() && { location }),
       images: photos,
+      video: media.video?.public_id ?? "",
       bedrooms,
       beds,
       bathrooms,
@@ -239,11 +243,13 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
           </button>
           <button
             title={
-              canSaveDraft
-                ? "Save property as draft"
-                : "Pick a category first to save a draft"
+              media.busy
+                ? "Wait for your uploads to finish"
+                : canSaveDraft
+                  ? "Save property as draft"
+                  : "Pick a category first to save a draft"
             }
-            disabled={!canSaveDraft || loading}
+            disabled={!canSaveDraft || loading || media.busy}
             onClick={() => handleSubmit("draft")}
             className="disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 rounded-full border border-border px-4 py-2.5 md:py-2 text-xs font-semibold text-foreground hover:bg-muted transition-all cursor-pointer"
           >
@@ -304,7 +310,7 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
           )}
 
           {/* Step 7: Add Photos */}
-          {step === 7 && <StepSeven photos={photos} setPhotos={setPhotos} />}
+          {step === 7 && <StepSeven media={media} />}
 
           {/* Step 8: Title */}
           {step === 8 && <StepEight title={title} setTitle={setTitle} />}
@@ -359,10 +365,14 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
           <button
             type="button"
             onClick={handleNext}
-            disabled={!isStepValid() || loading}
+            disabled={
+              !isStepValid() || loading || (step === 12 && media.busy)
+            }
             className="rounded-full bg-purple-950 hover:bg-purple-900 dark:bg-purple-800 dark:hover:bg-purple-750 text-white font-bold py-3 px-6 text-sm shadow-md active:scale-97 transition-[transform,background-color] duration-160 ease-out disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
           >
-            {step === 12
+            {step === 12 && media.busy
+              ? "Uploading..."
+              : step === 12
               ? loading
                 ? propertyId && !isDraft
                   ? "Updating..."
