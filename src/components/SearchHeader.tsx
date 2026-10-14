@@ -1,4 +1,4 @@
-import { Search, X } from "lucide-react";
+import { MapPin, Search, X } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -6,7 +6,8 @@ import { Party_Types, Property_Types } from "../data/constants";
 import DateSelector from "./search-header/DateSelect";
 import { formatDateShort } from "../../lib/utils";
 import { dateKey, keyToDate } from "../lib/bookings";
-import { searchToParams, useListingSearch } from "../lib/search";
+import { searchToParams, suggestAreas, useListingSearch } from "../lib/search";
+import useListingAreas from "./hooks/useListingAreas";
 
 interface SearchHeaderProps {
   where?: string;
@@ -86,7 +87,21 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
     setExpanded(false);
   };
   const [showDropdown, setShowDropdown] = useState(false);
+  const [highlighted, setHighlighted] = useState(-1);
   const headerRef = useRef<HTMLDivElement>(null);
+
+  const showAreas = showDropdown && activeBtn === 1;
+  const areas = suggestAreas(
+    useListingAreas(onHomes ? "homes" : onParties ? "parties" : "all", showDropdown),
+    destination,
+  );
+
+  const pickArea = (name: string) => {
+    setDestination(name);
+    setShowDropdown(false);
+    setHighlighted(-1);
+    setActiveBtn(2);
+  };
   const today = new Date().toISOString().split("T")[0];
 
   const isDateInvalid =
@@ -177,7 +192,7 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
           <div
             onClick={() => setActiveBtn(1)}
             className={`${activeBtn === 1 ? "bg-white ease transition-all shadow-md" : "hover:bg-[#e5e5e5c0]"}
-            ease transition-all duration-150 text-xs font-semibold pl-7 py-3 rounded-full z-10`}
+            ease transition-all duration-150 text-xs font-semibold pl-7 py-3 rounded-full z-10 relative`}
           >
             <button
               className={`${activeBtn < 2 && "sm:border-r"} hover:border-none relative flex flex-col items-start justify-center w-full`}
@@ -190,12 +205,28 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
                   value={destination}
                   onChange={(e) => {
                     setDestination(e.target.value);
-                    // setShowDropdown(true);
+                    setShowDropdown(true);
+                    setHighlighted(-1);
                   }}
                   onFocus={() => setShowDropdown(true)}
+                  onClick={() => setShowDropdown(true)}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter") runSearch();
+                    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+                      e.preventDefault();
+                      if (!areas.length) return;
+                      setShowDropdown(true);
+                      const last = areas.length - 1;
+                      setHighlighted((at) =>
+                        e.key === "ArrowDown" ? (at >= last ? 0 : at + 1) : at <= 0 ? last : at - 1,
+                      );
+                    } else if (e.key === "Escape") {
+                      setShowDropdown(false);
+                    } else if (e.key === "Enter") {
+                      if (showAreas && areas[highlighted]) pickArea(areas[highlighted].name);
+                      else runSearch();
+                    }
                   }}
+                  autoComplete="off"
                   className="w-[95%] bg-transparent text-foreground placeholder-muted-foreground outline-none border-none p-0 focus:ring-0"
                 />
                 <button
@@ -209,6 +240,49 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
 
               {/* Autocomplete Dropdown */}
             </button>
+
+            {showAreas && (
+              <div
+                onClick={(e) => e.stopPropagation()}
+                className="absolute left-0 top-16 z-20 w-full overflow-hidden rounded-2xl bg-white py-2 shadow-lg sm:w-[360px]"
+              >
+                {areas.length ? (
+                  <>
+                    {!destination.trim() && (
+                      <p className="px-5 pb-1 pt-2 text-[11px] font-semibold tracking-wider text-gray-500">
+                        Areas with listings
+                      </p>
+                    )}
+                    {areas.map((area, index) => (
+                      <button
+                        key={area.name}
+                        type="button"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onMouseEnter={() => setHighlighted(index)}
+                        onClick={() => pickArea(area.name)}
+                        className={`${highlighted === index ? "bg-gray-100" : ""} flex w-full items-center gap-3 px-5 py-2.5 text-left`}
+                      >
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gray-100">
+                          <MapPin className="h-4 w-4 text-[#222]" />
+                        </span>
+                        <span className="min-w-0">
+                          <span className="block truncate text-sm font-medium text-[#222]">
+                            {area.name}
+                          </span>
+                          <span className="block text-xs font-normal text-gray-500">
+                            {area.count} {area.count === 1 ? "listing" : "listings"}
+                          </span>
+                        </span>
+                      </button>
+                    ))}
+                  </>
+                ) : destination.trim() ? (
+                  <p className="px-5 py-3 text-xs font-normal text-gray-500">
+                    No listings in that area yet. Try another area or search anyway.
+                  </p>
+                ) : null}
+              </div>
+            )}
           </div>
 
           {/* Check In Date */}

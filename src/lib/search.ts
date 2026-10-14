@@ -34,12 +34,42 @@ export const useListingSearch = () => {
   return { search, isActive };
 };
 
+const wordsIn = (text: string) => text.toLowerCase().split(/[\s,]+/).filter(Boolean);
+
 /** Every word typed has to show up in the place, title or area name. */
 const matchesWhere = (where: string, ...fields: (string | undefined)[]) => {
-  const words = where.toLowerCase().split(/\s+/).filter(Boolean);
+  const words = wordsIn(where);
   if (!words.length) return true;
   const text = fields.join(" ").toLowerCase();
   return words.every((word) => text.includes(word));
+};
+
+export interface AreaSuggestion {
+  name: string;
+  count: number;
+}
+
+/** Areas that actually have listings, the ones with the most listings first. */
+export const suggestAreas = (locations: string[], typed: string, limit = 6): AreaSuggestion[] => {
+  const areas = new Map<string, AreaSuggestion>();
+  for (const location of locations) {
+    const name = location?.trim();
+    if (!name) continue;
+    const key = name.toLowerCase();
+    const area = areas.get(key);
+    if (area) area.count += 1;
+    else areas.set(key, { name, count: 1 });
+  }
+  const words = wordsIn(typed);
+  return [...areas.values()]
+    .filter((area) => words.every((word) => area.name.toLowerCase().includes(word)))
+    .sort((a, b) => {
+      // "lek" should put Lekki above a place that only has "lek" in the middle
+      const starts = (area: AreaSuggestion) =>
+        words.length && area.name.toLowerCase().startsWith(words[0]) ? 0 : 1;
+      return starts(a) - starts(b) || b.count - a.count || a.name.localeCompare(b.name);
+    })
+    .slice(0, limit);
 };
 
 const matchesType = (type: string, listingType?: string) =>
