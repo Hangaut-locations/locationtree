@@ -71,7 +71,9 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
   >("approve-first");
   const [visibility, setVisibility] = useState<Visibility>("public");
   const [basePrice, setBasePrice] = useState<number>(0);
-  const [priceMode, setPriceMode] = useState<"person" | "hour">("person");
+  const [priceMode, setPriceMode] = useState<"person" | "hour" | "day">(
+    "person",
+  );
   const [amenities, setAmenities] = useState<Set<string>>(new Set());
   const [blockedDates, setBlockedDates] = useState<string[]>([]);
 
@@ -93,7 +95,7 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
     );
     setVisibility(propertyData.visibility === "private" ? "private" : "public");
     setBasePrice(priceForInput(Number(propertyData.price) || 0, currency));
-    setPriceMode(propertyData.charge_type === "hour" ? "hour" : "person");
+    setPriceMode(propertyData.charge_type ?? "person");
     setAmenities(new Set(propertyData.amenities ?? []));
     // past days don't matter anymore, drop them on the next save
     setBlockedDates(
@@ -337,6 +339,7 @@ export const HostPropertyWizard: React.FC<HostPropertyWizardProps> = () => {
               priceMode={priceMode}
               setBasePrice={setBasePrice}
               setPriceMode={setPriceMode}
+              showHour={propertyData?.charge_type === "hour"}
             />
           )}
         </div>

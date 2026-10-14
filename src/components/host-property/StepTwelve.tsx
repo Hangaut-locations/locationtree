@@ -3,13 +3,15 @@ import useAppContext from "../hooks/useAppContext";
 import { formatPrice, priceForInput, symbolFor } from "../../lib/currency";
 import PriceInput from "../PriceInput";
 
-type TMode = "person" | "hour";
+type TMode = "person" | "hour" | "day";
 
 interface IStepProps {
   basePrice: number;
   priceMode: TMode;
   setBasePrice: Dispatch<SetStateAction<number>>;
   setPriceMode: Dispatch<SetStateAction<TMode>>;
+  /** Places priced per hour before can keep it. */
+  showHour?: boolean;
 }
 
 const StepTwelve: React.FC<IStepProps> = ({
@@ -17,8 +19,12 @@ const StepTwelve: React.FC<IStepProps> = ({
   setBasePrice,
   priceMode,
   setPriceMode,
+  showHour = false,
 }) => {
   const { currency } = useAppContext();
+  const modes: TMode[] = showHour
+    ? ["person", "hour", "day"]
+    : ["person", "day"];
 
   return (
     <div className="space-y-8 text-center animate-in fade-in slide-in-from-bottom-4 duration-200 ease-out">
@@ -50,8 +56,10 @@ const StepTwelve: React.FC<IStepProps> = ({
       {/* Price unit selection */}
       <div className="max-w-md mx-auto">
         <p className="text-sm text-foreground mb-3">Charge per:</p>
-        <div className="grid grid-cols-2 gap-3">
-          {(["person", "hour"] as const).map((mode) => (
+        <div
+          className={`grid gap-3 ${modes.length === 3 ? "grid-cols-3" : "grid-cols-2"}`}
+        >
+          {modes.map((mode) => (
             <button
               key={mode}
               type="button"

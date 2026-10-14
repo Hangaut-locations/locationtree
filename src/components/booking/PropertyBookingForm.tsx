@@ -13,6 +13,7 @@ import useAuth from "../hooks/useAuth";
 import useAppContext from "../hooks/useAppContext";
 import CountInput from "../CountInput";
 import {
+  addDays,
   bookedDays,
   bookProperty,
   dateKey,
@@ -37,7 +38,13 @@ const fieldClass = "mt-1 w-full bg-transparent text-sm outline-none";
 const labelClass =
   "block text-[10px] font-bold uppercase tracking-wider text-muted-foreground";
 
-type Choices = { date: string; startTime: string; hours: number; guests: number };
+type Choices = {
+  date: string;
+  startTime: string;
+  hours: number;
+  days?: number;
+  guests: number;
+};
 
 const PropertyBookingForm = ({ property }: { property: IProperty }) => {
   const navigate = useNavigate();
@@ -53,8 +60,15 @@ const PropertyBookingForm = ({ property }: { property: IProperty }) => {
   const [pickedDate, setPickedDate] = useState<string | null>(null);
   const [startTime, setStartTime] = useState("12:00");
   const [hours, setHours] = useState(2);
+  const [days, setDays] = useState(1);
   const [guests, setGuests] = useState(1);
-  const total = property.charge_type === "hour" ? price * hours : price * guests;
+  const perDay = property.charge_type === "day";
+  const total =
+    property.charge_type === "hour"
+      ? price * hours
+      : perDay
+        ? price * days
+        : price * guests;
 
   const { data: taken = [] } = useQuery({
     queryKey: takenTimesQueryKey(property._id),
@@ -65,7 +79,8 @@ const PropertyBookingForm = ({ property }: { property: IProperty }) => {
   const unavailable = [...blocked, ...booked];
   const unavailableDays = unavailable.map(keyToDate);
   const firstFreeDay = () => {
-    let day = 1;
+    // places charged per day can be booked for today
+    let day = perDay ? 0 : 1;
     while (unavailable.includes(todayInNigeria(day)) && day < 400) day++;
     return todayInNigeria(day);
   };
@@ -73,19 +88,23 @@ const PropertyBookingForm = ({ property }: { property: IProperty }) => {
 
   const start = nigeriaDateTime(date, startTime || "00:00");
   const end = new Date(start.getTime() + hours * HOUR_MS);
-  const inPast = start <= new Date();
+  const inPast = perDay ? date < todayInNigeria() : start <= new Date();
   // a late booking can run past midnight into the next day
   const endDay = nigeriaDay(new Date(end.getTime() - 1));
-  const isBlocked = blocked.includes(date) || blocked.includes(endDay);
-  const isBooked = booked.includes(date) || booked.includes(endDay);
+  const daysHeld = perDay
+    ? Array.from({ length: days }, (_, index) => addDays(date, index))
+    : [date, endDay];
+  const isBlocked = daysHeld.some((day) => blocked.includes(day));
+  const isBooked = daysHeld.some((day) => booked.includes(day));
 
   const { mutate, isPending } = useMutation({
     mutationFn: (choices: Choices) =>
       bookProperty({
         propertyId: property._id,
         date: choices.date,
-        start_time: choices.startTime,
-        hours: choices.hours,
+        ...(perDay
+          ? { days: choices.days ?? 1 }
+          : { start_time: choices.startTime, hours: choices.hours }),
         guests: choices.guests,
         key: linkKey(),
       }),
@@ -112,13 +131,14 @@ const PropertyBookingForm = ({ property }: { property: IProperty }) => {
     setPickedDate(saved.date);
     setStartTime(saved.startTime);
     setHours(saved.hours);
+    setDays(saved.days ?? 1);
     setGuests(saved.guests);
     document.getElementById("book")?.scrollIntoView({ behavior: "smooth" });
     mutate(saved);
   }, [user, property._id, mutate]);
 
   const handleBook = () => {
-    const choices = { date, startTime, hours, guests };
+    const choices = { date, startTime, hours, days, guests };
     if (!user) {
       savePendingBooking<Choices>(property._id, choices);
       setIsAuthModal(true);
@@ -165,26 +185,41 @@ const PropertyBookingForm = ({ property }: { property: IProperty }) => {
             </PopoverContent>
           </Popover>
         </div>
-        <label className="border-b border-border p-3">
-          <span className={labelClass}>Start time</span>
-          <input
-            type="time"
-            value={startTime}
-            onChange={(e) => setStartTime(e.target.value)}
-            className={fieldClass}
-          />
-        </label>
-        <label className="border-r border-border p-3">
-          <span className={labelClass}>Hours</span>
-          <CountInput
-            min={1}
-            max={24}
-            value={hours}
-            onChange={setHours}
-            className={fieldClass}
-          />
-        </label>
-        <label className="p-3">
+        {perDay ? (
+          <label className="border-b border-border p-3">
+            <span className={labelClass}>Days</span>
+            <CountInput
+              min={1}
+              max={30}
+              value={days}
+              onChange={setDays}
+              className={fieldClass}
+            />
+          </label>
+        ) : (
+          <>
+            <label className="border-b border-border p-3">
+              <span className={labelClass}>Start time</span>
+              <input
+                type="time"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+                className={fieldClass}
+              />
+            </label>
+            <label className="border-r border-border p-3">
+              <span className={labelClass}>Hours</span>
+              <CountInput
+                min={1}
+                max={24}
+                value={hours}
+                onChange={setHours}
+                className={fieldClass}
+              />
+            </label>
+          </>
+        )}
+        <label className={`p-3 ${perDay ? "col-span-2" : ""}`}>
           <span className={labelClass}>Guests</span>
           <CountInput
             min={1}
@@ -200,19 +235,23 @@ const PropertyBookingForm = ({ property }: { property: IProperty }) => {
         <p className="mt-2 text-xs font-semibold text-red-500">
           {blocked.includes(date)
             ? "The host isn't taking bookings that day. Pick another day."
-            : "This runs into the next day, and the host isn't taking bookings then. Pick an earlier time."}
+            : perDay
+              ? "The host isn't taking bookings on one of those days. Pick fewer days or another date."
+              : "This runs into the next day, and the host isn't taking bookings then. Pick an earlier time."}
         </p>
       )}
       {!isBlocked && isBooked && (
         <p className="mt-2 text-xs font-semibold text-red-500">
           {booked.includes(date)
             ? "Someone already booked this day. Pick another day."
-            : "This runs into the next day, and someone already booked it. Pick an earlier time."}
+            : perDay
+              ? "Someone already booked one of those days. Pick fewer days or another date."
+              : "This runs into the next day, and someone already booked it. Pick an earlier time."}
         </p>
       )}
       {!isBlocked && !isBooked && inPast && (
         <p className="mt-2 text-xs font-semibold text-red-500">
-          Pick a time in the future.
+          {perDay ? "Pick today or a day after." : "Pick a time in the future."}
         </p>
       )}
 
@@ -221,7 +260,9 @@ const PropertyBookingForm = ({ property }: { property: IProperty }) => {
           {formatPrice(displayPrice(price, currency), currency)} x{" "}
           {property.charge_type === "hour"
             ? `${hours} hour${hours === 1 ? "" : "s"}`
-            : `${guests} guest${guests === 1 ? "" : "s"}`}
+            : perDay
+              ? `${days} day${days === 1 ? "" : "s"}`
+              : `${guests} guest${guests === 1 ? "" : "s"}`}
         </span>
         <span className="font-semibold">
           {formatPrice(displayPrice(total, currency), currency)}
@@ -230,7 +271,9 @@ const PropertyBookingForm = ({ property }: { property: IProperty }) => {
       <button
         type="button"
         onClick={handleBook}
-        disabled={isPending || isBlocked || isBooked || inPast || !startTime}
+        disabled={
+          isPending || isBlocked || isBooked || inPast || (!perDay && !startTime)
+        }
         className="mt-5 w-full rounded-xl bg-purple-500 py-3.5 text-sm font-bold text-white transition hover:bg-purple-600 disabled:opacity-60"
       >
         {isPending
