@@ -13,13 +13,18 @@ import type { AuthScreen } from "../AuthModal";
 import { axiosClient } from "../../interceptors/http";
 import toast from "react-hot-toast";
 import LocationSelect from "../global/LocationSelect";
+import { getErrorMessage } from "../../lib/errors";
 
 interface AuthModalProps {
   onClose?: () => void;
   setScreen: Dispatch<SetStateAction<AuthScreen>>;
+  setCodeEmail: (email: string) => void;
 }
 
-export const SignUp: React.FC<AuthModalProps> = ({ setScreen, onClose }) => {
+export const SignUp: React.FC<AuthModalProps> = ({
+  setScreen,
+  setCodeEmail,
+}) => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -52,21 +57,12 @@ export const SignUp: React.FC<AuthModalProps> = ({ setScreen, onClose }) => {
         bio,
       })
       .then((res) => {
-        toast.success("Your account is registered successfully");
-        sessionStorage.setItem("user_token", res.data?.accessToken);
-        sessionStorage.setItem("hangaut_user", JSON.stringify(res.data?.user));
-        if (onClose) {
-          onClose();
-        }
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
-        if (onClose) {
-          onClose();
-        }
+        toast.success("Almost done, check your email for the code");
+        setCodeEmail(res.data?.email ?? email);
+        setScreen("verify");
       })
       .catch((err) => {
-        toast.error(err?.response?.data?.message || "Error registering in");
+        toast.error(getErrorMessage(err, "Error registering in"));
       })
       .finally(() => setLoading(false));
   };

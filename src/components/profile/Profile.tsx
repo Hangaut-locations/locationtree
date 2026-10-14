@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import ProfilePageSkeleton from "../global/UserProfileSkeleton";
 import { getErrorMessage, type ApiError } from "../../lib/errors";
+import { CodeInput, emptyCode } from "../auth/CodeInput";
 
 const Profile: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -25,6 +26,53 @@ const Profile: React.FC = () => {
 
   const { data: profile, isLoading } = useAuth();
 
+  // a new email only switches over once the code sent to it is entered
+  const [pendingEmail, setPendingEmail] = useState("");
+  const [code, setCode] = useState<string[]>(emptyCode);
+  const [confirming, setConfirming] = useState(false);
+  const emailChanged =
+    Boolean(profile?.email) &&
+    email.trim().toLowerCase() !== profile.email.toLowerCase();
+
+  const startEmailChange = () =>
+    adminCaller
+      .post("auth/change-email", { email: email.trim() })
+      .then(() => {
+        setPendingEmail(email.trim());
+        setCode(emptyCode());
+        toast.success(`We sent a code to ${email.trim()}`);
+      })
+      .catch((err: ApiError) => {
+        toast.error(getErrorMessage(err, "Couldn't send the code"));
+      });
+
+  const confirmEmailChange = () => {
+    setConfirming(true);
+    adminCaller
+      .post("auth/change-email/confirm", {
+        email: pendingEmail,
+        code: code.join(""),
+      })
+      .then((res) => {
+        sessionStorage.setItem("user_token", res.data?.accessToken);
+        sessionStorage.setItem("hangaut_user", JSON.stringify(res.data?.user));
+        setPendingEmail("");
+        qc.invalidateQueries({ queryKey: ["profile"] });
+        qc.invalidateQueries({ queryKey: ["me"] });
+        toast.success("Your email is changed");
+      })
+      .catch((err: ApiError) => {
+        setCode(emptyCode());
+        toast.error(getErrorMessage(err, "That code didn't work"));
+      })
+      .finally(() => setConfirming(false));
+  };
+
+  const cancelEmailChange = () => {
+    setPendingEmail("");
+    setEmail(profile?.email ?? "");
+  };
+
   const handleUpdateProfile = () => {
     setLoading(true);
 
@@ -32,7 +80,7 @@ const Profile: React.FC = () => {
       .patch("users/profile", {
         firstName,
         lastName,
-        email,
+        email: profile?.email,
         bio,
         address,
         phone,
@@ -40,9 +88,10 @@ const Profile: React.FC = () => {
         state,
         city,
       })
-      .then((res) => {
+      .then(async () => {
         qc.invalidateQueries({ queryKey: ["profile"] });
         toast.success("Profile updated successfully");
+        if (emailChanged) await startEmailChange();
       })
       .catch((err: ApiError) => {
         toast.error(getErrorMessage(err, "Failed to update profile"));
@@ -124,10 +173,52 @@ const Profile: React.FC = () => {
             <input
               type="email"
               value={email}
+              disabled={Boolean(pendingEmail)}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full border border-border/80 bg-muted/20 rounded-2xl px-4 py-3 text-sm font-medium text-foreground outline-none focus:border-purple-600"
+              className="w-full border border-border/80 bg-muted/20 rounded-2xl px-4 py-3 text-sm font-medium text-foreground outline-none focus:border-purple-600 disabled:opacity-60"
             />
+            {emailChanged && !pendingEmail && (
+              <span className="block text-[11px] text-muted-foreground">
+                We'll send a code to the new email to confirm it's yours when you
+                save.
+              </span>
+            )}
           </label>
+
+          {pendingEmail && (
+            <div className="space-y-4 rounded-2xl border border-purple-200 bg-purple-50/60 p-4 dark:border-purple-900 dark:bg-purple-950/20">
+              <p className="text-xs font-medium text-foreground">
+                Enter the 6 digit code we sent to{" "}
+                <span className="font-semibold">{pendingEmail}</span>. Your
+                email stays {profile?.email} until you do.
+              </p>
+              <CodeInput value={code} onChange={setCode} />
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={cancelEmailChange}
+                  className="rounded-full px-4 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground cursor-pointer"
+                >
+                  Keep old email
+                </button>
+                <button
+                  type="button"
+                  onClick={startEmailChange}
+                  className="rounded-full border border-border px-4 py-2 text-xs font-semibold cursor-pointer"
+                >
+                  Resend code
+                </button>
+                <button
+                  type="button"
+                  onClick={confirmEmailChange}
+                  disabled={confirming || code.some((digit) => !digit)}
+                  className="rounded-full bg-purple-950 px-4 py-2 text-xs font-semibold text-white disabled:opacity-50 cursor-pointer"
+                >
+                  {confirming ? "Checking..." : "Confirm new email"}
+                </button>
+              </div>
+            </div>
+          )}
 
           <LocationSelect
             label="Country"
