@@ -3,6 +3,7 @@ import type { ChangeEvent } from "react";
 import type { ListingMedia } from "../hooks/useListingMedia";
 import ListingVideoPicker from "../listing-media/ListingVideoPicker";
 import PendingPhotos from "../listing-media/PendingPhotos";
+import UploadsNote from "../listing-media/UploadsNote";
 
 interface IStepFiveProps {
   media: ListingMedia;
@@ -194,6 +195,7 @@ const StepSeven: React.FC<IStepFiveProps> = ({ media }) => {
       )}
 
       <ListingVideoPicker media={media} id="place-video" />
+      <UploadsNote />
     </div>
   );
 };

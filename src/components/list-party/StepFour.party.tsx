@@ -3,6 +3,7 @@ import type { ChangeEvent } from "react";
 import type { ListingMedia } from "../hooks/useListingMedia";
 import ListingVideoPicker from "../listing-media/ListingVideoPicker";
 import PendingPhotos from "../listing-media/PendingPhotos";
+import UploadsNote from "../listing-media/UploadsNote";
 
 interface IStepProps {
   media: ListingMedia;
@@ -163,6 +164,7 @@ const PartyStepFour: React.FC<IStepProps> = ({ media }) => {
       )}
 
       <ListingVideoPicker media={media} id="party-video" />
+      <UploadsNote />
     </div>
   );
 };
