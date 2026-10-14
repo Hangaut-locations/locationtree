@@ -122,7 +122,7 @@ export interface IProperty {
   booking_setting: "approve-first" | "instant";
   blocked_dates?: string[];
   guest_capacity: number;
-  charge_type: "person" | "hour";
+  charge_type: "person" | "hour" | "day";
   property_rules?: string;
   price: number;
   bedrooms: number;

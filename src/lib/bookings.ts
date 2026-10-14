@@ -62,8 +62,9 @@ export const checkInGuest = (code: string) =>
 export const bookProperty = (data: {
   propertyId: string;
   date: string;
-  start_time: string;
-  hours: number;
+  start_time?: string;
+  hours?: number;
+  days?: number;
   guests: number;
   key?: string;
 }) =>
@@ -167,6 +168,19 @@ const formatDate = (date: Date) =>
     month: "short",
     timeZone: NIGERIA_TZ,
   });
+
+/** The day key a number of days after another, "2026-10-20" + 2 -> "2026-10-22". */
+export const addDays = (key: string, days: number) =>
+  new Date(Date.parse(`${key}T00:00:00Z`) + days * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .slice(0, 10);
+
+/** e.g. "Tue, 20 Oct – Wed, 21 Oct" or "Tue, 20 Oct · All day" */
+export const formatDayRange = (startAt: string, endAt: string) => {
+  const first = formatDate(new Date(startAt));
+  const last = formatDate(new Date(new Date(endAt).getTime() - 1));
+  return first === last ? `${first} · All day` : `${first} – ${last}`;
+};
 
 /** e.g. "Tue, 20 Oct · 2:00 PM – 5:00 PM" */
 export const formatTimeRange = (startAt: string, endAt: string) => {

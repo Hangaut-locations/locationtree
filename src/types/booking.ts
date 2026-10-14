@@ -75,6 +75,8 @@ export interface PropertyBooking extends BookingBase {
   start_at: string;
   end_at: string;
   hours: number;
+  /** Set when the place is charged per day, the booking holds these whole days. */
+  days?: number;
 }
 
 export interface BookingLists {
