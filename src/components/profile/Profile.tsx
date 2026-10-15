@@ -283,13 +283,6 @@ const Profile: React.FC = () => {
             <SaveAll className="h-3.5 w-3.5" />
             <span>Save changes</span>
           </button>
-
-          {/* <div className="flex justify-start items-center gap-1 text-yellow-700">
-            <CircleAlert className="w-4 h-4" />
-            <p className="text-xs font-medium">
-              Changes save automatically as you move out of each field.
-            </p>
-          </div> */}
         </div>
       </div>
     </div>

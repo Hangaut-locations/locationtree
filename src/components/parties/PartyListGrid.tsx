@@ -3,8 +3,6 @@ import type React from "react";
 import { Skeleton } from "../../../components/ui/skeleton";
 import type { CurrencyCode } from "../../lib/currency";
 import type { Listing } from "../../types/listing";
-import PartyLists from "../parties/PartyLists";
-
 interface ListingGridProps {
   listings: Listing[];
   isLoading: boolean;
@@ -77,34 +75,7 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
     );
   }
 
-  // // Render listing row helper
-  // const renderListingRow = (title: string, items: Listing[]) => {
-  //   if (items?.length === 0) return null;
-  //   return (
-  //     <section className="space-y-6">
-  //       <h2 className=" font-semibold text-purple-950 dark:text-purple-300 tracking-tight">
-  //         {title}
-  //       </h2>
-  //       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-  //         {/* {items.map((item, idx) => (
-  //           <ListingCard
-  //             key={item.id}
-  //             listing={item}
-  //             isWishlisted={wishlist.includes(item.id)}
-  //             onWishlistToggle={onWishlistToggle}
-  //             onListingClick={onListingClick}
-  //             currency={currency}
-  //             index={idx}
-  //           />
-  //         ))} */}
-  //       </div>
-  //     </section>
-  //   );
-  // };
-
   return (
-    <div className="mx-auto max-w-7xl px-4 md:px-8 py-8 space-y-12">
-      {/* <PartyLists /> */}
-    </div>
+    <div className="mx-auto max-w-7xl px-4 md:px-8 py-8 space-y-12" />
   );
 };

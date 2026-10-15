@@ -28,9 +28,6 @@ const StepEight: React.FC<IStepFiveProps> = ({ title, setTitle }) => {
           className="w-full resize-none border-2 border-foreground px-4 py-3 outline-none placeholder:text-muted-foreground/40 focus:ring-2 focus:ring-purple-600/10 rounded-2xl"
           placeholder="Charming rooftop retreat"
         />
-        {/* <p className="mt-2 text-right text-xs font-semibold text-muted-foreground">
-          {title.length}/32
-        </p> */}
       </div>
     </div>
   );

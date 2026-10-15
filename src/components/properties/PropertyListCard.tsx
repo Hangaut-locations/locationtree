@@ -96,10 +96,6 @@ export const PropertyListCard: React.FC<PropertyListCardProps> = ({
               per {property.charge_type}
             </span>
           </div>
-          {/* <div className="flex items-center gap-1">
-            <Star className="h-2 w-2 fill-gray-500 text-gray-500" />
-            <span className="text-foreground">1.0</span>
-          </div> */}
         </div>
       </div>
     </div>

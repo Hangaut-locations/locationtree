@@ -103,13 +103,6 @@ export const PartyListCard: React.FC<PartyListCardProps> = ({
                 per {party.charge_type}
               </span>
             </div>
-            {/* Rating and Reviews */}
-            {/* <div className="flex items-center gap-1">
-              <Star className="h-2 w-2 fill-gray-500 text-gray-500" />
-              <span className="text-foreground">
-                {(party?.rating || 1)?.toFixed(1)}
-              </span>
-            </div> */}
           </div>
 
           {party.start_date && (
@@ -117,14 +110,6 @@ export const PartyListCard: React.FC<PartyListCardProps> = ({
               {formatPartyWhen(party)}
             </p>
           )}
-
-          {/* Guests details */}
-          {/* <p className="mt-1 text-xs text-muted-foreground">
-            {party.guest_capacity} guests
-          </p> */}
-
-          {/* Divider */}
-          {/* <div className="mt-4 mb-3 border-t border-border/40" /> */}
 
           {/* Price and Action button */}
         </div>
