@@ -1,4 +1,4 @@
-// The API receives photos as text fields, and multer rejects any field over 1 MB.
+// About 650KB per photo, so a big gallery still uploads quickly on mobile data.
 const MAX_DATA_URL_LENGTH = 900_000;
 
 const readAsDataURL = (file: Blob) =>

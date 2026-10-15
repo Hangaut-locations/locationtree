@@ -27,6 +27,7 @@ import { getErrorMessage, type ApiError } from "../lib/errors";
 import { formatPartyWhen, toDateInput } from "../lib/partyTime";
 import useRequireLogin from "./hooks/useRequireLogin";
 import useAppContext from "./hooks/useAppContext";
+import useListingMedia from "./hooks/useListingMedia";
 import { priceForInput, priceToUSD, symbolFor } from "../lib/currency";
 import PriceInput from "./PriceInput";
 import type { Visibility } from "../types/listing";
@@ -69,7 +70,8 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
 
   const [loading, setLoading] = useState(false);
   const [ddrafting, setDrafting] = useState(false);
-  const [photos, setPhotos] = useState<string[]>([]);
+  const media = useListingMedia("party");
+  const { photos, setPhotos, setVideo } = media;
   const [partyType, setPartyType] = useState<string>("");
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
@@ -136,6 +138,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
       visibility,
       ...(partyType && { party_type: partyType }),
       ...(photos.length > 0 && { images: photos }),
+      video: media.video?.public_id ?? "",
       status,
     };
 
@@ -200,6 +203,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
       setPartyType(partyData.party_type ?? "");
       setLocation(partyData.location ?? "");
       setPhotos(partyData.images ?? []);
+      setVideo(partyData.video ?? null);
       setPrice(priceForInput(Number(partyData.price) || 0, currency));
       setPriceMode(partyData.charge_type ?? "person");
       setCapacity(Number(partyData.guest_capacity) || 10);
@@ -257,11 +261,13 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
           </button>
           <button
             title={
-              partyType
-                ? "Save party as draft"
-                : "Pick a party type first to save a draft"
+              media.busy
+                ? "Wait for your uploads to finish"
+                : partyType
+                  ? "Save party as draft"
+                  : "Pick a party type first to save a draft"
             }
-            disabled={!partyType || loading}
+            disabled={!partyType || loading || media.busy}
             onClick={() => handleSubmit("draft")}
             className="disabled:opacity-55 disabled:cursor-not-allowed flex items-center gap-1.5 rounded-full border border-border px-4 py-2.5 md:py-2 text-xs font-medium text-foreground hover:bg-muted transition-all cursor-pointer"
           >
@@ -340,7 +346,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
           )}
 
           {step === 4 && (
-            <PartyStepFour photos={photos} setPhotos={setPhotos} />
+            <PartyStepFour media={media} />
           )}
 
           {/* Step 5: Capacity + price */}
@@ -623,10 +629,12 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
           <button
             type="button"
             onClick={handleNext}
-            disabled={!isStepValid() || loading}
+            disabled={!isStepValid() || loading || (step === 9 && media.busy)}
             className="rounded-full ease disabled:cursor-not-allowed bg-purple-950 disabled:opacity-55 hover:bg-purple-900 dark:bg-purple-800 dark:hover:bg-purple-750 text-white font-semibold py-3 px-6 text-sm shadow-md active:scale-97 transition-[transform,background-color] duration-160 ease-out disabled:pointer-events-none cursor-pointer"
           >
-            {step === 9
+            {step === 9 && media.busy
+              ? "Uploading..."
+              : step === 9
               ? loading
                 ? partyData && !isDraft
                   ? "Updating..."

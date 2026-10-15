@@ -1,4 +1,4 @@
-import type { ListingHost, Visibility } from "./listing";
+import type { ListingHost, ListingVideo, Visibility } from "./listing";
 
 export type TParty = {
   _id: string;
@@ -7,6 +7,7 @@ export type TParty = {
   description: string;
   location: string;
   images: [string];
+  video?: ListingVideo | null;
   rating?: number;
   guest_capacity: string;
   charge_type: "person" | "hour" | "day";

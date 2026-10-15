@@ -1,9 +1,23 @@
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
-import { ChevronLeft, ChevronRight, Heart, Share2, X } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Heart,
+  Play,
+  Share2,
+  X,
+} from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { videoSlide } from "../lib/media";
+import type { ListingVideo } from "../types/listing";
+
+type Slide =
+  | { kind: "photo"; src: string }
+  | { kind: "video"; src: string; poster: string };
 
 interface IImageViewer {
   images: string[];
+  video?: ListingVideo | null;
   title: string;
   open: boolean;
   startIndex: number;
@@ -25,6 +39,7 @@ const bottomButtonClass =
 
 const ImageViewer = ({
   images,
+  video,
   title,
   open,
   startIndex,
@@ -36,7 +51,31 @@ const ImageViewer = ({
 }: IImageViewer) => {
   const trackRef = useRef<HTMLDivElement | null>(null);
   const thumbsRef = useRef<HTMLDivElement | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
   const [current, setCurrent] = useState(startIndex);
+
+  const slides = useMemo<Slide[]>(() => {
+    const list: Slide[] = images.map((src) => ({ kind: "photo", src }));
+    if (video) {
+      list.splice(videoSlide(images.length), 0, {
+        kind: "video",
+        src: video.url,
+        poster: video.poster,
+      });
+    }
+    return list;
+  }, [images, video]);
+
+  // Plays muted while it's on screen, so swiping past it is quiet.
+  useEffect(() => {
+    const player = videoRef.current;
+    if (!player) return;
+    if (open && slides[current]?.kind === "video") {
+      player.play().catch(() => {});
+    } else {
+      player.pause();
+    }
+  }, [open, current, slides]);
 
   useEffect(() => {
     const strip = thumbsRef.current;
@@ -95,33 +134,47 @@ const ImageViewer = ({
 
           <div className="flex items-center gap-3 px-4 py-3">
             <span className="shrink-0 text-sm font-semibold">
-              {current + 1} / {images.length}
+              {current + 1} / {slides.length}
             </span>
             <div className="min-w-0 flex-1">
-              {images.length > 1 && (
+              {slides.length > 1 && (
                 <div
                   ref={thumbsRef}
-                  className="flex gap-2 overflow-x-auto p-0.5 [scrollbar-width:none] sm:justify-center [&::-webkit-scrollbar]:hidden"
+                  className="relative flex gap-2 overflow-x-auto p-0.5 [scrollbar-width:none] sm:justify-center-safe [&::-webkit-scrollbar]:hidden"
                 >
-                  {images.map((src, index) => (
+                  {slides.map((slide, index) => (
                     <button
                       type="button"
-                      key={`${src}-thumb-${index}`}
+                      key={`${slide.src}-thumb-${index}`}
                       onClick={() => goTo(index)}
-                      className={`h-11 w-14 shrink-0 overflow-hidden rounded-lg transition-[opacity,box-shadow] duration-200 cursor-pointer sm:h-14 sm:w-20 ${
+                      className={`relative h-11 w-14 shrink-0 overflow-hidden rounded-lg bg-neutral-800 transition-[opacity,box-shadow] duration-200 cursor-pointer sm:h-14 sm:w-20 ${
                         index === current
                           ? "opacity-100 ring-2 ring-white"
                           : "opacity-50 hover:opacity-80"
                       }`}
-                      aria-label={`Go to photo ${index + 1}`}
+                      aria-label={
+                        slide.kind === "video"
+                          ? "Go to video"
+                          : `Go to photo ${index + 1}`
+                      }
                       aria-current={index === current ? "true" : undefined}
                     >
-                      <img
-                        src={src}
-                        alt=""
-                        draggable={false}
-                        className="h-full w-full object-cover"
-                      />
+                      {(slide.kind === "photo" || slide.poster) && (
+                        <img
+                          src={slide.kind === "video" ? slide.poster : slide.src}
+                          alt=""
+                          draggable={false}
+                          onError={(event) => {
+                            if (slide.kind === "video") {
+                              event.currentTarget.style.display = "none";
+                            }
+                          }}
+                          className="h-full w-full object-cover"
+                        />
+                      )}
+                      {slide.kind === "video" && (
+                        <Play className="absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 fill-white text-white drop-shadow" />
+                      )}
                     </button>
                   ))}
                 </div>
@@ -141,22 +194,37 @@ const ImageViewer = ({
               onScroll={handleScroll}
               className="flex h-full snap-x snap-mandatory overflow-x-auto overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
-              {images.map((src, index) => (
+              {slides.map((slide, index) => (
                 <div
-                  key={`${src}-${index}`}
+                  key={`${slide.src}-${index}`}
                   className="flex h-full w-full shrink-0 snap-center items-center justify-center px-2 sm:px-20"
                 >
-                  <img
-                    src={src}
-                    alt={`${title} - photo ${index + 1}`}
-                    draggable={false}
-                    className="max-h-full max-w-full select-none object-contain"
-                  />
+                  {slide.kind === "video" ? (
+                    <video
+                      ref={videoRef}
+                      src={slide.src}
+                      poster={slide.poster || undefined}
+                      controls
+                      muted
+                      playsInline
+                      loop
+                      preload="none"
+                      aria-label={`${title} - video`}
+                      className="max-h-full max-w-full"
+                    />
+                  ) : (
+                    <img
+                      src={slide.src}
+                      alt={`${title} - photo ${index + 1}`}
+                      draggable={false}
+                      className="max-h-full max-w-full select-none object-contain"
+                    />
+                  )}
                 </div>
               ))}
             </div>
 
-            {images.length > 1 && (
+            {slides.length > 1 && (
               <>
                 <button
                   type="button"
@@ -170,7 +238,7 @@ const ImageViewer = ({
                 <button
                   type="button"
                   onClick={() => goTo(current + 1)}
-                  disabled={current === images.length - 1}
+                  disabled={current === slides.length - 1}
                   className={`${arrowClass} right-4`}
                   aria-label="Next photo"
                 >
@@ -215,17 +283,19 @@ const ImageViewer = ({
               </div>
             )}
 
-            {images.length > 1 && (
+            {slides.length > 1 && (
               <div className="flex flex-wrap justify-center gap-2">
-                {images.map((src, index) => (
+                {slides.map((slide, index) => (
                   <button
                     type="button"
-                    key={`${src}-dot-${index}`}
+                    key={`${slide.src}-dot-${index}`}
                     onClick={() => goTo(index)}
                     className={`h-2 rounded-full transition-[width,background-color] duration-200 cursor-pointer ${
                       index === current ? "w-6 bg-white" : "w-2 bg-white/40"
                     }`}
-                    aria-label={`Photo ${index + 1}`}
+                    aria-label={
+                      slide.kind === "video" ? "Video" : `Photo ${index + 1}`
+                    }
                   />
                 ))}
               </div>
