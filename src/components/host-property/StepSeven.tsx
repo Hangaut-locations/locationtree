@@ -35,7 +35,7 @@ const StepSeven: React.FC<IStepFiveProps> = ({ media }) => {
 
         <p className="mt-2 text-sm text-muted-foreground">
           Showcase the atmosphere, layout, and highlights in a polished gallery.
-          Add as many photos as you like.
+          Clear, bright photos help guests picture their stay.
         </p>
       </div>
 
