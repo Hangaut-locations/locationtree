@@ -23,8 +23,10 @@ import MobileBookingBar from "../components/MobileBookingBar";
 import PartyBookingForm from "../components/booking/PartyBookingForm";
 import ShareModal from "../components/ShareModal";
 import ImageViewer from "../components/ImageViewer";
+import WatchVideoButton from "../components/listing-media/WatchVideoButton";
 import { adminCaller } from "../interceptors/http";
 import { displayPrice, formatPrice } from "../lib/currency";
+import { photoSlide, videoSlide } from "../lib/media";
 import { formatPartyWhen } from "../lib/partyTime";
 import { isPrivateError, linkKey, listingLink } from "../lib/privateLink";
 import type { TParty } from "../types/parties";
@@ -93,6 +95,7 @@ const PartyDetailPage = () => {
   }
 
   const images = data.images?.filter(Boolean) ?? [];
+  const hasVideo = !!data.video;
   const price = Number(data.price) || 0;
   const goToImage = (direction: number) => {
     setActiveImage((current) =>
@@ -137,7 +140,7 @@ const PartyDetailPage = () => {
         <section className="relative grid h-72 grid-cols-1 gap-2 overflow-hidden rounded-3xl sm:h-96 md:h-107.5 md:grid-cols-[1.5fr_1fr_1fr] md:rounded-[28px]">
           <button
             type="button"
-            onClick={() => setViewerIndex(activeImage)}
+            onClick={() => setViewerIndex(photoSlide(activeImage, hasVideo))}
             className="relative min-h-70 cursor-zoom-in md:row-span-2"
             aria-label="Open photos full screen"
           >
@@ -151,7 +154,7 @@ const PartyDetailPage = () => {
             <button
               type="button"
               key={image}
-              onClick={() => setViewerIndex(index + 1)}
+              onClick={() => setViewerIndex(photoSlide(index + 1, hasVideo))}
               className="hidden overflow-hidden md:block"
               aria-label={`View image ${index + 2}`}
             >
@@ -181,6 +184,12 @@ const PartyDetailPage = () => {
                 <ChevronRight className="h-4 w-4" />
               </button>
             </div>
+          )}
+          {data.video && (
+            <WatchVideoButton
+              video={data.video}
+              onClick={() => setViewerIndex(videoSlide(images.length))}
+            />
           )}
         </section>
 
@@ -288,6 +297,7 @@ const PartyDetailPage = () => {
       />
       <ImageViewer
         images={images}
+        video={data.video}
         title={data.title}
         open={viewerIndex !== null}
         startIndex={viewerIndex ?? 0}

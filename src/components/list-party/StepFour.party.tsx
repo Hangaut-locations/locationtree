@@ -1,39 +1,26 @@
 import { ImagePlus, Plus, Upload, X } from "lucide-react";
-import type { ChangeEvent, Dispatch, SetStateAction } from "react";
-import toast from "react-hot-toast";
-import { compressImage } from "../../lib/images";
-
-const MAX_PHOTOS = 5;
+import type { ChangeEvent } from "react";
+import type { ListingMedia } from "../hooks/useListingMedia";
+import ListingVideoPicker from "../listing-media/ListingVideoPicker";
+import PendingPhotos from "../listing-media/PendingPhotos";
+import UploadsNote from "../listing-media/UploadsNote";
 
 interface IStepProps {
-  photos: string[];
-  setPhotos: Dispatch<SetStateAction<string[]>>;
+  media: ListingMedia;
 }
 
-const PartyStepFour: React.FC<IStepProps> = ({ photos, setPhotos }) => {
+const PartyStepFour: React.FC<IStepProps> = ({ media }) => {
+  const { photos, pending, removePhoto } = media;
+
   const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
 
     if (!files || files.length === 0) return;
 
-    const imageFiles = Array.from(files)
-      .filter((file) => file.type.startsWith("image/"))
-      .slice(0, MAX_PHOTOS - photos.length);
-
-    Promise.all(imageFiles.map(compressImage))
-      .then((newPhotos) => {
-        setPhotos((prev) => [...prev, ...newPhotos].slice(0, MAX_PHOTOS));
-      })
-      .catch(() => {
-        toast.error("Couldn't read that photo. Try a different one.");
-      });
+    media.addPhotos(Array.from(files));
 
     // Allows the user to select the same file again
     event.target.value = "";
-  };
-
-  const removePhoto = (index: number) => {
-    setPhotos((prev) => prev.filter((_, photoIndex) => photoIndex !== index));
   };
 
   return (
@@ -65,7 +52,7 @@ const PartyStepFour: React.FC<IStepProps> = ({ photos, setPhotos }) => {
       />
 
       {/* Empty State */}
-      {photos.length === 0 ? (
+      {photos.length === 0 && pending.length === 0 ? (
         <label
           htmlFor="place-photos"
           className="flex min-h-72 w-full cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-border bg-card px-6 py-10 text-center transition-all hover:border-purple-400 hover:bg-purple-50/50 dark:hover:bg-purple-950/20"
@@ -163,23 +150,21 @@ const PartyStepFour: React.FC<IStepProps> = ({ photos, setPhotos }) => {
                 </button>
               </div>
             ))}
+            <PendingPhotos pending={pending} />
           </div>
 
-          {photos.length < MAX_PHOTOS ? (
-            <label
-              htmlFor="place-photos"
-              className="flex w-fit cursor-pointer items-center justify-center gap-2 rounded-full border border-dashed border-border bg-card px-5 py-3 text-sm font-bold text-foreground transition-colors hover:bg-muted"
-            >
-              <Plus className="h-4 w-4" />
-              Add more photos
-            </label>
-          ) : (
-            <p className="text-xs font-semibold text-muted-foreground">
-              You can add up to {MAX_PHOTOS} photos.
-            </p>
-          )}
+          <label
+            htmlFor="place-photos"
+            className="flex w-fit cursor-pointer items-center justify-center gap-2 rounded-full border border-dashed border-border bg-card px-5 py-3 text-sm font-bold text-foreground transition-colors hover:bg-muted"
+          >
+            <Plus className="h-4 w-4" />
+            Add more photos
+          </label>
         </>
       )}
+
+      <ListingVideoPicker media={media} id="party-video" />
+      <UploadsNote />
     </div>
   );
 };

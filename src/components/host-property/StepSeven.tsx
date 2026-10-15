@@ -1,38 +1,26 @@
 import { ImagePlus, Plus, Upload, X } from "lucide-react";
-import type { ChangeEvent, Dispatch, SetStateAction } from "react";
-import { compressImage } from "../../lib/images";
-
-const MAX_PHOTOS = 5;
+import type { ChangeEvent } from "react";
+import type { ListingMedia } from "../hooks/useListingMedia";
+import ListingVideoPicker from "../listing-media/ListingVideoPicker";
+import PendingPhotos from "../listing-media/PendingPhotos";
+import UploadsNote from "../listing-media/UploadsNote";
 
 interface IStepFiveProps {
-  photos: string[];
-  setPhotos: Dispatch<SetStateAction<string[]>>;
+  media: ListingMedia;
 }
 
-const StepSeven: React.FC<IStepFiveProps> = ({ photos, setPhotos }) => {
+const StepSeven: React.FC<IStepFiveProps> = ({ media }) => {
+  const { photos, pending, removePhoto } = media;
+
   const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
 
     if (!files || files.length === 0) return;
 
-    const imageFiles = Array.from(files).filter((file) =>
-      file.type.startsWith("image/"),
-    );
-
-    Promise.all(imageFiles.map(compressImage))
-      .then((newPhotos) => {
-        setPhotos((prev) => [...prev, ...newPhotos].slice(0, MAX_PHOTOS));
-      })
-      .catch((error) => {
-        console.error("Failed to upload images:", error);
-      });
+    media.addPhotos(Array.from(files));
 
     // Allows the user to select the same file again
     event.target.value = "";
-  };
-
-  const removePhoto = (index: number) => {
-    setPhotos((prev) => prev.filter((_, photoIndex) => photoIndex !== index));
   };
 
   return (
@@ -47,7 +35,7 @@ const StepSeven: React.FC<IStepFiveProps> = ({ photos, setPhotos }) => {
 
         <p className="mt-2 text-sm text-muted-foreground">
           Showcase the atmosphere, layout, and highlights in a polished gallery.
-          You can add up to {MAX_PHOTOS} photos.
+          Add as many photos as you like.
         </p>
       </div>
 
@@ -62,7 +50,7 @@ const StepSeven: React.FC<IStepFiveProps> = ({ photos, setPhotos }) => {
       />
 
       {/* Empty State */}
-      {photos.length === 0 ? (
+      {photos.length === 0 && pending.length === 0 ? (
         <label
           htmlFor="place-photos"
           className="flex min-h-72 w-full cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-border bg-card px-6 py-10 text-center transition-all hover:border-purple-400 hover:bg-purple-50/50 dark:hover:bg-purple-950/20"
@@ -192,20 +180,22 @@ const StepSeven: React.FC<IStepFiveProps> = ({ photos, setPhotos }) => {
                 </button>
               </div>
             ))}
+            <PendingPhotos pending={pending} />
           </div>
 
           {/* Add More */}
-          {photos.length < MAX_PHOTOS && (
-            <label
-              htmlFor="place-photos"
-              className="flex w-fit cursor-pointer items-center justify-center gap-2 rounded-full border border-dashed border-border bg-card px-5 py-3 text-sm font-bold text-foreground transition-colors hover:bg-muted"
-            >
-              <Plus className="h-4 w-4" />
-              Add more photos
-            </label>
-          )}
+          <label
+            htmlFor="place-photos"
+            className="flex w-fit cursor-pointer items-center justify-center gap-2 rounded-full border border-dashed border-border bg-card px-5 py-3 text-sm font-bold text-foreground transition-colors hover:bg-muted"
+          >
+            <Plus className="h-4 w-4" />
+            Add more photos
+          </label>
         </>
       )}
+
+      <ListingVideoPicker media={media} id="place-video" />
+      <UploadsNote />
     </div>
   );
 };
