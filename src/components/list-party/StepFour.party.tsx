@@ -143,7 +143,7 @@ const PartyStepFour: React.FC<IStepProps> = ({ media }) => {
                 <button
                   type="button"
                   onClick={() => removePhoto(index)}
-                  className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white opacity-0 backdrop-blur-sm transition-all group-hover:opacity-100 hover:bg-red-600"
+                  className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-sm transition-all hover:bg-red-600 focus-visible:opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100"
                   aria-label={`Remove photo ${index + 1}`}
                 >
                   <X className="h-4 w-4" />

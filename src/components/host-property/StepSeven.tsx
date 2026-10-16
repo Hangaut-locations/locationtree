@@ -168,11 +168,12 @@ const StepSeven: React.FC<IStepFiveProps> = ({ media }) => {
                     rounded-full
                     bg-black/60
                     text-white
-                    opacity-0
                     backdrop-blur-sm
                     transition-all
-                    group-hover:opacity-100
                     hover:bg-red-600
+                    focus-visible:opacity-100
+                    [@media(hover:hover)]:opacity-0
+                    [@media(hover:hover)]:group-hover:opacity-100
                   "
                   aria-label={`Remove photo ${index + 1}`}
                 >
