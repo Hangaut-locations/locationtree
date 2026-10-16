@@ -4,11 +4,14 @@ import {
   Heart,
   LogIn,
   Menu,
+  MessageCircle,
   User,
 } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { unreadCount } from "../lib/chat";
 import useAuth from "./hooks/useAuth";
 import useAppContext from "./hooks/useAppContext";
 import { AllIcon, HomeIcon, PartiesIcon } from "./svgs";
@@ -20,6 +23,12 @@ const becomeHostClass =
 
 export const Navbar: React.FC = () => {
   const { data, isLoading } = useAuth();
+  const { data: unread } = useQuery({
+    queryKey: ["chat-unread"],
+    queryFn: unreadCount,
+    enabled: Boolean(data?._id),
+    refetchInterval: 30000,
+  });
   const { setIsAuthModal, setIsSideMenu, currency } = useAppContext();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [isActive, setIsActive] = useState<"all" | "homes" | "parties">("all");
@@ -227,6 +236,19 @@ export const Navbar: React.FC = () => {
 
           {data ? (
             <>
+              <button
+                type="button"
+                onClick={() => navigate("/messages")}
+                aria-label="Messages"
+                className="relative flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card hover:bg-muted"
+              >
+                <MessageCircle className="h-4 w-4" />
+                {(unread?.chats ?? 0) > 0 && (
+                  <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-purple-600 px-1 text-[9px] font-bold text-white">
+                    {unread?.chats}
+                  </span>
+                )}
+              </button>
               {/* Avatar dropdown (Airbnb style) */}
               <div ref={menuRef} className="relative">
                 <button
@@ -289,6 +311,16 @@ export const Navbar: React.FC = () => {
                     >
                       <CalendarCheck className="h-4 w-4" />
                       <span>Reservations</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setUserMenuOpen(false);
+                        navigate("/messages");
+                      }}
+                      className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-bold text-foreground hover:bg-muted transition-colors cursor-pointer"
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                      <span>Messages</span>
                     </button>
                     <button
                       onClick={() => {

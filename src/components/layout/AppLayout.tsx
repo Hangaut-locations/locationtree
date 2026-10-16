@@ -8,7 +8,13 @@ import useAppContext from "../hooks/useAppContext";
 import { CurrencyModal } from "../CurrencyModal";
 import { logout } from "../../lib/session";
 
-const AppLayout = ({ children }: { children: React.ReactNode }) => {
+const AppLayout = ({
+  children,
+  footer = true,
+}: {
+  children: React.ReactNode;
+  footer?: boolean;
+}) => {
   const navigate = useNavigate();
   const { data } = useAuth();
   const {
@@ -58,10 +64,12 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <main className="grow">{children}</main>
-      <Footer
-        currency={currency}
-        onCurrencyClick={() => setIsCurrencyModal(true)}
-      />
+      {footer && (
+        <Footer
+          currency={currency}
+          onCurrencyClick={() => setIsCurrencyModal(true)}
+        />
+      )}
 
       {/* <FilterModal
       // isOpen={isFilterModalOpen}

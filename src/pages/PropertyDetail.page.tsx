@@ -244,7 +244,10 @@ const PropertyDetailPage = () => {
               </p>
             </div>
 
-            <HostCard host={data.host} />
+            <HostCard
+              host={data.host}
+              listing={{ type: "property", id: data._id }}
+            />
 
             {data.amenities?.length > 0 && (
               <div className="border-b border-border py-7">
