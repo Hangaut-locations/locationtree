@@ -47,6 +47,7 @@ const AppLayout = ({
     onTrips: () => goTo("/reservations?tab=trips"),
     onReservations: () =>
       goTo(`/reservations?tab=${viewMode === "host" ? "hosting" : "trips"}`),
+    onMessages: () => goTo("/messages"),
     onSwitchView: () => goTo(viewMode === "host" ? "/" : "/host"),
     onSupport: () => goTo("/support"),
     onLogin: () => {

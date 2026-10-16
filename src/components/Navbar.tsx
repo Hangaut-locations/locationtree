@@ -137,6 +137,19 @@ export const Navbar: React.FC = () => {
                     </>
                   )}
                 </button>
+                <button
+                  type="button"
+                  onClick={() => navigate("/messages")}
+                  aria-label="Messages"
+                  className="relative flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card"
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  {(unread?.chats ?? 0) > 0 && (
+                    <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-purple-600 px-1 text-[9px] font-bold text-white">
+                      {unread?.chats}
+                    </span>
+                  )}
+                </button>
                 <div className="h-10 w-10 rounded-full capitalize border border-border overflow-hidden bg-muted flex items-center justify-center cursor-pointer hover:scale-105 active:scale-97 transition-all">
                   <h1>{avatar}</h1>
                   {/* <img
