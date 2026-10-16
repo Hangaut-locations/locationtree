@@ -288,7 +288,7 @@ const PartyDetailPage = () => {
       <MobileBookingBar
         price={formatPrice(displayPrice(price, currency), currency)}
         unit={data.charge_type}
-        label="Book now"
+        label={data.visibility === "private" ? "Request to book" : "Book now"}
         onBook={scrollToBooking}
       />
       <ImageViewer

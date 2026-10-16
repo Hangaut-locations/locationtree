@@ -161,8 +161,7 @@ const ReservationsPage = () => {
       homeByDay || booking.charge_type === "day" ? row.booking.days : undefined;
     const busy = isPending && variables?.row.booking._id === booking._id;
     const notStarted = row.start > now;
-    const canAnswer =
-      tab === "hosting" && row.kind === "properties" && booking.status === "pending";
+    const canAnswer = tab === "hosting" && booking.status === "pending";
     const canCancel = isActive(booking.status) && notStarted && !canAnswer;
     const tickets =
       row.kind === "parties" && booking.status === "confirmed"
