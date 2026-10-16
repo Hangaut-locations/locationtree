@@ -217,7 +217,10 @@ const PartyDetailPage = () => {
               </p>
             </div>
 
-            <HostCard host={data.host} />
+            <HostCard
+              host={data.host}
+              listing={{ type: "party", id: data._id }}
+            />
 
             <div className="border-b border-border py-7">
               <h2 className="text-xl font-semibold">What this place offers</h2>

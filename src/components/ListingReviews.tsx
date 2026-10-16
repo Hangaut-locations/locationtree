@@ -7,6 +7,7 @@ import useAuth from "./hooks/useAuth";
 import useAppContext from "./hooks/useAppContext";
 import { getErrorMessage, type ApiError } from "../lib/errors";
 import { linkKey } from "../lib/privateLink";
+import MessageButton from "./chat/MessageButton";
 import {
   addComment,
   addReply,
@@ -325,16 +326,25 @@ const ListingReviews = ({ type, id }: ListingReviewsProps) => {
               <p className="mt-2 whitespace-pre-line wrap-break-word text-sm leading-6">
                 {item.comment}
               </p>
-              {item.mine && (
-                <button
-                  type="button"
-                  onClick={() => remove.mutate(item._id)}
-                  disabled={remove.isPending}
-                  className="mt-2 flex items-center gap-1 text-xs font-semibold text-red-600 hover:underline disabled:opacity-50"
-                >
-                  <Trash2 className="h-3.5 w-3.5" /> Delete
-                </button>
-              )}
+              <div className="mt-2 flex gap-4">
+                {!item.mine && (
+                  <MessageButton
+                    userId={item.user._id}
+                    listingType={type}
+                    listingId={id}
+                  />
+                )}
+                {item.mine && (
+                  <button
+                    type="button"
+                    onClick={() => remove.mutate(item._id)}
+                    disabled={remove.isPending}
+                    className="flex items-center gap-1 text-xs font-semibold text-red-600 hover:underline disabled:opacity-50"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" /> Delete
+                  </button>
+                )}
+              </div>
 
               {item.replies.length > 0 && (
                 <ul className="mt-3 space-y-2">
@@ -371,6 +381,15 @@ const ListingReviews = ({ type, id }: ListingReviewsProps) => {
                         <p className="mt-1 whitespace-pre-line wrap-break-word text-sm leading-6">
                           {reply.text}
                         </p>
+                        {!reply.mine && (
+                          <div className="mt-2">
+                            <MessageButton
+                              userId={reply.user._id}
+                              listingType={type}
+                              listingId={id}
+                            />
+                          </div>
+                        )}
                         {reply.mine && (
                           <div className="mt-2 flex gap-4 text-xs font-semibold">
                             <button
@@ -437,6 +456,12 @@ const ListingReviews = ({ type, id }: ListingReviewsProps) => {
               <li key={person._id} className="flex items-center gap-3">
                 <Avatar person={person} />
                 <PersonLine person={person} />
+                <MessageButton
+                  userId={person._id}
+                  listingType={type}
+                  listingId={id}
+                  className="ml-auto shrink-0 rounded-full border border-border px-3 py-1.5 text-xs font-bold hover:bg-muted disabled:opacity-60"
+                />
               </li>
             ))}
           </ul>

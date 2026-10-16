@@ -1,7 +1,14 @@
 import { CalendarDays, Mail, MapPin, Phone } from "lucide-react";
 import type { ListingHost } from "../types/listing";
+import MessageButton from "./chat/MessageButton";
 
-const HostCard = ({ host }: { host?: ListingHost | null }) => {
+const HostCard = ({
+  host,
+  listing,
+}: {
+  host?: ListingHost | null;
+  listing?: { type: "party" | "property"; id: string };
+}) => {
   if (!host) return null;
 
   const name = `${host.firstName ?? ""} ${host.lastName ?? ""}`.trim() || "Host";
@@ -27,7 +34,7 @@ const HostCard = ({ host }: { host?: ListingHost | null }) => {
         <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-purple-100 text-lg font-semibold text-purple-700">
           {initials}
         </div>
-        <div>
+        <div className="min-w-0 flex-1">
           <h2 className="text-xl font-semibold">Hosted by {name}</h2>
           {joined && (
             <p className="mt-0.5 flex items-center gap-1.5 text-sm text-muted-foreground">
@@ -35,6 +42,15 @@ const HostCard = ({ host }: { host?: ListingHost | null }) => {
             </p>
           )}
         </div>
+        {listing && (
+          <MessageButton
+            userId={host._id}
+            listingType={listing.type}
+            listingId={listing.id}
+            label="Message"
+            className="shrink-0 rounded-full bg-purple-950 px-4 py-2 text-xs font-bold text-white hover:bg-purple-900 disabled:opacity-60"
+          />
+        )}
       </div>
 
       <div className="mt-5 grid gap-3 text-sm sm:grid-cols-2">

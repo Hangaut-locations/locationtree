@@ -8,6 +8,7 @@ import {
   Home,
   LifeBuoy,
   LogIn,
+  MessageCircle,
   LogOut,
   Plane,
   Settings2,
@@ -26,6 +27,7 @@ export interface SideMenuCallbacks {
   onCurrency: () => void;
   onTrips: () => void;
   onReservations: () => void;
+  onMessages: () => void;
   onSwitchView: () => void;
   onSupport: () => void;
   onLogin: () => void;
@@ -61,6 +63,11 @@ export const SideMenu: React.FC<SideMenuProps> = ({
     label: "Reservations",
     icon: CalendarCheck,
     onClick: callbacks.onReservations,
+  };
+  const messagesItem: MenuItem = {
+    label: "Messages",
+    icon: MessageCircle,
+    onClick: callbacks.onMessages,
   };
 
   const guestItems: MenuItem[] = [
@@ -184,9 +191,10 @@ export const SideMenu: React.FC<SideMenuProps> = ({
                     onClick: callbacks.onHostEarnings, // routed to host dashboard
                   },
                   reservationsItem,
+                  messagesItem,
                   ...hostItems.slice(0, 6),
                 ]
-              : [reservationsItem, ...guestItems.slice(0, 6)],
+              : [reservationsItem, messagesItem, ...guestItems.slice(0, 6)],
           )}
 
           {renderList(viewMode === "host" ? "Account" : "Account", [
