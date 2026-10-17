@@ -17,6 +17,8 @@ import {
   chatName,
   type ChatDetails,
   type ChatMessage,
+  deleteMessage,
+  editMessage,
   getMessages,
   markChatRead,
   moveLiveLocation,
@@ -57,9 +59,19 @@ const paintBubbles = (scroller: HTMLElement) => {
   });
 };
 
+const EDIT_MS = 60 * 60 * 1000;
+
+const canStillEdit = (message: ChatMessage) =>
+  message.mine &&
+  message.kind === "text" &&
+  Date.now() - new Date(message.createdAt).getTime() < EDIT_MS;
+
 const mergeMessages = (current: ChatMessage[], incoming: ChatMessage[]) => {
   const byId = new Map(current.map((message) => [message._id, message]));
-  incoming.forEach((message) => byId.set(message._id, message));
+  incoming.forEach((message) => {
+    if (message.deleted) byId.delete(message._id);
+    else byId.set(message._id, message);
+  });
   return [...byId.values()].sort((a, b) =>
     a.createdAt < b.createdAt ? -1 : 1,
   );
@@ -91,6 +103,9 @@ const ChatThread = ({ conversationId }: { conversationId: string }) => {
   const [details, setDetails] = useState("");
   const [openPhoto, setOpenPhoto] = useState<string | null>(null);
   const [cameraOpen, setCameraOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [draft, setDraft] = useState("");
+  const [pendingDelete, setPendingDelete] = useState<string | null>(null);
   const cameraVideo = useRef<HTMLVideoElement>(null);
   const cameraStream = useRef<MediaStream | null>(null);
 
@@ -253,6 +268,35 @@ const ChatThread = ({ conversationId }: { conversationId: string }) => {
       addMine(await sendMessage(conversationId, { photo }));
     } catch (err) {
       toast.error(getErrorMessage(err as ApiError, "Couldn't send that photo"));
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const saveEdit = async (id: string) => {
+    const body = draft.trim();
+    if (!body || sending) return;
+    setSending(true);
+    try {
+      const message = await editMessage(id, body);
+      setMessages((old) => mergeMessages(old, [message]));
+      setEditingId(null);
+    } catch (err) {
+      toast.error(getErrorMessage(err as ApiError, "Couldn't edit that"));
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const removeMessage = async (id: string) => {
+    if (sending) return;
+    setSending(true);
+    try {
+      await deleteMessage(id);
+      setMessages((old) => old.filter((message) => message._id !== id));
+      setPendingDelete(null);
+    } catch (err) {
+      toast.error(getErrorMessage(err as ApiError, "Couldn't delete that"));
     } finally {
       setSending(false);
     }
@@ -501,15 +545,72 @@ const ChatThread = ({ conversationId }: { conversationId: string }) => {
                   {message.location.live ? "Live location" : "Location"}
                 </a>
               )}
-              {message.text && <p className="whitespace-pre-wrap wrap-break-word">{message.text}</p>}
+              {editingId === message._id ? (
+                <div>
+                  <textarea
+                    value={draft}
+                    onChange={(event) => setDraft(event.target.value)}
+                    maxLength={2000}
+                    rows={2}
+                    className="w-full resize-none rounded-xl bg-white/15 px-2 py-1 text-sm text-white outline-none"
+                  />
+                  <p className="mt-1 text-[10px] text-white/80">
+                    <button type="button" onClick={() => saveEdit(message._id)} className="underline">
+                      Save
+                    </button>
+                    <button type="button" onClick={() => setEditingId(null)} className="ml-2 underline">
+                      Cancel
+                    </button>
+                  </p>
+                </div>
+              ) : (
+                message.text && <p className="whitespace-pre-wrap wrap-break-word">{message.text}</p>
+              )}
               <p className={`mt-1 text-[10px] ${message.mine ? "text-white/80" : "text-[#888]"}`}>
                 {whenLabel(message.createdAt)}
+                {message.editedAt && " · Edited"}
                 {message.location?.live && message.mine && (
                   <button type="button" onClick={() => endLive(message._id)} className="ml-2 underline">
                     Stop sharing
                   </button>
                 )}
+                {canStillEdit(message) && editingId !== message._id && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingId(message._id);
+                      setDraft(message.text);
+                      setPendingDelete(null);
+                    }}
+                    className="ml-2 underline"
+                  >
+                    Edit
+                  </button>
+                )}
+                {message.mine && pendingDelete !== message._id && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPendingDelete(message._id);
+                      setEditingId(null);
+                    }}
+                    className="ml-2 underline"
+                  >
+                    Delete
+                  </button>
+                )}
               </p>
+              {message.mine && pendingDelete === message._id && (
+                <p className={`text-[10px] ${message.mine ? "text-white/80" : "text-[#888]"}`}>
+                  Delete this message?
+                  <button type="button" onClick={() => removeMessage(message._id)} className="ml-2 underline">
+                    Yes
+                  </button>
+                  <button type="button" onClick={() => setPendingDelete(null)} className="ml-2 underline">
+                    No
+                  </button>
+                </p>
+              )}
             </div>
           </div>
         ))}

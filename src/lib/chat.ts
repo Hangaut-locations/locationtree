@@ -51,6 +51,8 @@ export interface ChatMessage {
   photo: string | null;
   location: ChatLocation | null;
   mine: boolean;
+  editedAt: string | null;
+  deleted?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -109,6 +111,14 @@ export const sendMessage = (
   adminCaller
     .post<ChatMessage>(`/chat/conversations/${id}/messages`, body)
     .then((res) => res.data);
+
+export const editMessage = (id: string, text: string) =>
+  adminCaller
+    .patch<ChatMessage>(`/chat/messages/${id}`, { text })
+    .then((res) => res.data);
+
+export const deleteMessage = (id: string) =>
+  adminCaller.delete<ChatMessage>(`/chat/messages/${id}`).then((res) => res.data);
 
 export const markChatRead = (id: string) =>
   adminCaller.post(`/chat/conversations/${id}/read`);
