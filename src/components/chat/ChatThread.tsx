@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
+  Camera,
   Download,
   ImagePlus,
   MapPin,
@@ -89,6 +90,9 @@ const ChatThread = ({ conversationId }: { conversationId: string }) => {
   const [reason, setReason] = useState<(typeof REPORTS)[number][0]>("spam");
   const [details, setDetails] = useState("");
   const [openPhoto, setOpenPhoto] = useState<string | null>(null);
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const cameraVideo = useRef<HTMLVideoElement>(null);
+  const cameraStream = useRef<MediaStream | null>(null);
 
   const refreshUnread = () =>
     qc.invalidateQueries({ queryKey: ["chat-unread"] });
@@ -152,9 +156,20 @@ const ChatThread = ({ conversationId }: { conversationId: string }) => {
   useEffect(
     () => () => {
       if (liveWatch.current !== null) navigator.geolocation.clearWatch(liveWatch.current);
+      cameraStream.current?.getTracks().forEach((track) => track.stop());
     },
     [],
   );
+
+  useEffect(() => {
+    const video = cameraVideo.current;
+    const stream = cameraStream.current;
+    if (!cameraOpen || !video || !stream) return;
+    video.srcObject = stream;
+    return () => {
+      video.srcObject = null;
+    };
+  }, [cameraOpen]);
 
   useEffect(() => {
     if (!openPhoto) return;
@@ -241,6 +256,50 @@ const ChatThread = ({ conversationId }: { conversationId: string }) => {
     } finally {
       setSending(false);
     }
+  };
+
+  const stopCamera = () => {
+    cameraStream.current?.getTracks().forEach((track) => track.stop());
+    cameraStream.current = null;
+    setCameraOpen(false);
+  };
+
+  const openCamera = async () => {
+    if (!navigator.mediaDevices?.getUserMedia) {
+      toast.error("This phone can't use the camera");
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user" },
+        audio: false,
+      });
+      cameraStream.current = stream;
+      setCameraOpen(true);
+    } catch {
+      toast.error("Allow the camera to take a photo");
+    }
+  };
+
+  const snapPhoto = () => {
+    const video = cameraVideo.current;
+    if (!video || !video.videoWidth) {
+      toast.error("Camera isn't ready yet");
+      return;
+    }
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext("2d")?.drawImage(video, 0, 0);
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) return;
+        stopCamera();
+        sendPhoto(new File([blob], "snap.jpg", { type: "image/jpeg" }));
+      },
+      "image/jpeg",
+      0.9,
+    );
   };
 
   const shareLocation = (liveMinutes?: 15 | 60 | 480) => {
@@ -480,6 +539,14 @@ const ChatThread = ({ conversationId }: { conversationId: string }) => {
               }}
             />
           </label>
+          <button
+            type="button"
+            aria-label="Take a photo"
+            onClick={openCamera}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full hover:bg-muted"
+          >
+            <Camera className="h-5 w-5" />
+          </button>
           <details className="relative">
             <summary className="flex h-10 w-10 cursor-pointer list-none items-center justify-center rounded-full hover:bg-muted">
               <MapPin className="h-5 w-5" />
@@ -515,6 +582,34 @@ const ChatThread = ({ conversationId }: { conversationId: string }) => {
             <Send className="h-4 w-4" />
           </button>
         </form>
+      )}
+
+      {cameraOpen && (
+        <div className="fixed inset-0 z-[60] flex flex-col bg-black">
+          <video
+            ref={cameraVideo}
+            autoPlay
+            playsInline
+            muted
+            className="min-h-0 flex-1 -scale-x-100 object-cover"
+          />
+          <div className="flex items-center justify-center gap-8 px-6 py-6">
+            <button
+              type="button"
+              aria-label="Close camera"
+              onClick={stopCamera}
+              className="flex h-12 w-12 items-center justify-center rounded-full bg-white/15 text-white"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <button
+              type="button"
+              aria-label="Snap photo"
+              onClick={snapPhoto}
+              className="h-16 w-16 rounded-full border-4 border-white bg-white/30"
+            />
+          </div>
+        </div>
       )}
 
       {openPhoto && (
