@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
+  Download,
   ImagePlus,
   MapPin,
   MoreHorizontal,
@@ -87,6 +88,7 @@ const ChatThread = ({ conversationId }: { conversationId: string }) => {
   const [reportOpen, setReportOpen] = useState(false);
   const [reason, setReason] = useState<(typeof REPORTS)[number][0]>("spam");
   const [details, setDetails] = useState("");
+  const [openPhoto, setOpenPhoto] = useState<string | null>(null);
 
   const refreshUnread = () =>
     qc.invalidateQueries({ queryKey: ["chat-unread"] });
@@ -153,6 +155,36 @@ const ChatThread = ({ conversationId }: { conversationId: string }) => {
     },
     [],
   );
+
+  useEffect(() => {
+    if (!openPhoto) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpenPhoto(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [openPhoto]);
+
+  const downloadPhoto = async (url: string) => {
+    const fileName = "hangaut-photo.jpg";
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("no");
+      const blob = await response.blob();
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = fileName;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    } catch {
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = fileName;
+      link.target = "_blank";
+      link.rel = "noreferrer";
+      link.click();
+    }
+  };
 
   const onScroll = () => {
     const node = scroller.current;
@@ -386,11 +418,18 @@ const ChatThread = ({ conversationId }: { conversationId: string }) => {
               }`}
             >
               {message.kind === "photo" && message.photo && (
-                <img
-                  src={message.photo}
-                  alt="Photo"
-                  className="mb-1 max-h-64 rounded-xl object-cover"
-                />
+                <button
+                  type="button"
+                  onClick={() => setOpenPhoto(message.photo!)}
+                  aria-label="Open photo"
+                  className="mb-1 block"
+                >
+                  <img
+                    src={message.photo}
+                    alt="Photo"
+                    className="max-h-64 rounded-xl object-cover"
+                  />
+                </button>
               )}
               {message.kind === "location" && message.location && (
                 <a
@@ -476,6 +515,41 @@ const ChatThread = ({ conversationId }: { conversationId: string }) => {
             <Send className="h-4 w-4" />
           </button>
         </form>
+      )}
+
+      {openPhoto && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black"
+          onClick={() => setOpenPhoto(null)}
+        >
+          <div className="absolute top-4 right-4 flex gap-2">
+            <button
+              type="button"
+              aria-label="Download photo"
+              onClick={(event) => {
+                event.stopPropagation();
+                downloadPhoto(openPhoto);
+              }}
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white"
+            >
+              <Download className="h-5 w-5" />
+            </button>
+            <button
+              type="button"
+              aria-label="Close photo"
+              onClick={() => setOpenPhoto(null)}
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          <img
+            src={openPhoto}
+            alt="Photo"
+            className="max-h-full max-w-full object-contain"
+            onClick={(event) => event.stopPropagation()}
+          />
+        </div>
       )}
 
       {reportOpen && chat?.person && (
