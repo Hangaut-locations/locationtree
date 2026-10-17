@@ -364,6 +364,14 @@ const ChatThread = ({ conversationId }: { conversationId: string }) => {
             Older messages
           </button>
         )}
+        {chat && messages.length === 0 && (
+          <div className="flex flex-1 items-center justify-center px-10 text-center">
+            <p className="text-sm leading-6 text-muted-foreground">
+              You haven't chatted with {chat.person?.firstName?.trim() || name} yet.
+              Send a message below to start.
+            </p>
+          </div>
+        )}
         {messages.map((message) => (
           <div
             key={message._id}
