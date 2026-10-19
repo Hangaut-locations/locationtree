@@ -305,6 +305,7 @@ const PartyDetailPage = () => {
         saving={saving}
         onToggleSaved={toggleSaved}
         onShare={() => setIsShareOpen(true)}
+        listing={{ type: "party", id: data._id, hostId: data.host?._id }}
       />
       <ShareModal
         open={isShareOpen}
