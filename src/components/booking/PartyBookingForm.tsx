@@ -45,6 +45,7 @@ const PartyBookingForm = ({ party }: { party: TParty }) => {
   const qc = useQueryClient();
   const { data: user } = useAuth();
   const { setIsAuthModal, currency } = useAppContext();
+  const needsHost = party.visibility === "private";
   const perHour = party.charge_type === "hour";
   const perDay = party.charge_type === "day";
   const partyDays = partyLengthInDays(party.start_date, party.end_date);
@@ -89,7 +90,9 @@ const PartyBookingForm = ({ party }: { party: TParty }) => {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: tripsQueryKey });
       toast.success(
-        "You're booked! Your codes are on the way by email and in Reservations.",
+        needsHost
+          ? "Request sent. The host will accept or decline it."
+          : "You're booked! Your codes are on the way by email and in Reservations.",
       );
       navigate("/reservations?tab=trips");
     },
@@ -169,8 +172,9 @@ const PartyBookingForm = ({ party }: { party: TParty }) => {
         <div className="mt-4 rounded-xl border border-border p-3">
           <span className={labelClass}>Who's coming with you?</span>
           <p className="mt-1 text-xs text-muted-foreground">
-            Everyone gets their own code by email to get in at the door. Leave
-            an email blank and that code comes to you instead.
+            {needsHost
+              ? "Once the host accepts, everyone gets their own code by email. Leave an email blank and that code comes to you instead."
+              : "Everyone gets their own code by email to get in at the door. Leave an email blank and that code comes to you instead."}
           </p>
           <div className="mt-3 space-y-3">
             {friendRows.map((friend, index) => (
@@ -224,8 +228,23 @@ const PartyBookingForm = ({ party }: { party: TParty }) => {
         disabled={isPending || missingName}
         className="mt-5 w-full rounded-xl bg-purple-500 py-3.5 text-sm font-bold text-white transition hover:bg-purple-600 disabled:opacity-60"
       >
-        {isPending ? "Booking..." : user ? "Book now" : "Log in to book"}
+        {isPending
+          ? needsHost
+            ? "Sending..."
+            : "Booking..."
+          : user
+            ? needsHost
+              ? "Request to book"
+              : "Book now"
+            : needsHost
+              ? "Log in to request"
+              : "Log in to book"}
       </button>
+      {needsHost && (
+        <p className="mt-3 text-center text-xs text-muted-foreground">
+          The host has to accept this before anyone gets a code.
+        </p>
+      )}
     </>
   );
 };
