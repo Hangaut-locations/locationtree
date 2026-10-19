@@ -108,6 +108,9 @@ const ChatThread = ({ conversationId }: { conversationId: string }) => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
+  const [heldId, setHeldId] = useState<string | null>(null);
+  const holdTimer = useRef<number | null>(null);
+  const skipClick = useRef(false);
   const cameraVideo = useRef<HTMLVideoElement>(null);
   const cameraStream = useRef<MediaStream | null>(null);
 
@@ -173,10 +176,23 @@ const ChatThread = ({ conversationId }: { conversationId: string }) => {
   useEffect(
     () => () => {
       if (liveWatch.current !== null) navigator.geolocation.clearWatch(liveWatch.current);
+      if (holdTimer.current !== null) window.clearTimeout(holdTimer.current);
       cameraStream.current?.getTracks().forEach((track) => track.stop());
     },
     [],
   );
+
+  useEffect(() => {
+    if (!heldId) return;
+    const onDown = (event: PointerEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (target?.closest(`[data-message="${heldId}"]`)) return;
+      setHeldId(null);
+      setPendingDelete(null);
+    };
+    document.addEventListener("pointerdown", onDown);
+    return () => document.removeEventListener("pointerdown", onDown);
+  }, [heldId]);
 
   useEffect(() => {
     const video = cameraVideo.current;
@@ -288,6 +304,22 @@ const ChatThread = ({ conversationId }: { conversationId: string }) => {
     } finally {
       setSending(false);
     }
+  };
+
+  const clearHoldTimer = () => {
+    if (holdTimer.current === null) return;
+    window.clearTimeout(holdTimer.current);
+    holdTimer.current = null;
+  };
+
+  const startHold = (id: string) => {
+    clearHoldTimer();
+    holdTimer.current = window.setTimeout(() => {
+      holdTimer.current = null;
+      skipClick.current = true;
+      setHeldId(id);
+      setPendingDelete(null);
+    }, 450);
   };
 
   const removeMessage = async (id: string) => {
@@ -540,18 +572,40 @@ const ChatThread = ({ conversationId }: { conversationId: string }) => {
             </p>
           </div>
         )}
-        {messages.map((message) => (
+        {messages.map((message) => {
+          const highlighted = heldId === message._id;
+          return (
           <div
             key={message._id}
+            data-message={message._id}
             className={`flex ${message.mine ? "justify-end" : "justify-start"}`}
           >
             <div
               data-sent={message.mine ? "" : undefined}
-              className={`max-w-[78%] rounded-[1.25rem] px-3.5 py-2 text-sm leading-5 ${
+              onPointerDown={() => {
+                if (message.mine) startHold(message._id);
+              }}
+              onPointerUp={clearHoldTimer}
+              onPointerLeave={clearHoldTimer}
+              onPointerCancel={clearHoldTimer}
+              onContextMenu={(event) => {
+                if (!message.mine) return;
+                event.preventDefault();
+                clearHoldTimer();
+                setHeldId(message._id);
+              }}
+              onClickCapture={(event) => {
+                if (!skipClick.current) return;
+                skipClick.current = false;
+                event.preventDefault();
+                event.stopPropagation();
+              }}
+              style={message.mine ? { WebkitTouchCallout: "none" } : undefined}
+              className={`max-w-[78%] rounded-[1.25rem] px-3.5 py-2 text-sm leading-5 select-none ${
                 message.mine
                   ? "rounded-br-md text-white"
                   : "rounded-bl-md bg-[#efefef] text-[#111]"
-              }`}
+              } ${highlighted ? "ring-2 ring-[#222] ring-offset-2" : ""}`}
             >
               {message.kind === "photo" && message.photo && (
                 <button
@@ -607,20 +661,21 @@ const ChatThread = ({ conversationId }: { conversationId: string }) => {
                     Stop sharing
                   </button>
                 )}
-                {canStillEdit(message) && editingId !== message._id && (
+                {highlighted && canStillEdit(message) && editingId !== message._id && (
                   <button
                     type="button"
                     onClick={() => {
                       setEditingId(message._id);
                       setDraft(message.text);
                       setPendingDelete(null);
+                      setHeldId(null);
                     }}
                     className="ml-2 underline"
                   >
                     Edit
                   </button>
                 )}
-                {message.mine && pendingDelete !== message._id && (
+                {highlighted && message.mine && pendingDelete !== message._id && (
                   <button
                     type="button"
                     onClick={() => {
@@ -633,7 +688,7 @@ const ChatThread = ({ conversationId }: { conversationId: string }) => {
                   </button>
                 )}
               </p>
-              {message.mine && pendingDelete === message._id && (
+              {highlighted && message.mine && pendingDelete === message._id && (
                 <p className={`text-[10px] ${message.mine ? "text-white/80" : "text-[#888]"}`}>
                   Delete this message?
                   <button type="button" onClick={() => removeMessage(message._id)} className="ml-2 underline">
@@ -646,7 +701,8 @@ const ChatThread = ({ conversationId }: { conversationId: string }) => {
               )}
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
 
       {chat && !chat.canMessage ? (
