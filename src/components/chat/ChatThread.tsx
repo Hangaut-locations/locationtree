@@ -7,6 +7,7 @@ import {
   MapPin,
   MoreHorizontal,
   Send,
+  SwitchCamera,
   X,
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -103,6 +104,7 @@ const ChatThread = ({ conversationId }: { conversationId: string }) => {
   const [details, setDetails] = useState("");
   const [openPhoto, setOpenPhoto] = useState<string | null>(null);
   const [cameraOpen, setCameraOpen] = useState(false);
+  const [facing, setFacing] = useState<"user" | "environment">("user");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
@@ -306,6 +308,19 @@ const ChatThread = ({ conversationId }: { conversationId: string }) => {
     cameraStream.current?.getTracks().forEach((track) => track.stop());
     cameraStream.current = null;
     setCameraOpen(false);
+    setFacing("user");
+  };
+
+  const useCamera = async (mode: "user" | "environment") => {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: mode },
+      audio: false,
+    });
+    cameraStream.current?.getTracks().forEach((track) => track.stop());
+    cameraStream.current = stream;
+    if (cameraVideo.current) cameraVideo.current.srcObject = stream;
+    setFacing(mode);
+    setCameraOpen(true);
   };
 
   const openCamera = async () => {
@@ -314,14 +329,32 @@ const ChatThread = ({ conversationId }: { conversationId: string }) => {
       return;
     }
     try {
+      await useCamera("user");
+    } catch {
+      toast.error("Allow the camera to take a photo");
+    }
+  };
+
+  const flipCamera = async () => {
+    const next = facing === "user" ? "environment" : "user";
+    const previous = cameraStream.current;
+    previous?.getTracks().forEach((track) => track.stop());
+    cameraStream.current = null;
+    try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user" },
+        video: { facingMode: { exact: next } },
         audio: false,
       });
       cameraStream.current = stream;
-      setCameraOpen(true);
+      if (cameraVideo.current) cameraVideo.current.srcObject = stream;
+      setFacing(next);
     } catch {
-      toast.error("Allow the camera to take a photo");
+      try {
+        await useCamera(facing);
+      } catch {
+        setCameraOpen(false);
+      }
+      toast.error("Couldn't switch the camera");
     }
   };
 
@@ -692,7 +725,7 @@ const ChatThread = ({ conversationId }: { conversationId: string }) => {
             autoPlay
             playsInline
             muted
-            className="min-h-0 flex-1 -scale-x-100 object-cover"
+            className={`min-h-0 flex-1 object-cover ${facing === "user" ? "-scale-x-100" : ""}`}
           />
           <div className="flex items-center justify-center gap-8 px-6 py-6">
             <button
@@ -709,6 +742,14 @@ const ChatThread = ({ conversationId }: { conversationId: string }) => {
               onClick={snapPhoto}
               className="h-16 w-16 rounded-full border-4 border-white bg-white/30"
             />
+            <button
+              type="button"
+              aria-label="Switch camera"
+              onClick={flipCamera}
+              className="flex h-12 w-12 items-center justify-center rounded-full bg-white/15 text-white"
+            >
+              <SwitchCamera className="h-5 w-5" />
+            </button>
           </div>
         </div>
       )}
