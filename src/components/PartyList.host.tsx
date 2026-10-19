@@ -1,5 +1,5 @@
 import type { IParty } from "../types/listing";
-import { formatPartyWhen } from "../lib/partyTime";
+import { formatPartyWhen, partyIsOn } from "../lib/partyTime";
 import { useState } from "react";
 import { DeleteListingModal } from "./parties/DeleteListingModal";
 import { useNavigate } from "react-router-dom";
@@ -46,6 +46,9 @@ const PartyListing: React.FC<IPartyListing> = ({ data }) => {
           ]
             .filter(Boolean)
             .join(" · ")}
+          onLive={
+            partyIsOn(listing) ? () => navigate(`/parties/${listing._id}#live`) : undefined
+          }
           onView={() => navigate(`/parties/${listing._id}`)}
           onEdit={() => navigate(`/become-a-host/party?p=${listing._id}`)}
           onDelete={() => onDelete(listing._id)}

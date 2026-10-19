@@ -41,6 +41,35 @@ export const partyLengthInDays = (
   return Math.max(days, 1);
 };
 
+const NIGERIA_OFFSET_MS = 60 * 60 * 1000;
+
+/** True once the party start time has passed and the last day is not over yet. Drafts stay off. */
+export const partyIsOn = (party: {
+  start_date?: Date | string;
+  end_date?: Date | string;
+  start_time?: string;
+  status?: string;
+}) => {
+  if (party.status === "draft" || !party.start_date) return false;
+  const day = new Date(party.start_date);
+  const [hours, minutes] = (party.start_time || "00:00").split(":").map(Number);
+  const startsAt =
+    Date.UTC(
+      day.getUTCFullYear(),
+      day.getUTCMonth(),
+      day.getUTCDate(),
+      hours || 0,
+      minutes || 0,
+    ) - NIGERIA_OFFSET_MS;
+  const end = party.end_date ? new Date(party.end_date) : null;
+  const endsAt = end
+    ? Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate() + 1) -
+      NIGERIA_OFFSET_MS
+    : startsAt + 86_400_000;
+  const now = Date.now();
+  return now >= startsAt && now < endsAt;
+};
+
 /** API date -> "YYYY-MM-DD" for date inputs. */
 export const toDateInput = (date?: Date | string) =>
   date ? new Date(date).toISOString().slice(0, 10) : "";
