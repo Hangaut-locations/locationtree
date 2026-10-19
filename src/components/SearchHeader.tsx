@@ -189,11 +189,12 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
         grid grid-cols-1 p-0.5 sm:grid-cols-3 items-stretch gap-0 rounded-3xl md:rounded-full border border-gray-200 bg-card shadow-xl transition-all duration-500 ease`}
         >
           {/* Where Input */}
-          <div
-            onClick={() => setActiveBtn(1)}
-            className={`${activeBtn === 1 ? "bg-white ease transition-all shadow-md" : "hover:bg-[#e5e5e5c0]"}
-            ease transition-all duration-150 text-xs font-semibold pl-7 py-3 rounded-full z-10 relative`}
-          >
+          <div className="relative z-10">
+            <div
+              onClick={() => setActiveBtn(1)}
+              className={`${activeBtn === 1 ? "bg-white ease transition-all shadow-md" : "hover:bg-[#e5e5e5c0]"}
+              ease transition-all duration-150 text-xs font-semibold pl-7 py-3 rounded-full`}
+            >
             <button
               className={`${activeBtn < 2 && "sm:border-r"} hover:border-none relative flex flex-col items-start justify-center w-full`}
             >
@@ -238,13 +239,13 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
                 </button>
               </div>
 
-              {/* Autocomplete Dropdown */}
             </button>
+            </div>
 
             {showAreas && (
               <div
                 onClick={(e) => e.stopPropagation()}
-                className="absolute left-0 top-16 z-20 w-full overflow-hidden rounded-2xl bg-white py-2 shadow-lg sm:w-[360px]"
+                className="z-20 mt-1 w-full overflow-hidden rounded-2xl bg-white py-2 shadow-lg sm:absolute sm:left-0 sm:top-16 sm:mt-0 sm:w-[360px]"
               >
                 {areas.length ? (
                   <>
