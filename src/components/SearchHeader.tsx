@@ -245,7 +245,7 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
             {showAreas && (
               <div
                 onClick={(e) => e.stopPropagation()}
-                className="z-20 mt-1 w-full overflow-hidden rounded-2xl bg-white py-2 shadow-lg sm:absolute sm:left-0 sm:top-16 sm:mt-0 sm:w-[360px]"
+                className="z-20 mb-3 mt-2 w-full overflow-hidden rounded-2xl bg-white py-2 shadow-lg sm:absolute sm:left-0 sm:top-16 sm:mb-0 sm:mt-0 sm:w-[360px]"
               >
                 {areas.length ? (
                   <>
