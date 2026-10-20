@@ -38,9 +38,18 @@ export const bookParty = (data: {
   hours?: number;
   days?: number;
   key?: string;
+  withoutTicket?: boolean;
 }) =>
   adminCaller
-    .post<PartyBooking>("/bookings/parties", data)
+    .post<PartyBooking>("/bookings/parties", {
+      partyId: data.partyId,
+      guests: data.guests,
+      friends: data.friends,
+      hours: data.hours,
+      days: data.days,
+      key: data.key,
+      without_ticket: data.withoutTicket || undefined,
+    })
     .then((res) => res.data);
 
 export const partyGuestsQueryKey = (partyId: string) => [
