@@ -112,6 +112,48 @@ const TicketPriceField = ({
   );
 };
 
+/** How many of one ticket. The box can be cleared, so a single digit other than 1 can be typed. */
+const TicketCountField = ({
+  value,
+  onChange,
+}: {
+  value: number;
+  onChange: (next: number) => void;
+}) => {
+  const [text, setText] = useState(() => String(value));
+  const [lastValue, setLastValue] = useState(value);
+  if (value !== lastValue) {
+    setLastValue(value);
+    if (text !== "" && (Number(text) || 0) !== value) setText(String(value));
+  }
+  return (
+    <label className="block min-w-0">
+      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+        How many
+      </span>
+      <input
+        type="text"
+        inputMode="numeric"
+        autoComplete="off"
+        aria-label="How many of this ticket"
+        value={text}
+        onChange={(e) => {
+          const digits = e.target.value.replace(/\D/g, "").replace(/^0+(?=\d)/, "");
+          setText(digits);
+          if (digits === "") return;
+          onChange(Number(digits));
+        }}
+        onBlur={() => {
+          const next = Math.max(1, Number(text) || 1);
+          setText(String(next));
+          onChange(next);
+        }}
+        className="mt-1 w-full min-w-0 rounded-xl border border-border px-3 py-2 text-sm outline-none"
+      />
+    </label>
+  );
+};
+
 export const PartyWizard: React.FC<PartyWizardProps> = () => {
   useRequireLogin("/become-a-host");
   const [step, setStep] = useState<WizardStep>(1);
@@ -760,30 +802,16 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
                             )
                           }
                         />
-                        <label className="block min-w-0">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                            How many
-                          </span>
-                          <input
-                            type="text"
-                            inputMode="numeric"
-                            autoComplete="off"
-                            aria-label="How many of this ticket"
-                            value={String(option.available)}
-                            onChange={(e) => {
-                              const next = Math.max(
-                                1,
-                                Number(e.target.value.replace(/\D/g, "")) || 1,
-                              );
-                              setTicketOptions((current) =>
-                                current.map((row, i) =>
-                                  i === index ? { ...row, available: next } : row,
-                                ),
-                              );
-                            }}
-                            className="mt-1 w-full min-w-0 rounded-xl border border-border px-3 py-2 text-sm outline-none"
-                          />
-                        </label>
+                        <TicketCountField
+                          value={option.available}
+                          onChange={(next) =>
+                            setTicketOptions((current) =>
+                              current.map((row, i) =>
+                                i === index ? { ...row, available: next } : row,
+                              ),
+                            )
+                          }
+                        />
                       </div>
                     </div>
                   ))}
