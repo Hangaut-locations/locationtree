@@ -192,7 +192,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
       beds: 1,
       bathrooms: 1,
       ...(capacity && { guest_capacity: capacity }),
-      ...(price && { price: priceToUSD(price, currency) }),
+      price: priceToUSD(is_ticket_sales ? price : 0, currency),
       ...(priceMode && { charge_type: priceMode }),
       ...(startDate && { start_date: startDate }),
       ...(endDate && { end_date: endDate }),
@@ -251,11 +251,12 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
     if (step === 2) return isDateValid;
     if (step === 3) return (location || "").trim().length >= 3;
     if (step === 4) return photos.length > 0;
-    if (step === 5) return price > 0;
+    if (step === 5) return true;
     if (step === 6) return activities.trim().length > 0;
     if (step === 7) return rules.trim().length > 0;
     if (step === 8) return !!title;
     if (step === 9) {
+      if (!is_ticket_sales) return true;
       const named = ticketOptions.filter((option) => option.name.trim());
       const keys = named.map((option) => option.name.trim().toLowerCase());
       const unique = new Set(keys).size === keys.length;
@@ -492,6 +493,10 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
                   / {priceMode}
                 </span>
               </div>
+              <p className="text-xs text-muted-foreground">
+                Leave this at 0 if guests will reserve for free. You confirm
+                that when you name the party.
+              </p>
             </div>
           )}
 
@@ -602,7 +607,10 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
 
               <button
                 type="button"
-                onClick={() => setIsTicketsales(false)}
+                onClick={() => {
+                  setIsTicketsales(false);
+                  setPrice(0);
+                }}
                 className={`w-full flex items-center gap-3 rounded-2xl border p-5 text-left transition-all cursor-pointer active:scale-97 ${
                   is_ticket_sales
                     ? "border-border/80 bg-card hover:border-gray-400"
@@ -658,19 +666,36 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
                 </p>
               </div>
 
-              <div className="flex items-center justify-center gap-3">
-                <span className="text-6xl sm:text-7xl font-semibold text-foreground">
-                  {symbolFor(currency)}
-                </span>
-                <PriceInput
-                  value={price}
-                  onChange={setPrice}
-                  className="text-6xl sm:text-7xl font-semibold"
-                />
-              </div>
+              {is_ticket_sales ? (
+                <div className="flex items-center justify-center gap-3">
+                  <span className="text-6xl sm:text-7xl font-semibold text-foreground">
+                    {symbolFor(currency)}
+                  </span>
+                  <PriceInput
+                    value={price}
+                    onChange={setPrice}
+                    className="text-6xl sm:text-7xl font-semibold"
+                  />
+                </div>
+              ) : (
+                <p className="text-6xl sm:text-7xl font-semibold text-foreground">
+                  {symbolFor(currency)}0
+                </p>
+              )}
               <p className="text-sm font-semibold text-muted-foreground">
-                per {priceMode}
+                {is_ticket_sales
+                  ? `per ${priceMode}`
+                  : `Free for guests. This publishes at ${symbolFor(currency)}0.`}
               </p>
+              {!is_ticket_sales && (
+                <button
+                  type="button"
+                  onClick={() => setIsTicketsales(true)}
+                  className="text-sm font-semibold text-purple-950 underline"
+                >
+                  Sell tickets instead
+                </button>
+              )}
 
               {is_ticket_sales && (
                 <div className="mx-auto w-full min-w-0 max-w-md space-y-3 text-left">
