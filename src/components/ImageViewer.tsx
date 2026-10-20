@@ -52,7 +52,10 @@ const ImageViewer = ({
   const trackRef = useRef<HTMLDivElement | null>(null);
   const thumbsRef = useRef<HTMLDivElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const tapTimer = useRef<number | null>(null);
   const [current, setCurrent] = useState(startIndex);
+  const [chromeOn, setChromeOn] = useState(true);
+  const [zoomed, setZoomed] = useState(false);
 
   const slides = useMemo<Slide[]>(() => {
     const list: Slide[] = images.map((src) => ({ kind: "photo", src }));
@@ -120,6 +123,32 @@ const ImageViewer = ({
     return () => window.removeEventListener("keydown", onKey);
   }, [open, current, goTo]);
 
+  useEffect(() => {
+    setZoomed(false);
+  }, [current, open]);
+
+  useEffect(
+    () => () => {
+      if (tapTimer.current) window.clearTimeout(tapTimer.current);
+    },
+    [],
+  );
+
+  // One tap hides the cards and the buttons. A second tap brings them back.
+  // Two quick taps zoom in, and two more zoom back out.
+  const onPhotoTap = () => {
+    if (tapTimer.current) {
+      window.clearTimeout(tapTimer.current);
+      tapTimer.current = null;
+      setZoomed((on) => !on);
+      return;
+    }
+    tapTimer.current = window.setTimeout(() => {
+      tapTimer.current = null;
+      setChromeOn((on) => !on);
+    }, 260);
+  };
+
   return (
     <DialogPrimitive.Root
       open={open}
@@ -137,7 +166,7 @@ const ImageViewer = ({
               {current + 1} / {slides.length}
             </span>
             <div className="min-w-0 flex-1">
-              {slides.length > 1 && (
+              {chromeOn && slides.length > 1 && (
                 <div
                   ref={thumbsRef}
                   className="relative flex gap-2 overflow-x-auto p-0.5 [scrollbar-width:none] sm:justify-center-safe [&::-webkit-scrollbar]:hidden"
@@ -197,7 +226,8 @@ const ImageViewer = ({
               {slides.map((slide, index) => (
                 <div
                   key={`${slide.src}-${index}`}
-                  className="flex h-full w-full shrink-0 snap-center items-center justify-center px-2 sm:px-20"
+                  onClick={slide.kind === "photo" ? onPhotoTap : undefined}
+                  className="flex h-full w-full shrink-0 snap-center items-center justify-center overflow-hidden px-2 sm:px-20"
                 >
                   {slide.kind === "video" ? (
                     <video
@@ -217,7 +247,12 @@ const ImageViewer = ({
                       src={slide.src}
                       alt={`${title} - photo ${index + 1}`}
                       draggable={false}
-                      className="max-h-full max-w-full select-none object-contain"
+                      className="max-h-full max-w-full select-none object-contain transition-transform duration-200"
+                      style={
+                        zoomed && index === current
+                          ? { transform: "scale(1.8)" }
+                          : undefined
+                      }
                     />
                   )}
                 </div>
@@ -250,7 +285,7 @@ const ImageViewer = ({
           </div>
 
           <div className="flex flex-col items-center gap-4 px-4 pb-5 pt-3">
-            {(onShare || onToggleSaved) && (
+            {chromeOn && (onShare || onToggleSaved) && (
               <div className="flex items-center gap-3">
                 {onShare && (
                   <button
