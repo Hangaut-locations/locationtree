@@ -319,6 +319,7 @@ const PropertyDetailPage = () => {
         saving={saving}
         onToggleSaved={toggleSaved}
         onShare={() => setIsShareOpen(true)}
+        listing={{ type: "property", id: data._id, hostId: data.host?._id }}
       />
       <ShareModal
         open={isShareOpen}

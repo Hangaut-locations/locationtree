@@ -9,7 +9,9 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { videoSlide } from "../lib/media";
+import type { ReviewListing } from "../lib/reviews";
 import type { ListingVideo } from "../types/listing";
+import ViewerListingBar from "./ViewerListingBar";
 
 type Slide =
   | { kind: "photo"; src: string }
@@ -26,6 +28,7 @@ interface IImageViewer {
   saving?: boolean;
   onToggleSaved?: () => void;
   onShare?: () => void;
+  listing?: { type: ReviewListing; id: string; hostId?: string };
 }
 
 const arrowClass =
@@ -48,6 +51,7 @@ const ImageViewer = ({
   saving = false,
   onToggleSaved,
   onShare,
+  listing,
 }: IImageViewer) => {
   const trackRef = useRef<HTMLDivElement | null>(null);
   const thumbsRef = useRef<HTMLDivElement | null>(null);
@@ -285,8 +289,8 @@ const ImageViewer = ({
           </div>
 
           <div className="flex flex-col items-center gap-4 px-4 pb-5 pt-3">
-            {chromeOn && (onShare || onToggleSaved) && (
-              <div className="flex items-center gap-3">
+            {chromeOn && (onShare || onToggleSaved || listing) && (
+              <div className="flex w-full max-w-3xl flex-wrap items-center justify-center gap-2">
                 {onShare && (
                   <button
                     type="button"
@@ -314,6 +318,9 @@ const ImageViewer = ({
                     />
                     {isSaved ? "Saved" : "Save"}
                   </button>
+                )}
+                {listing && (
+                  <ViewerListingBar type={listing.type} id={listing.id} hostId={listing.hostId} />
                 )}
               </div>
             )}
