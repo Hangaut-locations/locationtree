@@ -39,6 +39,7 @@ export const bookParty = (data: {
   days?: number;
   key?: string;
   withoutTicket?: boolean;
+  ticketName?: string;
 }) =>
   adminCaller
     .post<PartyBooking>("/bookings/parties", {
@@ -49,6 +50,7 @@ export const bookParty = (data: {
       days: data.days,
       key: data.key,
       without_ticket: data.withoutTicket || undefined,
+      ticket_name: data.ticketName || undefined,
     })
     .then((res) => res.data);
 

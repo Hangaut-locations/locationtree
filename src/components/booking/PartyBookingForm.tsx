@@ -30,6 +30,7 @@ type Choices = {
   days?: number;
   friends?: PartyFriend[];
   withoutTicket?: boolean;
+  ticketName?: string;
 };
 
 /** Rows left empty become spots whose codes go to the person booking. */
@@ -51,9 +52,19 @@ const PartyBookingForm = ({ party }: { party: TParty }) => {
   const perHour = party.charge_type === "hour";
   const perDay = party.charge_type === "day";
   const partyDays = partyLengthInDays(party.start_date, party.end_date);
-  const capacity = Number(party.guest_capacity) || 1;
-  const price = Number(party.price) || 0;
+  const options = party.ticket_options ?? [];
+  const [ticketName, setTicketName] = useState("");
+  const picked = options.find((option) => option.name === ticketName);
+  const optionLeft = picked ? (picked.left ?? picked.available) : null;
+  const soldOut = optionLeft === 0;
+  const room = Number(party.guest_capacity) || 1;
+  const capacity =
+    optionLeft == null ? room : Math.max(1, Math.min(room, optionLeft));
+  const price = picked ? Number(picked.price) || 0 : Number(party.price) || 0;
   const [guests, setGuests] = useState(1);
+  useEffect(() => {
+    setGuests((current) => Math.min(current, capacity));
+  }, [capacity]);
   const [hours, setHours] = useState(2);
   const [days, setDays] = useState(1);
   const [friends, setFriends] = useState<PartyFriend[]>([]);
@@ -89,6 +100,7 @@ const PartyBookingForm = ({ party }: { party: TParty }) => {
         days: perDay ? choices.days : undefined,
         key: linkKey(),
         withoutTicket: choices.withoutTicket,
+        ticketName: choices.withoutTicket ? undefined : choices.ticketName,
       }),
     onSuccess: (_booking, choices) => {
       qc.invalidateQueries({ queryKey: tripsQueryKey });
@@ -113,12 +125,20 @@ const PartyBookingForm = ({ party }: { party: TParty }) => {
     setHours(saved.hours);
     setDays(saved.days ?? 1);
     setFriends(saved.friends ?? []);
+    setTicketName(saved.ticketName ?? "");
     document.getElementById("book")?.scrollIntoView({ behavior: "smooth" });
     mutate(saved);
   }, [user, party._id, mutate]);
 
   const handleBook = (withoutTicket = false) => {
-    const choices = { guests, hours, days, friends: friendRows, withoutTicket };
+    const choices = {
+      guests,
+      hours,
+      days,
+      friends: friendRows,
+      withoutTicket,
+      ticketName,
+    };
     if (!user) {
       savePendingBooking<Choices>(party._id, choices);
       setIsAuthModal(true);
@@ -129,6 +149,51 @@ const PartyBookingForm = ({ party }: { party: TParty }) => {
 
   return (
     <>
+      {options.length > 0 && (
+        <div className="mt-6">
+          <span className={labelClass}>Ticket</span>
+          <div className="mt-2 grid gap-2">
+            <button
+              type="button"
+              onClick={() => setTicketName("")}
+              aria-pressed={ticketName === ""}
+              className={`rounded-xl border px-3 py-2 text-left text-sm ${
+                ticketName === ""
+                  ? "border-purple-500 bg-purple-500/10"
+                  : "border-border"
+              }`}
+            >
+              <span className="font-semibold">Regular</span>
+              <span className="mt-0.5 block text-xs text-muted-foreground">
+                {formatPrice(displayPrice(Number(party.price) || 0, currency), currency)}{" "}
+                per {perHour ? "hour" : perDay ? "day" : "guest"}
+              </span>
+            </button>
+            {options.map((option) => {
+              const left = option.left ?? option.available;
+              return (
+                <button
+                  key={option.name}
+                  type="button"
+                  onClick={() => setTicketName(option.name)}
+                  aria-pressed={ticketName === option.name}
+                  className={`rounded-xl border px-3 py-2 text-left text-sm ${
+                    ticketName === option.name
+                      ? "border-purple-500 bg-purple-500/10"
+                      : "border-border"
+                  }`}
+                >
+                  <span className="font-semibold">{option.name}</span>
+                  <span className="mt-0.5 block text-xs text-muted-foreground">
+                    {formatPrice(displayPrice(Number(option.price) || 0, currency), currency)}{" "}
+                    · {left} left
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
       <div className="mt-6 grid grid-cols-2 overflow-hidden rounded-xl border border-border">
         <div className="col-span-2 border-b border-border p-3">
           <span className={labelClass}>Date</span>
@@ -230,7 +295,7 @@ const PartyBookingForm = ({ party }: { party: TParty }) => {
       <button
         type="button"
         onClick={() => handleBook(false)}
-        disabled={isPending || missingName}
+        disabled={isPending || missingName || soldOut}
         className="mt-5 w-full rounded-xl bg-purple-500 py-3.5 text-sm font-bold text-white transition hover:bg-purple-600 disabled:opacity-60"
       >
         {isPending
@@ -247,6 +312,11 @@ const PartyBookingForm = ({ party }: { party: TParty }) => {
               ? "Log in to request"
               : "Log in to book"}
       </button>
+      {soldOut && picked && (
+        <p className="mt-3 text-center text-xs text-muted-foreground">
+          {picked.name} is sold out. Pick another ticket.
+        </p>
+      )}
       {freeRsvp && (
         <button
           type="button"

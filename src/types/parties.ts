@@ -14,6 +14,12 @@ export type TParty = {
   party_rules: string;
   is_ticket_sales: boolean;
   price: string;
+  ticket_options?: {
+    name: string;
+    price: number;
+    available: number;
+    left?: number;
+  }[];
   beds: string;
   bathrooms: string;
   start_date: Date;

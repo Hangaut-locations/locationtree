@@ -86,6 +86,9 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
   const [activities, setActivities] = useState<string>("");
   const [rules, setRules] = useState<string>("");
   const [is_ticket_sales, setIsTicketsales] = useState<boolean>(true);
+  const [ticketOptions, setTicketOptions] = useState<
+    { name: string; price: number; available: number }[]
+  >([]);
   const [visibility, setVisibility] = useState<Visibility>("public");
   const searchParams = new URLSearchParams(window.location.search);
   const partyId = searchParams.get("p");
@@ -120,6 +123,17 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
   const handleSubmit = (status: "published" | "draft" = "published") => {
     setLoading(true);
 
+    const namedTickets = is_ticket_sales
+      ? ticketOptions
+          .filter((option) => option.name.trim())
+          .map((option) => ({
+            name: option.name.trim(),
+            price: priceToUSD(option.price, currency),
+            available: option.available,
+          }))
+      : [];
+    const sendTickets =
+      namedTickets.length > 0 || (partyData?.ticket_options?.length ?? 0) > 0;
     const payload = {
       ...(title && { title: title.trim() }),
       ...(activities && { description: activities.trim() }),
@@ -135,6 +149,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
       ...(startTime && { start_time: startTime }),
       ...(rules && { party_rules: rules.trim() }),
       is_ticket_sales: is_ticket_sales ? "true" : "false",
+      ...(sendTickets && { ticket_options: JSON.stringify(namedTickets) }),
       visibility,
       ...(partyType && { party_type: partyType }),
       ...(photos.length > 0 && { images: photos }),
@@ -190,7 +205,15 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
     if (step === 6) return activities.trim().length > 0;
     if (step === 7) return rules.trim().length > 0;
     if (step === 8) return !!title;
-    if (step === 9) return price > 0;
+    if (step === 9) {
+      const named = ticketOptions.filter((option) => option.name.trim());
+      const keys = named.map((option) => option.name.trim().toLowerCase());
+      const unique = new Set(keys).size === keys.length;
+      const sized = named.every(
+        (option) => option.available >= 1 && option.available <= capacity,
+      );
+      return price > 0 && unique && sized;
+    }
     return true;
   };
 
@@ -208,6 +231,13 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
       setPriceMode(partyData.charge_type ?? "person");
       setCapacity(Number(partyData.guest_capacity) || 10);
       setIsTicketsales(String(partyData.is_ticket_sales) !== "false");
+      setTicketOptions(
+        (partyData.ticket_options ?? []).map((option) => ({
+          name: option.name,
+          price: priceForInput(Number(option.price) || 0, currency),
+          available: option.available,
+        })),
+      );
       setVisibility(partyData.visibility === "private" ? "private" : "public");
       setActivities(partyData.description ?? "");
       setRules(partyData.party_rules ?? "");
@@ -591,6 +621,124 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
               <p className="text-sm font-semibold text-muted-foreground">
                 per {priceMode}
               </p>
+
+              {is_ticket_sales && (
+                <div className="mx-auto max-w-md space-y-3 text-left">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-semibold text-foreground">
+                      More tickets
+                    </p>
+                    <button
+                      type="button"
+                      disabled={ticketOptions.length >= 6}
+                      onClick={() =>
+                        setTicketOptions((current) => [
+                          ...current,
+                          { name: "", price, available: Math.min(10, capacity) },
+                        ])
+                      }
+                      className="flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs font-semibold disabled:opacity-40"
+                    >
+                      <Plus className="h-3.5 w-3.5" /> Add a ticket
+                    </button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Name it, set a price, and how many you want to sell. Guests
+                    can still buy the main ticket above.
+                  </p>
+                  {ticketOptions.some((option) => option.name.trim()) &&
+                    (() => {
+                      const named = ticketOptions.filter((option) =>
+                        option.name.trim(),
+                      );
+                      const keys = named.map((option) =>
+                        option.name.trim().toLowerCase(),
+                      );
+                      const bad =
+                        new Set(keys).size !== keys.length ||
+                        named.some((option) => option.available > capacity);
+                      return bad ? (
+                        <p className="text-xs font-semibold text-red-500">
+                          Each ticket needs its own name, and how many can't be
+                          more than your guest total.
+                        </p>
+                      ) : null;
+                    })()}
+                  {ticketOptions.map((option, index) => (
+                    <div
+                      key={index}
+                      className="grid grid-cols-[1fr_5rem_5rem_auto] items-center gap-2"
+                    >
+                      <input
+                        type="text"
+                        maxLength={40}
+                        value={option.name}
+                        placeholder="VIP"
+                        aria-label="Ticket name"
+                        onChange={(e) =>
+                          setTicketOptions((current) =>
+                            current.map((row, i) =>
+                              i === index ? { ...row, name: e.target.value } : row,
+                            ),
+                          )
+                        }
+                        className="rounded-xl border border-border px-3 py-2 text-sm outline-none"
+                      />
+                      <input
+                        type="number"
+                        min={0}
+                        value={option.price}
+                        aria-label="Ticket price"
+                        onChange={(e) =>
+                          setTicketOptions((current) =>
+                            current.map((row, i) =>
+                              i === index
+                                ? { ...row, price: Number(e.target.value) || 0 }
+                                : row,
+                            ),
+                          )
+                        }
+                        className="rounded-xl border border-border px-3 py-2 text-sm outline-none"
+                      />
+                      <input
+                        type="number"
+                        min={1}
+                        max={capacity}
+                        value={option.available}
+                        aria-label="How many of this ticket"
+                        onChange={(e) =>
+                          setTicketOptions((current) =>
+                            current.map((row, i) =>
+                              i === index
+                                ? {
+                                    ...row,
+                                    available: Math.max(
+                                      1,
+                                      Number(e.target.value) || 1,
+                                    ),
+                                  }
+                                : row,
+                            ),
+                          )
+                        }
+                        className="rounded-xl border border-border px-3 py-2 text-sm outline-none"
+                      />
+                      <button
+                        type="button"
+                        aria-label="Remove ticket"
+                        onClick={() =>
+                          setTicketOptions((current) =>
+                            current.filter((_, i) => i !== index),
+                          )
+                        }
+                        className="rounded-xl border border-border p-2"
+                      >
+                        <Minus className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               <div className="max-w-md mx-auto rounded-3xl border border-border bg-card p-5 text-left space-y-2">
                 <div className="flex justify-between text-xs font-semibold text-muted-foreground">
