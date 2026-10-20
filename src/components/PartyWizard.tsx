@@ -134,7 +134,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
       ...(endDate && { end_date: endDate }),
       ...(startTime && { start_time: startTime }),
       ...(rules && { party_rules: rules.trim() }),
-      is_ticket_sales,
+      is_ticket_sales: is_ticket_sales ? "true" : "false",
       visibility,
       ...(partyType && { party_type: partyType }),
       ...(photos.length > 0 && { images: photos }),
@@ -493,7 +493,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
 
               <button
                 type="button"
-                onClick={() => setIsTicketsales((prev) => !prev)}
+                onClick={() => setIsTicketsales(true)}
                 className={`w-full flex items-center gap-3 rounded-2xl border p-5 text-left transition-all cursor-pointer active:scale-97 ${
                   is_ticket_sales
                     ? "border-purple-950 dark:border-purple-600 bg-purple-950/5 dark:bg-purple-800/15"
@@ -506,8 +506,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
                     Guests book / buy tickets for reservation
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Ticket sales are required for this party. Turn off to allow
-                    free RSVP.
+                    Guests pay the price you set on the next step.
                   </p>
                 </div>
                 <span
@@ -515,6 +514,35 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
                     is_ticket_sales
                       ? "bg-purple-950 text-white border-purple-950"
                       : "border-border text-transparent"
+                  }`}
+                >
+                  ✓
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsTicketsales(false)}
+                className={`w-full flex items-center gap-3 rounded-2xl border p-5 text-left transition-all cursor-pointer active:scale-97 ${
+                  is_ticket_sales
+                    ? "border-border/80 bg-card hover:border-gray-400"
+                    : "border-purple-950 dark:border-purple-600 bg-purple-950/5 dark:bg-purple-800/15"
+                }`}
+              >
+                <Ticket className="h-5 w-5 text-purple-950 dark:text-purple-300" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-foreground">
+                    Reserve without a ticket
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Guests book a free spot and still get a code by email.
+                  </p>
+                </div>
+                <span
+                  className={`h-6 w-6 rounded-full border flex items-center justify-center text-[10px] font-semibold ${
+                    is_ticket_sales
+                      ? "border-border text-transparent"
+                      : "bg-purple-950 text-white border-purple-950"
                   }`}
                 >
                   ✓
