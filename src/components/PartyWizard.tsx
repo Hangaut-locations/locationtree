@@ -62,6 +62,56 @@ const PRICE_MODES = [
 
 type PriceMode = (typeof PRICE_MODES)[number]["id"];
 
+const cleanMoney = (raw: string) =>
+  raw
+    .replace(/[^\d.]/g, "")
+    .replace(/(\..*)\./g, "$1")
+    .replace(/^0+(?=\d)/, "");
+
+/** Price box for one extra ticket. Shows the currency, and drops a leading zero. */
+const TicketPriceField = ({
+  value,
+  symbol,
+  onChange,
+}: {
+  value: number;
+  symbol: string;
+  onChange: (next: number) => void;
+}) => {
+  const [text, setText] = useState(() => (value > 0 ? String(value) : ""));
+  const [lastValue, setLastValue] = useState(value);
+  if (value !== lastValue) {
+    setLastValue(value);
+    if ((Number(text) || 0) !== value) setText(value > 0 ? String(value) : "");
+  }
+  return (
+    <label className="block min-w-0">
+      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+        Price
+      </span>
+      <span className="mt-1 flex min-w-0 items-center gap-1 rounded-xl border border-border px-3 py-2">
+        <span className="shrink-0 text-sm font-semibold text-foreground">
+          {symbol}
+        </span>
+        <input
+          type="text"
+          inputMode="decimal"
+          autoComplete="off"
+          placeholder="0"
+          aria-label="Ticket price"
+          value={text}
+          onChange={(e) => {
+            const next = cleanMoney(e.target.value);
+            setText(next);
+            onChange(Number(next) || 0);
+          }}
+          className="min-w-0 w-full bg-transparent text-sm outline-none"
+        />
+      </span>
+    </label>
+  );
+};
+
 export const PartyWizard: React.FC<PartyWizardProps> = () => {
   useRequireLogin("/become-a-host");
   const [step, setStep] = useState<WizardStep>(1);
@@ -595,7 +645,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
               </p>
 
               {is_ticket_sales && (
-                <div className="mx-auto max-w-md space-y-3 text-left">
+                <div className="mx-auto w-full min-w-0 max-w-md space-y-3 text-left">
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-sm font-semibold text-foreground">
                       More tickets
@@ -639,74 +689,74 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
                   {ticketOptions.map((option, index) => (
                     <div
                       key={index}
-                      className="grid grid-cols-[1fr_5rem_5rem_auto] items-center gap-2"
+                      className="w-full min-w-0 rounded-2xl border border-border p-3"
                     >
-                      <input
-                        type="text"
-                        maxLength={40}
-                        value={option.name}
-                        placeholder="VIP"
-                        aria-label="Ticket name"
-                        onChange={(e) =>
-                          setTicketOptions((current) =>
-                            current.map((row, i) =>
-                              i === index ? { ...row, name: e.target.value } : row,
-                            ),
-                          )
-                        }
-                        className="rounded-xl border border-border px-3 py-2 text-sm outline-none"
-                      />
-                      <input
-                        type="number"
-                        min={0}
-                        value={option.price}
-                        aria-label="Ticket price"
-                        onChange={(e) =>
-                          setTicketOptions((current) =>
-                            current.map((row, i) =>
-                              i === index
-                                ? { ...row, price: Number(e.target.value) || 0 }
-                                : row,
-                            ),
-                          )
-                        }
-                        className="rounded-xl border border-border px-3 py-2 text-sm outline-none"
-                      />
-                      <input
-                        type="number"
-                        min={1}
-                        max={capacity}
-                        value={option.available}
-                        aria-label="How many of this ticket"
-                        onChange={(e) =>
-                          setTicketOptions((current) =>
-                            current.map((row, i) =>
-                              i === index
-                                ? {
-                                    ...row,
-                                    available: Math.max(
-                                      1,
-                                      Number(e.target.value) || 1,
-                                    ),
-                                  }
-                                : row,
-                            ),
-                          )
-                        }
-                        className="rounded-xl border border-border px-3 py-2 text-sm outline-none"
-                      />
-                      <button
-                        type="button"
-                        aria-label="Remove ticket"
-                        onClick={() =>
-                          setTicketOptions((current) =>
-                            current.filter((_, i) => i !== index),
-                          )
-                        }
-                        className="rounded-xl border border-border p-2"
-                      >
-                        <Minus className="h-4 w-4" />
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          maxLength={40}
+                          value={option.name}
+                          placeholder="Ticket name, e.g. VIP"
+                          aria-label="Ticket name"
+                          onChange={(e) =>
+                            setTicketOptions((current) =>
+                              current.map((row, i) =>
+                                i === index ? { ...row, name: e.target.value } : row,
+                              ),
+                            )
+                          }
+                          className="min-w-0 flex-1 rounded-xl border border-border px-3 py-2 text-sm outline-none"
+                        />
+                        <button
+                          type="button"
+                          aria-label="Remove ticket"
+                          onClick={() =>
+                            setTicketOptions((current) =>
+                              current.filter((_, i) => i !== index),
+                            )
+                          }
+                          className="shrink-0 rounded-xl border border-border p-2"
+                        >
+                          <Minus className="h-4 w-4" />
+                        </button>
+                      </div>
+                      <div className="mt-2 grid grid-cols-2 gap-2">
+                        <TicketPriceField
+                          value={option.price}
+                          symbol={symbolFor(currency)}
+                          onChange={(next) =>
+                            setTicketOptions((current) =>
+                              current.map((row, i) =>
+                                i === index ? { ...row, price: next } : row,
+                              ),
+                            )
+                          }
+                        />
+                        <label className="block min-w-0">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                            How many
+                          </span>
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            autoComplete="off"
+                            aria-label="How many of this ticket"
+                            value={String(option.available)}
+                            onChange={(e) => {
+                              const next = Math.max(
+                                1,
+                                Number(e.target.value.replace(/\D/g, "")) || 1,
+                              );
+                              setTicketOptions((current) =>
+                                current.map((row, i) =>
+                                  i === index ? { ...row, available: next } : row,
+                                ),
+                              );
+                            }}
+                            className="mt-1 w-full min-w-0 rounded-xl border border-border px-3 py-2 text-sm outline-none"
+                          />
+                        </label>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -731,6 +781,22 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
                   </span>
                   <span className="text-foreground">{capacity} guests</span>
                 </div>
+                {ticketOptions
+                  .filter((option) => option.name.trim())
+                  .map((option, index) => (
+                    <div
+                      key={`${option.name}-${index}`}
+                      className="flex justify-between gap-3 text-xs font-semibold text-muted-foreground"
+                    >
+                      <span className="min-w-0 truncate text-foreground">
+                        {option.name.trim()}
+                      </span>
+                      <span className="shrink-0 text-foreground">
+                        {symbolFor(currency)}
+                        {option.price} · {option.available}
+                      </span>
+                    </div>
+                  ))}
                 <div className="flex justify-between text-xs font-semibold text-muted-foreground">
                   <span className="flex items-center gap-1.5">
                     <Ticket className="h-3.5 w-3.5" /> Booking
