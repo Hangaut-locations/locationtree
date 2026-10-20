@@ -41,6 +41,7 @@ export interface PartyBooking extends BookingBase {
   end_date?: string;
   start_time?: string;
   tickets?: PartyTicket[];
+  ticket_name?: string;
 }
 
 export interface PartyFriend {
