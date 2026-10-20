@@ -17,6 +17,7 @@ import useAppContext from "./hooks/useAppContext";
 import { AllIcon, HomeIcon, PartiesIcon } from "./svgs";
 import { SearchHeader } from "./SearchHeader";
 import { logout } from "../lib/session";
+import { StoryFace } from "./stories/Stories";
 
 const becomeHostClass =
   "flex items-center gap-1.5 rounded-full bg-purple-950 text-white font-semibold py-2.5 px-4 text-xs shadow-md hover:bg-purple-900 active:scale-97 transition-all cursor-pointer whitespace-nowrap";
@@ -121,6 +122,12 @@ export const Navbar: React.FC = () => {
           <div className="flex lg:hidden items-center gap-2">
             {data ? (
               <>
+                <StoryFace
+                  userId={String(data._id)}
+                  initials={avatar}
+                  mine
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-xs font-semibold uppercase"
+                />
                 <button
                   onClick={() => navigate(location.includes("host") ? "/" : "/host")}
                   className={becomeHostClass}
@@ -254,6 +261,12 @@ export const Navbar: React.FC = () => {
                   </span>
                 )}
               </button>
+              <StoryFace
+                userId={String(data._id)}
+                initials={avatar}
+                mine
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-xs font-semibold uppercase"
+              />
               {/* Avatar dropdown (Airbnb style) */}
               <div ref={menuRef} className="relative">
                 <button

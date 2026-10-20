@@ -10,6 +10,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import ProfilePageSkeleton from "../global/UserProfileSkeleton";
 import { getErrorMessage, type ApiError } from "../../lib/errors";
 import { CodeInput, emptyCode } from "../auth/CodeInput";
+import { StoryFace } from "../stories/Stories";
 
 const Profile: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -126,12 +127,12 @@ const Profile: React.FC = () => {
             alt="Profile"
             className="h-24 w-24 rounded-full object-cover border-4 border-purple-950/10"
           /> */}
-          <div className="h-14 w-14 rounded-full object-cover border-4 border-purple-950/10 flex justify-center items-center">
-            <h2 className="text-lg font-semibold">
-              {profile?.firstName ? profile?.firstName[0].toUpperCase() : "Y"}
-              {profile?.lastName ? profile?.lastName[0].toUpperCase() : "N"}
-            </h2>
-          </div>
+          <StoryFace
+            userId={profile?._id ? String(profile._id) : undefined}
+            mine
+            initials={`${profile?.firstName ? profile.firstName[0].toUpperCase() : "Y"}${profile?.lastName ? profile.lastName[0].toUpperCase() : "N"}`}
+            className="flex h-14 w-14 items-center justify-center rounded-full border-4 border-purple-950/10 text-lg font-semibold"
+          />
           <div>
             <h2 className="text-lg lg:text-xl font-semibold text-foreground tracking-tight">
               {profile?.firstName || "User"} {profile?.lastName || "Name"}
