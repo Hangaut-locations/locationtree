@@ -1,4 +1,4 @@
-import { EyeIcon, Pencil, Trash2 } from "lucide-react";
+import { EyeIcon, Pencil, Trash2, Video } from "lucide-react";
 import type React from "react";
 import PrivateLinkButtons from "./PrivateLinkButtons";
 
@@ -14,6 +14,7 @@ interface HostListingRowProps {
   onView: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  onLive?: () => void;
 }
 
 const actionClass =
@@ -31,6 +32,7 @@ const HostListingRow: React.FC<HostListingRowProps> = ({
   onView,
   onEdit,
   onDelete,
+  onLive,
 }) => (
   <div className="flex flex-wrap items-center gap-x-4 gap-y-3 rounded-3xl border border-border bg-card p-4 sm:flex-nowrap">
     {image ? (
@@ -66,6 +68,17 @@ const HostListingRow: React.FC<HostListingRowProps> = ({
       </p>
     </div>
     <div className="flex w-full flex-wrap justify-end gap-2 border-t border-border pt-3 sm:w-auto sm:flex-nowrap sm:border-0 sm:pt-0">
+      {onLive && (
+        <button
+          type="button"
+          title="Go live"
+          onClick={onLive}
+          className="flex h-9 items-center justify-center gap-1.5 rounded-full bg-red-600 px-3 text-xs font-semibold text-white cursor-pointer sm:h-8"
+        >
+          <Video className="h-4 w-4" />
+          <span>Live</span>
+        </button>
+      )}
       {isPrivate && !draft && (
         <PrivateLinkButtons
           kind={kind}

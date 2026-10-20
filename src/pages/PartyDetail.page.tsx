@@ -27,7 +27,8 @@ import WatchVideoButton from "../components/listing-media/WatchVideoButton";
 import { adminCaller } from "../interceptors/http";
 import { displayPrice, formatPrice } from "../lib/currency";
 import { photoSlide, videoSlide } from "../lib/media";
-import { formatPartyWhen } from "../lib/partyTime";
+import { formatPartyWhen, partyIsOn } from "../lib/partyTime";
+import PartyLive from "../components/party/PartyLive";
 import { isPrivateError, linkKey, listingLink } from "../lib/privateLink";
 import type { TParty } from "../types/parties";
 
@@ -192,6 +193,10 @@ const PartyDetailPage = () => {
             />
           )}
         </section>
+
+        {partyIsOn(data) && (
+          <PartyLive partyId={data._id} ownerId={String(data.ownerId)} linkKey={key} />
+        )}
 
         <div className="mt-8 grid gap-12 lg:grid-cols-[1fr_360px]">
           <div>
