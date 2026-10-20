@@ -1,5 +1,5 @@
-import { type FormEvent, useState } from "react";
-import { ArrowLeft, CheckCircle2, Search, XCircle } from "lucide-react";
+import { type FormEvent, useCallback, useState } from "react";
+import { ArrowLeft, CheckCircle2, QrCode, Search, XCircle } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useParams } from "react-router-dom";
 import AppLayout from "../components/layout/AppLayout";
@@ -13,6 +13,7 @@ import {
 } from "../lib/bookings";
 import { getErrorMessage, type ApiError } from "../lib/errors";
 import type { CheckInResult } from "../types/booking";
+import QrScanner from "../components/checkin/QrScanner";
 
 type Outcome =
   | { ok: true; result: CheckInResult }
@@ -31,6 +32,7 @@ const CheckInPage = () => {
   const { data: user, isLoading: userLoading } = useAuth();
   const { setIsAuthModal } = useAppContext();
   const [code, setCode] = useState("");
+  const [scanning, setScanning] = useState(false);
   const [search, setSearch] = useState("");
   const [outcome, setOutcome] = useState<Outcome | null>(null);
 
@@ -60,6 +62,15 @@ const CheckInPage = () => {
     e.preventDefault();
     if (code.trim()) mutate(code.trim());
   };
+
+  const onScan = useCallback(
+    (value: string) => {
+      setScanning(false);
+      setCode(value);
+      mutate(value);
+    },
+    [mutate],
+  );
 
   const term = search.trim().toLowerCase();
   const guests = (data?.guests ?? []).filter(
@@ -128,6 +139,15 @@ const CheckInPage = () => {
               className="min-w-0 flex-1 rounded-xl border border-border bg-transparent px-4 py-3 font-mono text-lg font-bold tracking-widest outline-none focus:border-purple-500"
             />
             <button
+              type="button"
+              onClick={() => setScanning((open) => !open)}
+              aria-pressed={scanning}
+              aria-label="Scan QR"
+              className="flex items-center justify-center rounded-xl border border-border px-3 text-foreground"
+            >
+              <QrCode className="h-5 w-5" />
+            </button>
+            <button
               type="submit"
               disabled={isPending || !code.trim()}
               className="rounded-xl bg-purple-500 px-5 text-sm font-bold text-white transition hover:bg-purple-600 disabled:opacity-60"
@@ -135,6 +155,9 @@ const CheckInPage = () => {
               {isPending ? "Checking..." : "Check in"}
             </button>
           </div>
+          {scanning && (
+            <QrScanner onCode={onScan} onClose={() => setScanning(false)} />
+          )}
 
           {outcome?.ok && (
             <div className="mt-4 flex gap-3 rounded-2xl bg-green-50 p-4 text-green-900">

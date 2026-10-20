@@ -28,6 +28,7 @@
     "lucide-react": "^1.24.0",
     "maplibre-gl": "^6.12.0",
     "motion": "^12.42.2",
+    "qrcode": "^1.5.4",
     "react": "^19.2.7",
     "react-day-picker": "^10.0.1",
     "react-dom": "^19.2.7",
