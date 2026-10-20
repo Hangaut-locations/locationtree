@@ -29,6 +29,7 @@ type Choices = {
   hours: number;
   days?: number;
   friends?: PartyFriend[];
+  withoutTicket?: boolean;
 };
 
 /** Rows left empty become spots whose codes go to the person booking. */
@@ -46,6 +47,7 @@ const PartyBookingForm = ({ party }: { party: TParty }) => {
   const { data: user } = useAuth();
   const { setIsAuthModal, currency } = useAppContext();
   const needsHost = party.visibility === "private";
+  const freeRsvp = String(party.is_ticket_sales) === "false";
   const perHour = party.charge_type === "hour";
   const perDay = party.charge_type === "day";
   const partyDays = partyLengthInDays(party.start_date, party.end_date);
@@ -86,13 +88,16 @@ const PartyBookingForm = ({ party }: { party: TParty }) => {
         hours: perHour ? choices.hours : undefined,
         days: perDay ? choices.days : undefined,
         key: linkKey(),
+        withoutTicket: choices.withoutTicket,
       }),
-    onSuccess: () => {
+    onSuccess: (_booking, choices) => {
       qc.invalidateQueries({ queryKey: tripsQueryKey });
       toast.success(
         needsHost
           ? "Request sent. The host will accept or decline it."
-          : "You're booked! Your codes are on the way by email and in Reservations.",
+          : choices.withoutTicket
+            ? "You're in! Your code is on the way by email, no charge."
+            : "You're booked! Your codes are on the way by email and in Reservations.",
       );
       navigate("/reservations?tab=trips");
     },
@@ -112,8 +117,8 @@ const PartyBookingForm = ({ party }: { party: TParty }) => {
     mutate(saved);
   }, [user, party._id, mutate]);
 
-  const handleBook = () => {
-    const choices = { guests, hours, days, friends: friendRows };
+  const handleBook = (withoutTicket = false) => {
+    const choices = { guests, hours, days, friends: friendRows, withoutTicket };
     if (!user) {
       savePendingBooking<Choices>(party._id, choices);
       setIsAuthModal(true);
@@ -224,7 +229,7 @@ const PartyBookingForm = ({ party }: { party: TParty }) => {
       </div>
       <button
         type="button"
-        onClick={handleBook}
+        onClick={() => handleBook(false)}
         disabled={isPending || missingName}
         className="mt-5 w-full rounded-xl bg-purple-500 py-3.5 text-sm font-bold text-white transition hover:bg-purple-600 disabled:opacity-60"
       >
@@ -235,11 +240,28 @@ const PartyBookingForm = ({ party }: { party: TParty }) => {
           : user
             ? needsHost
               ? "Request to book"
-              : "Book now"
+              : freeRsvp
+                ? "Book with a ticket"
+                : "Book now"
             : needsHost
               ? "Log in to request"
               : "Log in to book"}
       </button>
+      {freeRsvp && (
+        <button
+          type="button"
+          onClick={() => handleBook(true)}
+          disabled={isPending || missingName}
+          className="mt-3 w-full rounded-xl border border-border py-3.5 text-sm font-bold transition hover:bg-muted disabled:opacity-60"
+        >
+          {user ? "Reserve without a ticket" : "Log in to reserve"}
+        </button>
+      )}
+      {freeRsvp && (
+        <p className="mt-3 text-center text-xs text-muted-foreground">
+          Free spots still get a code by email.
+        </p>
+      )}
       {needsHost && (
         <p className="mt-3 text-center text-xs text-muted-foreground">
           The host has to accept this before anyone gets a code.
