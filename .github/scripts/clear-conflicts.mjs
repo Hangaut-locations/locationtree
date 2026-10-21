@@ -1,6 +1,9 @@
 import { execFileSync, execSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import fs from "node:fs";
 import { keepBoth } from "./keep-both.mjs";
+
+const RETRY_LABEL = "conflict-bot-retry";
 
 const repo = process.env.GITHUB_REPOSITORY;
 const token = process.env.GH_TOKEN || process.env.GITHUB_TOKEN;
@@ -24,7 +27,18 @@ const gh = async (urlPath, options = {}) => {
   return res.json();
 };
 
-const git = (args) => execFileSync("git", args, { encoding: "utf8" });
+const git = (args) =>
+  execFileSync(
+    "git",
+    [
+      "-c",
+      "user.name=github-actions[bot]",
+      "-c",
+      "user.email=41898282+github-actions[bot]@users.noreply.github.com",
+      ...args,
+    ],
+    { encoding: "utf8" },
+  );
 
 const safeBranch = (name) =>
   typeof name === "string" &&
@@ -34,18 +48,27 @@ const safeBranch = (name) =>
   name !== "main" &&
   name !== "master";
 
+const conflictsWithMain = (branch) => {
+  try {
+    git(["merge-tree", "--write-tree", "origin/main", `origin/${branch}`]);
+    return false;
+  } catch (err) {
+    if (err.status === 1) return true;
+    throw err;
+  }
+};
+
 const conflictingPulls = async () => {
   const pulls = await gh(`/repos/${repo}/pulls?state=open&base=main&per_page=100`);
+  git(["fetch", "origin", "main"]);
   const found = [];
   for (const pull of pulls) {
     if (pull.head?.repo?.full_name !== repo) continue;
     if (!safeBranch(pull.head.ref)) continue;
-    let details = await gh(`/repos/${repo}/pulls/${pull.number}`);
-    for (let attempt = 0; attempt < 5 && details.mergeable == null; attempt += 1) {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      details = await gh(`/repos/${repo}/pulls/${pull.number}`);
-    }
-    if (details.mergeable === false) found.push(details);
+    git(["fetch", "origin", pull.head.ref]);
+    if (!conflictsWithMain(pull.head.ref)) continue;
+    console.log(`#${pull.number} conflicts with main`);
+    found.push(pull);
   }
   return found;
 };
@@ -62,7 +85,7 @@ const resolveFiles = (files) => {
     if (buf.includes(0)) throw new Error(`${file} is binary, so both sides cannot be kept`);
     const next = keepBoth(buf.toString("utf8"));
     if (next.includes("<<<<<<<") || next.includes(">>>>>>>")) {
-      throw new Error(`${file} still has conflict markers`);
+      throw new Error(`${file} changes the same lines on both sides, so a person needs to merge it`);
     }
     fs.writeFileSync(file, next);
   }
@@ -88,11 +111,26 @@ const alreadyNoted = async (number, head, base) => {
   return comments.some((comment) => String(comment.body || "").includes(tag));
 };
 
+const hasRetryLabel = (pull) =>
+  Array.isArray(pull.labels) && pull.labels.some((label) => label.name === RETRY_LABEL);
+
+const removeRetryLabel = async (number) => {
+  const encoded = encodeURIComponent(RETRY_LABEL);
+  try {
+    await gh(`/repos/${repo}/issues/${number}/labels/${encoded}`, { method: "DELETE" });
+  } catch (err) {
+    if (!String(err.message).includes(" 404 ")) throw err;
+  }
+};
+
 const note = async (number, head, base, detail) => {
   if (await alreadyNoted(number, head, base)) return;
   const clipped = String(detail || "").trim().slice(0, 1500);
+  const intro = clipped.includes("same lines")
+    ? "This branch conflicted with main. Both sides changed the same lines, so the bot left the branch as it was. A person needs to merge this one. After that merge is pushed, the bot can try again on its own."
+    : "This branch conflicted with main. Both sides were kept, but the result did not pass the check, so the branch was left as it was. Add the conflict-bot-retry label if you want the bot to try this same branch again.";
   const body = [
-    "This branch conflicted with main. Both sides were kept, but the result did not pass the check, so the branch was left as it was.",
+    intro,
     "",
     "```",
     clipped || "no extra detail",
@@ -119,8 +157,33 @@ const restore = (branch) => {
 const errorText = (err) =>
   [err.stdout, err.stderr, err.detail, err.message].filter(Boolean).join("\n");
 
+const contentFailure = (err) => {
+  const text = errorText(err);
+  return (
+    text.includes("check failed") ||
+    text.includes("conflict markers") ||
+    text.includes("same lines") ||
+    text.includes("still unmerged") ||
+    text.includes("is binary")
+  );
+};
+
+const lockHash = () => {
+  if (!fs.existsSync("package-lock.json")) return "no-lock";
+  return createHash("sha256").update(fs.readFileSync("package-lock.json")).digest("hex");
+};
+
 const runCheck = () => {
-  execSync("npm ci", { stdio: "inherit" });
+  const hash = lockHash();
+  const stamp = "node_modules/.conflict-bot-lock";
+  const installed = fs.existsSync(stamp) && fs.readFileSync(stamp, "utf8") === hash;
+  if (installed) {
+    console.log("packages already installed for this lockfile");
+  } else {
+    execSync("npm ci", { stdio: "inherit" });
+    fs.mkdirSync("node_modules", { recursive: true });
+    fs.writeFileSync(stamp, hash);
+  }
   try {
     const out = execSync(check, {
       encoding: "utf8",
@@ -140,7 +203,10 @@ const fixOne = async (pull) => {
   const branch = pull.head.ref;
   const head = pull.head.sha;
   const base = pull.base.sha;
-  if (await alreadyNoted(pull.number, head, base)) {
+  if (hasRetryLabel(pull)) {
+    console.log(`#${pull.number} has the retry label, so the old note is ignored`);
+    await removeRetryLabel(pull.number);
+  } else if (await alreadyNoted(pull.number, head, base)) {
     console.log(`#${pull.number} was already left alone for this main`);
     return;
   }
@@ -149,7 +215,14 @@ const fixOne = async (pull) => {
   const before = git(["rev-parse", "HEAD"]).trim();
   try {
     try {
-      git(["merge", "origin/main", "-m", "merge main and keep both sides"]);
+      git([
+        "-c",
+        "merge.conflictStyle=diff3",
+        "merge",
+        "origin/main",
+        "-m",
+        "merge main and keep both sides",
+      ]);
     } catch (err) {
       const files = unmerged();
       if (files.length === 0) throw err;
@@ -172,6 +245,7 @@ const fixOne = async (pull) => {
     } catch (restoreErr) {
       console.error(errorText(restoreErr));
     }
+    if (!contentFailure(err)) throw err;
     await note(pull.number, head, base, errorText(err));
   }
 };
@@ -184,7 +258,17 @@ const main = async () => {
     console.log("no conflicting pull requests");
     return;
   }
-  for (const pull of pulls) await fixOne(pull);
+  let toolFailed = false;
+  for (const pull of pulls) {
+    try {
+      await fixOne(pull);
+    } catch (err) {
+      toolFailed = true;
+      console.error(`#${pull.number} stopped on a tool error`);
+      console.error(errorText(err));
+    }
+  }
+  if (toolFailed) process.exit(1);
 };
 
 main().catch((err) => {
