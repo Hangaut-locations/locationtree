@@ -27,6 +27,19 @@ import { StoryCamera } from "./StoryCamera";
 
 const PHOTO_MS = 6000;
 
+const postedLabel = (iso?: string) => {
+  if (!iso) return "";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  const time = date.toLocaleTimeString("en-GB", {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+  if (date.toDateString() === new Date().toDateString()) return time;
+  const day = date.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+  return `${day}, ${time}`;
+};
+
 type StoryActions = {
   people: StoryPerson[];
   open: (userId: string) => void;
@@ -199,6 +212,7 @@ const StoryViewer = ({
     () => localStorage.getItem("hangaut_story_name") ?? "",
   );
   const [text, setText] = useState("");
+  const commentsRef = useRef<HTMLDivElement>(null);
   const item = person?.items[index];
   const mine = Boolean(me?._id && String(me._id) === userId);
 
@@ -214,6 +228,17 @@ const StoryViewer = ({
     if (!person) return;
     if (index > person.items.length - 1) setIndex(0);
   }, [person, index]);
+
+  useEffect(() => {
+    const box = commentsRef.current;
+    if (!box) return;
+    const pin = () => {
+      box.scrollTop = box.scrollHeight;
+    };
+    pin();
+    const frame = window.requestAnimationFrame(pin);
+    return () => window.cancelAnimationFrame(frame);
+  }, [item?.id, item?.comments.length]);
 
   useEffect(() => {
     if (!item || item.kind !== "photo") return;
@@ -276,12 +301,17 @@ const StoryViewer = ({
             />
           ))}
         </div>
-        <div className="flex items-center justify-between px-3 py-2">
-          <p className="truncate text-sm font-semibold">
-            {person
-              ? `${person.firstName} ${person.lastName}`.trim() || "Story"
-              : "Story"}
-          </p>
+        <div className="flex items-center justify-between gap-3 px-3 py-2">
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold">
+              {person
+                ? `${person.firstName} ${person.lastName}`.trim() || "Story"
+                : "Story"}
+            </p>
+            {postedLabel(item?.createdAt) && (
+              <p className="text-[11px] text-white/70">{postedLabel(item?.createdAt)}</p>
+            )}
+          </div>
           <button type="button" onClick={onClose} aria-label="Close story" className="p-1">
             <X className="h-5 w-5" />
           </button>
@@ -318,11 +348,11 @@ const StoryViewer = ({
           />
 
           <div
-            className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/70 to-transparent px-4 pb-4 pt-16"
+            className="absolute inset-x-0 bottom-0 flex max-h-[70%] flex-col bg-gradient-to-t from-black via-black/70 to-transparent px-4 pb-4 pt-16"
             onClick={(event) => event.stopPropagation()}
           >
-            <p className="mb-2 text-[11px] text-white/70">Gone after 24 hours</p>
-            <div className="mb-2 max-h-28 space-y-1 overflow-y-auto text-sm">
+            <p className="mb-2 shrink-0 text-[11px] text-white/70">Gone after 24 hours</p>
+            <div ref={commentsRef} className="mb-2 min-h-0 space-y-1 overflow-y-auto text-sm">
               {item?.comments.map((comment) => (
                 <p key={comment.id}>
                   <span className="font-semibold">{comment.name}</span> {comment.text}
@@ -330,7 +360,7 @@ const StoryViewer = ({
               ))}
             </div>
             {item && (
-              <div className="flex items-end gap-2">
+              <div className="flex shrink-0 items-end gap-2">
                 <button
                   type="button"
                   aria-label={item.loved ? "Remove love" : "Love this story"}
@@ -381,7 +411,7 @@ const StoryViewer = ({
                 type="button"
                 onClick={() => remove.mutate()}
                 disabled={remove.isPending}
-                className="mt-2 text-xs text-white/70 underline"
+                className="mt-2 shrink-0 text-xs text-white/70 underline"
               >
                 Remove this story
               </button>
