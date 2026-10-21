@@ -109,14 +109,16 @@ export const Navbar: React.FC = () => {
             </div> */}
           </button>
 
-          {/* Logo. On phones it takes the space left after the menu and the buttons. */}
-          <div className="flex h-12 min-w-0 flex-1 items-center justify-center lg:w-[150px] lg:flex-none">
-            <img
-              src="/logo.png"
-              alt="Hangout Logo"
-              className="h-full max-h-12 w-auto max-w-full object-contain"
-            />
-          </div>
+          {/* Logo stays for visitors. A signed-in person already has their account controls. */}
+          {!data && (
+            <div className="flex h-12 min-w-0 flex-1 items-center justify-center lg:w-[150px] lg:flex-none">
+              <img
+                src="/logo.png"
+                alt="Hangout Logo"
+                className="h-full max-h-12 w-auto max-w-full object-contain"
+              />
+            </div>
+          )}
 
           {/* Right Controls (Mobile Only) */}
           <div className="flex lg:hidden items-center gap-2">
