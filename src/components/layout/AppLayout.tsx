@@ -7,6 +7,7 @@ import useAuth from "../hooks/useAuth";
 import useAppContext from "../hooks/useAppContext";
 import { CurrencyModal } from "../CurrencyModal";
 import { logout } from "../../lib/session";
+import { StoriesProvider } from "../stories/Stories";
 
 const AppLayout = ({
   children,
@@ -62,6 +63,7 @@ const AppLayout = ({
   };
 
   return (
+    <StoriesProvider>
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <main className="grow">{children}</main>
@@ -97,6 +99,7 @@ const AppLayout = ({
         callbacks={menuCallbacks}
       />
     </div>
+    </StoriesProvider>
   );
 };
 
