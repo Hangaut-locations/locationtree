@@ -5,6 +5,7 @@ import type { MediaKind, UploadedMedia } from "./media";
 export type StoryComment = {
   id: string;
   name: string;
+  location?: string;
   text: string;
   createdAt: string;
 };
@@ -82,9 +83,18 @@ export const saveStory = (publicId: string, kind: MediaKind) =>
 
 export const deleteStory = (id: string) => adminCaller.delete(`/stories/${id}`);
 
-export const commentOnStory = (id: string, viewerId: string, name: string, text: string) =>
+export const commentOnStory = (
+  id: string,
+  viewerId: string,
+  text: string,
+  location: string,
+) =>
   adminCaller
-    .post<StoryComment>(`/stories/${id}/comments`, { viewerId, name, text })
+    .post<StoryComment>(`/stories/${id}/comments`, {
+      viewerId,
+      text,
+      location: location || undefined,
+    })
     .then(dataOf);
 
 export const loveStory = (id: string, viewerId: string) =>
