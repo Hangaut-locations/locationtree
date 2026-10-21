@@ -129,7 +129,7 @@ const Profile: React.FC = () => {
           /> */}
           <StoryFace
             userId={profile?._id ? String(profile._id) : undefined}
-            mine
+            mine={Boolean(profile?._id)}
             initials={`${profile?.firstName ? profile.firstName[0].toUpperCase() : "Y"}${profile?.lastName ? profile.lastName[0].toUpperCase() : "N"}`}
             className="flex h-14 w-14 items-center justify-center rounded-full border-4 border-purple-950/10 text-lg font-semibold"
           />
