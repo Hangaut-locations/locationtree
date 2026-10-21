@@ -336,14 +336,14 @@ const StoryViewer = ({
           ))}
         </div>
         <div className="flex items-center justify-between gap-3 px-3 py-2">
-          <div className="min-w-0">
+          <div className="flex min-w-0 items-baseline gap-2">
             <p className="truncate text-sm font-semibold">
               {person
                 ? `${person.firstName} ${person.lastName}`.trim() || "Story"
                 : "Story"}
             </p>
             {postedLabel(item?.createdAt) && (
-              <p className="text-[11px] text-white/70">{postedLabel(item?.createdAt)}</p>
+              <p className="shrink-0 text-[11px] text-white/70">{postedLabel(item?.createdAt)}</p>
             )}
           </div>
           <button type="button" onClick={onClose} aria-label="Close story" className="p-1">
@@ -382,11 +382,11 @@ const StoryViewer = ({
           />
 
           <div
-            className="absolute inset-x-0 bottom-0 flex max-h-[70%] flex-col bg-gradient-to-t from-black via-black/70 to-transparent px-4 pb-4 pt-16"
+            className="absolute inset-x-0 bottom-0 z-10 flex max-h-[70%] flex-col overflow-hidden bg-gradient-to-t from-black via-black/70 to-transparent px-4 pb-4 pt-16"
             onClick={(event) => event.stopPropagation()}
           >
             <p className="mb-2 shrink-0 text-[11px] text-white/70">Gone after 24 hours</p>
-            <div ref={commentsRef} className="mb-2 min-h-0 space-y-1 overflow-y-auto text-sm">
+            <div ref={commentsRef} className="mb-2 min-h-0 flex-1 space-y-1 overflow-y-auto text-sm">
               {item?.comments.map((comment) => (
                 <p key={comment.id}>
                   <span className="font-semibold">{comment.name}</span>
@@ -463,11 +463,15 @@ const StoryViewer = ({
       </div>
       {confirmDelete && (
         <div
-          className="absolute inset-0 z-20 flex items-center justify-center bg-black/70 px-6"
+          className="fixed inset-0 z-[90] flex items-center justify-center bg-black/70 px-6"
           role="alertdialog"
           aria-label="Delete this story?"
+          onClick={() => setConfirmDelete(false)}
         >
-          <div className="w-full max-w-sm rounded-2xl bg-white p-5 text-black">
+          <div
+            className="w-full max-w-sm rounded-2xl bg-white p-5 text-black"
+            onClick={(event) => event.stopPropagation()}
+          >
             <p className="text-base font-bold">Delete this story?</p>
             <p className="mt-2 text-sm text-neutral-700">
               Are you sure you want to delete this story? It will be gone for everyone.
