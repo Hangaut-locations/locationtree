@@ -1,6 +1,12 @@
 import { Image, SwitchCamera, X, Zap, ZapOff } from "lucide-react";
 import { useEffect, useRef, useState, type PointerEvent } from "react";
 import { MAX_VIDEO_SECONDS } from "../../lib/media";
+import {
+  allowPicturesFolder,
+  browserCanRememberPictures,
+  loadRecentPictures,
+  type RecentShot,
+} from "../../lib/storyGallery";
 
 type Facing = "user" | "environment";
 
@@ -50,7 +56,20 @@ export const StoryCamera = ({
   const [recording, setRecording] = useState(false);
   const [seconds, setSeconds] = useState(0);
   const [flash, setFlash] = useState(false);
+  const [shots, setShots] = useState<RecentShot[]>([]);
+  const [galleryLoading, setGalleryLoading] = useState(false);
+  const [tray, setTray] = useState(false);
+  const shotsRef = useRef<RecentShot[]>([]);
   const mime = recorderType();
+
+  const replaceShots = (list: RecentShot[]) => {
+    const keep = new Set(list.map((shot) => shot.url));
+    shotsRef.current.forEach((shot) => {
+      if (!keep.has(shot.url)) URL.revokeObjectURL(shot.url);
+    });
+    shotsRef.current = list;
+    setShots(list);
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -93,6 +112,28 @@ export const StoryCamera = ({
       setRecording(false);
     };
   }, [open, facing]);
+
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    setTray(false);
+    setGalleryLoading(true);
+    void loadRecentPictures((list) => {
+      if (cancelled) {
+        list.forEach((shot) => URL.revokeObjectURL(shot.url));
+        return;
+      }
+      replaceShots(list);
+    }).finally(() => {
+      if (!cancelled) setGalleryLoading(false);
+    });
+    return () => {
+      cancelled = true;
+      shotsRef.current.forEach((shot) => URL.revokeObjectURL(shot.url));
+      shotsRef.current = [];
+      setShots([]);
+    };
+  }, [open]);
 
   useEffect(() => {
     if (!recording) return;
@@ -158,6 +199,27 @@ export const StoryCamera = ({
     };
     recorder.start(200);
     setRecording(true);
+  };
+
+  const openGallery = async () => {
+    if (recording || adding) return;
+    if (shots.length > 0) {
+      setTray(true);
+      return;
+    }
+    if (!browserCanRememberPictures()) {
+      onLibrary();
+      return;
+    }
+    const allowed = await allowPicturesFolder();
+    if (!allowed) return;
+    setGalleryLoading(true);
+    try {
+      await loadRecentPictures(replaceShots);
+      setTray(true);
+    } finally {
+      setGalleryLoading(false);
+    }
   };
 
   const flip = () => {
@@ -260,12 +322,21 @@ export const StoryCamera = ({
         <div className="flex items-center justify-between">
           <button
             type="button"
-            onClick={onLibrary}
+            onClick={() => void openGallery()}
             disabled={recording || adding}
             aria-label="Choose from gallery"
-            className="flex h-12 w-12 items-center justify-center rounded-xl border-2 border-white bg-white/10 disabled:opacity-40"
+            aria-busy={galleryLoading}
+            className={`flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl border-2 border-white bg-white/10 disabled:opacity-40 ${galleryLoading && !shots[0] ? "animate-pulse" : ""}`}
           >
-            <Image className="h-6 w-6" />
+            {shots[0] ? (
+              shots[0].file.type.startsWith("video/") ? (
+                <video src={shots[0].url} muted className="h-full w-full object-cover" />
+              ) : (
+                <img src={shots[0].url} alt="" className="h-full w-full object-cover" />
+              )
+            ) : (
+              <Image className="h-6 w-6" />
+            )}
           </button>
 
           <button
@@ -301,6 +372,35 @@ export const StoryCamera = ({
           </button>
         </div>
       </div>
+      {tray && (
+        <div className="absolute inset-0 z-20 flex flex-col bg-black">
+          <div className="flex items-center justify-between px-4 pb-3 pt-5">
+            <button type="button" onClick={() => setTray(false)} className="text-sm font-semibold">
+              Back
+            </button>
+            <p className="text-sm font-semibold">Gallery</p>
+            <button type="button" onClick={onLibrary} className="text-sm font-semibold">
+              Phone
+            </button>
+          </div>
+          <div className="grid min-h-0 flex-1 grid-cols-3 gap-0.5 overflow-y-auto">
+            {shots.map((shot) => (
+              <button
+                key={shot.key}
+                type="button"
+                onClick={() => onFile(shot.file)}
+                className="aspect-square overflow-hidden bg-white/10"
+              >
+                {shot.file.type.startsWith("video/") ? (
+                  <video src={shot.url} muted className="h-full w-full object-cover" />
+                ) : (
+                  <img src={shot.url} alt="" className="h-full w-full object-cover" />
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

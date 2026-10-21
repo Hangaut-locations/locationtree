@@ -25,6 +25,7 @@ import {
   type StoryPerson,
 } from "../../lib/stories";
 import { StoryCamera } from "./StoryCamera";
+import { rememberShot } from "../../lib/storyGallery";
 
 const PHOTO_MS = 6000;
 
@@ -93,6 +94,7 @@ export const StoriesProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
     }
+    void rememberShot(file);
     setAdding(true);
     try {
       const uploaded = await uploadStory(file, video ? "video" : "photo");
