@@ -30,6 +30,8 @@ import {
   uploadChatPhoto,
 } from "../../lib/chat";
 import { getErrorMessage, type ApiError } from "../../lib/errors";
+import useAuth from "../hooks/useAuth";
+import { StoryFace } from "../stories/Stories";
 
 const SENT_GRADIENT =
   "linear-gradient(180deg, #f560c8 0%, #c13584 32%, #833ab4 64%, #405de6 100%)";
@@ -88,6 +90,7 @@ const REPORTS = [
 
 const ChatThread = ({ conversationId }: { conversationId: string }) => {
   const navigate = useNavigate();
+  const { data: me } = useAuth();
   const qc = useQueryClient();
   const scroller = useRef<HTMLDivElement>(null);
   const stickToBottom = useRef(true);
@@ -497,9 +500,12 @@ const ChatThread = ({ conversationId }: { conversationId: string }) => {
         >
           <ArrowLeft className="h-5 w-5" />
         </button>
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-purple-100 text-sm font-bold text-purple-800">
-          {initials(name)}
-        </span>
+        <StoryFace
+          userId={chat?.person?._id}
+          mine={Boolean(me?._id && chat?.person?._id === String(me._id))}
+          initials={initials(name)}
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-purple-100 text-sm font-bold text-purple-800"
+        />
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-bold">{name}</p>
           {chat?.listing && (

@@ -149,7 +149,11 @@ export const StoryFace = ({
   const circle = hasStory ? (
     <button
       type="button"
-      onClick={() => userId && stories?.open(userId)}
+      onClick={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        if (userId) stories?.open(userId);
+      }}
       className={`${className} ring-2 ring-pink-500 ring-offset-2`}
       aria-label="Watch story"
     >
@@ -166,6 +170,7 @@ export const StoryFace = ({
         <button
           type="button"
           onClick={(event) => {
+            event.preventDefault();
             event.stopPropagation();
             stories?.add();
           }}
