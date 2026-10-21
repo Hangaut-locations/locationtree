@@ -24,7 +24,18 @@ const gh = async (urlPath, options = {}) => {
   return res.json();
 };
 
-const git = (args) => execFileSync("git", args, { encoding: "utf8" });
+const git = (args) =>
+  execFileSync(
+    "git",
+    [
+      "-c",
+      "user.name=github-actions[bot]",
+      "-c",
+      "user.email=41898282+github-actions[bot]@users.noreply.github.com",
+      ...args,
+    ],
+    { encoding: "utf8" },
+  );
 
 const safeBranch = (name) =>
   typeof name === "string" &&
@@ -34,18 +45,27 @@ const safeBranch = (name) =>
   name !== "main" &&
   name !== "master";
 
+const conflictsWithMain = (branch) => {
+  try {
+    git(["merge-tree", "--write-tree", "origin/main", `origin/${branch}`]);
+    return false;
+  } catch (err) {
+    if (err.status === 1) return true;
+    throw err;
+  }
+};
+
 const conflictingPulls = async () => {
   const pulls = await gh(`/repos/${repo}/pulls?state=open&base=main&per_page=100`);
+  git(["fetch", "origin", "main"]);
   const found = [];
   for (const pull of pulls) {
     if (pull.head?.repo?.full_name !== repo) continue;
     if (!safeBranch(pull.head.ref)) continue;
-    let details = await gh(`/repos/${repo}/pulls/${pull.number}`);
-    for (let attempt = 0; attempt < 5 && details.mergeable == null; attempt += 1) {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      details = await gh(`/repos/${repo}/pulls/${pull.number}`);
-    }
-    if (details.mergeable === false) found.push(details);
+    git(["fetch", "origin", pull.head.ref]);
+    if (!conflictsWithMain(pull.head.ref)) continue;
+    console.log(`#${pull.number} conflicts with main`);
+    found.push(pull);
   }
   return found;
 };
@@ -119,6 +139,16 @@ const restore = (branch) => {
 const errorText = (err) =>
   [err.stdout, err.stderr, err.detail, err.message].filter(Boolean).join("\n");
 
+const contentFailure = (err) => {
+  const text = errorText(err);
+  return (
+    text.includes("check failed") ||
+    text.includes("conflict markers") ||
+    text.includes("still unmerged") ||
+    text.includes("is binary")
+  );
+};
+
 const runCheck = () => {
   execSync("npm ci", { stdio: "inherit" });
   try {
@@ -172,6 +202,7 @@ const fixOne = async (pull) => {
     } catch (restoreErr) {
       console.error(errorText(restoreErr));
     }
+    if (!contentFailure(err)) throw err;
     await note(pull.number, head, base, errorText(err));
   }
 };
