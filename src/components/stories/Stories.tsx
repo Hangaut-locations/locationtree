@@ -23,6 +23,7 @@ import {
   uploadStory,
   type StoryPerson,
 } from "../../lib/stories";
+import { StoryCamera } from "./StoryCamera";
 
 const PHOTO_MS = 6000;
 
@@ -48,6 +49,7 @@ export const StoriesProvider = ({ children }: { children: ReactNode }) => {
   const viewerId = useMemo(() => storyViewerId(), []);
   const fileRef = useRef<HTMLInputElement>(null);
   const [adding, setAdding] = useState(false);
+  const [cameraOpen, setCameraOpen] = useState(false);
   const [openId, setOpenId] = useState<string | null>(null);
   const { data } = useQuery({
     queryKey: ["stories", viewerId],
@@ -82,6 +84,7 @@ export const StoriesProvider = ({ children }: { children: ReactNode }) => {
       const uploaded = await uploadStory(file, video ? "video" : "photo");
       await saveStory(uploaded.public_id, video ? "video" : "photo");
       await queryClient.invalidateQueries({ queryKey: ["stories"] });
+      setCameraOpen(false);
       if (me?._id) setOpenId(String(me._id));
       toast.success("Added to your story");
     } catch (err) {
@@ -93,7 +96,7 @@ export const StoriesProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <StoryContext.Provider
-      value={{ people, open: setOpenId, add: () => fileRef.current?.click(), adding }}
+      value={{ people, open: setOpenId, add: () => setCameraOpen(true), adding }}
     >
       {children}
       <input
@@ -107,6 +110,13 @@ export const StoriesProvider = ({ children }: { children: ReactNode }) => {
           event.target.value = "";
           if (file) void pick(file);
         }}
+      />
+      <StoryCamera
+        open={cameraOpen}
+        adding={adding}
+        onClose={() => setCameraOpen(false)}
+        onFile={(file) => void pick(file)}
+        onLibrary={() => fileRef.current?.click()}
       />
       {openId && (
         <StoryViewer
