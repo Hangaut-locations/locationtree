@@ -5,6 +5,7 @@ import ChatThread from "../components/chat/ChatThread";
 import useAuth from "../components/hooks/useAuth";
 import useAppContext from "../components/hooks/useAppContext";
 import { chatName, chatPreview, listChats } from "../lib/chat";
+import { StoryFace } from "../components/stories/Stories";
 
 const whenLabel = (iso: string) => {
   const date = new Date(iso);
@@ -14,6 +15,14 @@ const whenLabel = (iso: string) => {
   }
   return date.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 };
+
+const letters = (name: string) =>
+  name
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
 const MessagesPage = () => {
   const { id } = useParams();
@@ -57,9 +66,12 @@ const MessagesPage = () => {
                   to={`/messages/${chat._id}`}
                   className="flex items-center gap-3 py-3"
                 >
-                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-purple-100 text-sm font-bold text-purple-800">
-                    {chatName(chat.person).slice(0, 1)}
-                  </span>
+                  <StoryFace
+                    userId={chat.person?._id}
+                    mine={Boolean(user?._id && chat.person?._id === String(user._id))}
+                    initials={letters(chatName(chat.person))}
+                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-purple-100 text-sm font-bold text-purple-800"
+                  />
                   <span className="min-w-0 flex-1">
                     <span className="flex items-baseline justify-between gap-2">
                       <span className="truncate text-sm font-bold">

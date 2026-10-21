@@ -8,6 +8,7 @@ import useAppContext from "./hooks/useAppContext";
 import { getErrorMessage, type ApiError } from "../lib/errors";
 import { linkKey } from "../lib/privateLink";
 import MessageButton from "./chat/MessageButton";
+import { StoryFace } from "./stories/Stories";
 import {
   addComment,
   addReply,
@@ -41,11 +42,17 @@ const reviewDate = (date: string) =>
     year: "numeric",
   });
 
-const Avatar = ({ person }: { person: ReviewPerson }) => (
-  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-purple-100 text-sm font-bold text-purple-800 dark:bg-purple-900/40 dark:text-purple-200">
-    {initials(person)}
-  </span>
-);
+const Avatar = ({ person }: { person: ReviewPerson }) => {
+  const { data: me } = useAuth();
+  return (
+    <StoryFace
+      userId={person._id}
+      mine={Boolean(me?._id && person._id === String(me._id))}
+      initials={initials(person)}
+      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-purple-100 text-sm font-bold text-purple-800 dark:bg-purple-900/40 dark:text-purple-200"
+    />
+  );
+};
 
 const PersonLine = ({ person }: { person: ReviewPerson }) => (
   <div className="min-w-0">
