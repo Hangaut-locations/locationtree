@@ -11,6 +11,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import useAuth from "../hooks/useAuth";
+import useAppContext from "../hooks/useAppContext";
 import { getErrorMessage, type ApiError } from "../../lib/errors";
 import { MAX_VIDEO_BYTES, MAX_VIDEO_SECONDS, videoLength } from "../../lib/media";
 import {
@@ -133,10 +134,12 @@ export const StoriesProvider = ({ children }: { children: ReactNode }) => {
       />
       {openId && (
         <StoryViewer
+          key={openId}
           userId={openId}
           people={people}
           viewerId={viewerId}
           onClose={() => setOpenId(null)}
+          onNext={setOpenId}
         />
       )}
     </StoryContext.Provider>
@@ -203,31 +206,40 @@ const StoryViewer = ({
   people,
   viewerId,
   onClose,
+  onNext,
 }: {
   userId: string;
   people: StoryPerson[];
   viewerId: string;
   onClose: () => void;
+  onNext: (userId: string) => void;
 }) => {
   const { data: me } = useAuth();
+  const { setIsAuthModal } = useAppContext();
   const queryClient = useQueryClient();
   const person = people.find((item) => item.userId === userId);
   const [index, setIndex] = useState(0);
-  const [name, setName] = useState(
-    () => localStorage.getItem("hangaut_story_name") ?? "",
+  const [location, setLocation] = useState(
+    () => localStorage.getItem("hangaut_story_location") ?? "",
   );
   const [text, setText] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const commentsRef = useRef<HTMLDivElement>(null);
   const item = person?.items[index];
   const mine = Boolean(me?._id && String(me._id) === userId);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+      if (event.key !== "Escape") return;
+      if (confirmDelete) {
+        setConfirmDelete(false);
+        return;
+      }
+      onClose();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  }, [onClose, confirmDelete]);
 
   useEffect(() => {
     if (!person) return;
@@ -246,21 +258,22 @@ const StoryViewer = ({
   }, [item?.id, item?.comments.length]);
 
   useEffect(() => {
-    if (!item || item.kind !== "photo") return;
+    if (!item || item.kind !== "photo" || confirmDelete) return;
     const timer = window.setTimeout(() => {
       setIndex((current) =>
         person && current < person.items.length - 1 ? current + 1 : current,
       );
     }, PHOTO_MS);
     return () => window.clearTimeout(timer);
-  }, [item, person]);
+  }, [item, person, confirmDelete]);
 
   const refresh = () => queryClient.invalidateQueries({ queryKey: ["stories"] });
 
   const comment = useMutation({
-    mutationFn: () => commentOnStory(item!.id, viewerId, name.trim(), text.trim()),
+    mutationFn: () =>
+      commentOnStory(item!.id, viewerId, text.trim(), location.trim()),
     onSuccess: () => {
-      localStorage.setItem("hangaut_story_name", name.trim());
+      localStorage.setItem("hangaut_story_location", location.trim());
       setText("");
       void refresh();
     },
@@ -276,8 +289,24 @@ const StoryViewer = ({
   const remove = useMutation({
     mutationFn: () => deleteStory(item!.id),
     onSuccess: () => {
+      const deletedId = item!.id;
+      const items = person?.items ?? [];
+      const remaining = items.filter((story) => story.id !== deletedId);
       toast.success("Story removed");
+      setConfirmDelete(false);
       void refresh();
+      if (remaining.length > 0) {
+        const at = items.findIndex((story) => story.id === deletedId);
+        setIndex(at < remaining.length ? at : remaining.length - 1);
+        return;
+      }
+      const order = people.filter((someone) => someone.items.length > 0);
+      const place = order.findIndex((someone) => someone.userId === userId);
+      const next = order[place + 1] ?? order[place - 1];
+      if (next && next.userId !== userId) {
+        onNext(next.userId);
+        return;
+      }
       onClose();
     },
     onError: (err) => toast.error(problem(err, "Couldn't remove that story")),
@@ -360,7 +389,11 @@ const StoryViewer = ({
             <div ref={commentsRef} className="mb-2 min-h-0 space-y-1 overflow-y-auto text-sm">
               {item?.comments.map((comment) => (
                 <p key={comment.id}>
-                  <span className="font-semibold">{comment.name}</span> {comment.text}
+                  <span className="font-semibold">{comment.name}</span>
+                  {comment.location ? (
+                    <span className="text-white/70"> · {comment.location}</span>
+                  ) : null}{" "}
+                  {comment.text}
                 </p>
               ))}
             </div>
@@ -382,14 +415,18 @@ const StoryViewer = ({
                   onSubmit={(event) => {
                     event.preventDefault();
                     if (!text.trim() || comment.isPending) return;
+                    if (!me?._id) {
+                      setIsAuthModal(true);
+                      return;
+                    }
                     comment.mutate();
                   }}
                 >
                   <input
-                    value={name}
-                    onChange={(event) => setName(event.target.value.slice(0, 24))}
-                    placeholder="Your name"
-                    aria-label="Your name"
+                    value={location}
+                    onChange={(event) => setLocation(event.target.value.slice(0, 40))}
+                    placeholder="Location"
+                    aria-label="Location"
                     className="rounded-full bg-white/10 px-3 py-1.5 text-xs outline-none"
                   />
                   <div className="flex gap-1">
@@ -414,7 +451,7 @@ const StoryViewer = ({
             {mine && item && (
               <button
                 type="button"
-                onClick={() => remove.mutate()}
+                onClick={() => setConfirmDelete(true)}
                 disabled={remove.isPending}
                 className="mt-2 shrink-0 text-xs text-white/70 underline"
               >
@@ -424,6 +461,37 @@ const StoryViewer = ({
           </div>
         </div>
       </div>
+      {confirmDelete && (
+        <div
+          className="absolute inset-0 z-20 flex items-center justify-center bg-black/70 px-6"
+          role="alertdialog"
+          aria-label="Delete this story?"
+        >
+          <div className="w-full max-w-sm rounded-2xl bg-white p-5 text-black">
+            <p className="text-base font-bold">Delete this story?</p>
+            <p className="mt-2 text-sm text-neutral-700">
+              Are you sure you want to delete this story? It will be gone for everyone.
+            </p>
+            <div className="mt-4 flex gap-2">
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(false)}
+                className="w-full rounded-full bg-neutral-100 py-3 text-sm font-bold"
+              >
+                No
+              </button>
+              <button
+                type="button"
+                onClick={() => remove.mutate()}
+                disabled={remove.isPending}
+                className="w-full rounded-full bg-red-600 py-3 text-sm font-semibold text-white disabled:opacity-50"
+              >
+                {remove.isPending ? "Deleting..." : "Yes, delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
