@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ThumbsUp } from "lucide-react";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
+import ReviewSheet from "./ReviewSheet";
 import { getErrorMessage, type ApiError } from "../lib/errors";
 import { linkKey } from "../lib/privateLink";
 import {
@@ -36,6 +37,7 @@ const ViewerListingBar = ({
   const qc = useQueryClient();
   const key = linkKey();
   const [comment, setComment] = useState("");
+  const [reviewsOpen, setReviewsOpen] = useState(false);
   const queryKey = [...reviewsQueryKey(type, id), user?._id ?? "guest"];
   const isHost = sameId(user?._id, hostId);
 
@@ -63,11 +65,28 @@ const ViewerListingBar = ({
     onError: (err: ApiError) => toast.error(getErrorMessage(err, "Couldn't post your review, try again")),
   });
 
-  if (isHost) return null;
-
   const needLogin = () => {
     setIsAuthModal(true);
   };
+
+  const reviewCount = data?.comments.length ?? 0;
+  const seeReviews = (
+    <>
+      <button
+        type="button"
+        onClick={() => setReviewsOpen(true)}
+        className={buttonClass}
+        aria-label="See reviews"
+      >
+        See reviews{reviewCount > 0 ? ` ${reviewCount}` : ""}
+      </button>
+      {reviewsOpen && (
+        <ReviewSheet type={type} id={id} onClose={() => setReviewsOpen(false)} />
+      )}
+    </>
+  );
+
+  if (isHost) return seeReviews;
 
   return (
     <>
@@ -83,13 +102,36 @@ const ViewerListingBar = ({
         {data?.likes ?? 0}
       </button>
       {hostId && (
-        <MessageButton
-          userId={hostId}
-          listingType={type}
-          listingId={id}
-          label="Message host"
+        <div className="flex items-center gap-2">
+          <MessageButton
+            userId={hostId}
+            listingType={type}
+            listingId={id}
+            label="Message host"
+            className={buttonClass}
+          />
+          <button
+            type="button"
+            onClick={() => setReviewsOpen(true)}
+            className={buttonClass}
+            aria-label="See reviews"
+          >
+            See reviews{reviewCount > 0 ? ` ${reviewCount}` : ""}
+          </button>
+        </div>
+      )}
+      {!hostId && (
+        <button
+          type="button"
+          onClick={() => setReviewsOpen(true)}
           className={buttonClass}
-        />
+          aria-label="See reviews"
+        >
+          See reviews{reviewCount > 0 ? ` ${reviewCount}` : ""}
+        </button>
+      )}
+      {reviewsOpen && (
+        <ReviewSheet type={type} id={id} onClose={() => setReviewsOpen(false)} />
       )}
       <form
         className="flex min-w-48 flex-1 items-center gap-2"
