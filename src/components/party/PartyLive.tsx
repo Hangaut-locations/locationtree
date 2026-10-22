@@ -1,4 +1,4 @@
-import { Camera, Heart, SwitchCamera, Video, VideoOff } from "lucide-react";
+import { Camera, Heart, SwitchCamera, Video, VideoOff, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 import useAuth from "../hooks/useAuth";
@@ -42,10 +42,16 @@ const PartyLive = ({
   partyId,
   ownerId,
   linkKey,
+  screen = false,
+  title = "",
+  onClose,
 }: {
   partyId: string;
   ownerId: string;
   linkKey?: string;
+  screen?: boolean;
+  title?: string;
+  onClose?: () => void;
 }) => {
   const { data: user } = useAuth();
   const isHost = sameId(user?._id, ownerId);
@@ -319,30 +325,87 @@ const PartyLive = ({
   };
 
   useEffect(() => {
-    if (state?.started && window.location.hash === "#live") {
-      document.getElementById("live")?.scrollIntoView();
-    }
-  }, [state?.started]);
+    if (screen || !state?.started || window.location.hash !== "#live") return;
+    document.getElementById("live")?.scrollIntoView();
+  }, [screen, state?.started]);
 
-  if (!state?.started || state.ended) return null;
+  useEffect(() => {
+    if (!screen) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose?.();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = previous;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [screen, onClose]);
 
-  const comments = state.comments ?? [];
+  if (!screen && (!state?.started || state.ended)) return null;
+
+  const comments = state?.comments ?? [];
+  const over = !!state && (!state.started || state.ended);
+  const previewClass = screen
+    ? `absolute inset-0 h-full w-full object-cover ${facing === "user" ? "-scale-x-100" : ""}`
+    : `aspect-video w-full rounded-2xl bg-black object-cover ${facing === "user" ? "-scale-x-100" : ""}`;
+  const watchClass = screen
+    ? "absolute inset-0 h-full w-full object-cover"
+    : "mt-4 aspect-video w-full rounded-2xl bg-black object-cover";
 
   return (
-    <section id="live" className="scroll-mt-24 border-b border-border py-7">
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="text-xl font-semibold">Live</h2>
-        {state.live && (
-          <span className="rounded-full bg-red-600 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-white">
-            Live
-          </span>
-        )}
-      </div>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Anyone on the site can watch, comment, and leave a love. No login needed.
-      </p>
+    <section
+      id={screen ? undefined : "live"}
+      className={
+        screen
+          ? "fixed inset-0 z-[90] bg-black text-white"
+          : "scroll-mt-24 border-b border-border py-7"
+      }
+    >
+      {screen && (
+        <div className="absolute left-0 right-0 top-0 z-10 flex items-center gap-3 bg-gradient-to-b from-black/70 to-transparent px-4 pb-10 pt-4">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-black/40"
+            aria-label="Close"
+          >
+            <X className="h-5 w-5" />
+          </button>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold">{title || "Live"}</p>
+            {state?.live && (
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-red-400">Live</span>
+            )}
+          </div>
+        </div>
+      )}
 
-      {isHost && !state.live && (
+      {!screen && (
+        <>
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-xl font-semibold">Live</h2>
+            {state?.live && (
+              <span className="rounded-full bg-red-600 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-white">
+                Live
+              </span>
+            )}
+          </div>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Anyone on the site can watch, comment, and leave a love. No login needed.
+          </p>
+        </>
+      )}
+
+      {screen && !state && (
+        <p className="absolute inset-x-0 top-1/2 px-6 text-center text-sm">Joining the live video...</p>
+      )}
+      {screen && over && (
+        <p className="absolute inset-x-0 top-1/2 px-6 text-center text-sm">This live video has ended.</p>
+      )}
+
+      {isHost && state && !state.live && !over && (
         <button
           type="button"
           onClick={() => void goLive()}
@@ -354,16 +417,16 @@ const PartyLive = ({
         </button>
       )}
 
-      {isHost && state.live && (
-        <div className="mt-4">
+      {isHost && state?.live && (
+        <div className={screen ? "absolute inset-0" : "mt-4"}>
           <video
             ref={previewRef}
             autoPlay
             muted
             playsInline
-            className={`aspect-video w-full rounded-2xl bg-black object-cover ${facing === "user" ? "-scale-x-100" : ""}`}
+            className={previewClass}
           />
-          <div className="mt-3 flex gap-2">
+          <div className={screen ? "absolute right-4 top-4 z-10 flex gap-2" : "mt-3 flex gap-2"}>
             <button
               type="button"
               onClick={() => void flipCamera()}
@@ -385,25 +448,25 @@ const PartyLive = ({
         </div>
       )}
 
-      {!isHost && state.live && !state.full && (
-        <video ref={watchRef} autoPlay playsInline className="mt-4 aspect-video w-full rounded-2xl bg-black object-cover" />
+      {!isHost && state?.live && !state.full && (
+        <video ref={watchRef} autoPlay playsInline className={watchClass} />
       )}
 
-      {!isHost && state.live && state.full && (
-        <p className="mt-4 rounded-2xl bg-muted px-4 py-3 text-sm">
+      {!isHost && state?.live && state.full && (
+        <p className={screen ? "absolute inset-x-4 bottom-36 z-10 rounded-2xl bg-white/10 px-4 py-3 text-sm" : "mt-4 rounded-2xl bg-muted px-4 py-3 text-sm"}>
           Too many people are watching the video right now. You can still comment and leave a love.
         </p>
       )}
 
-      {!state.live && !isHost && (
-        <p className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
+      {state && !state.live && !isHost && !over && (
+        <p className={screen ? "absolute inset-x-0 top-1/2 flex items-center justify-center gap-2 px-6 text-sm" : "mt-4 flex items-center gap-2 text-sm text-muted-foreground"}>
           <Video className="h-4 w-4" />
           The host hasn't turned the camera on yet.
         </p>
       )}
 
-      {state.live && (
-        <div className="mt-4">
+      {state?.live && (
+        <div className={screen ? "absolute inset-x-0 bottom-0 z-10 max-h-[46%] overflow-y-auto bg-gradient-to-t from-black via-black/80 to-transparent px-4 pb-4 pt-16" : "mt-4"}>
           <button type="button" onClick={() => void tapLove()} className="flex items-center gap-2 text-sm font-semibold">
             <Heart className={`h-5 w-5 ${state.loved ? "fill-red-500 text-red-500" : ""}`} />
             {state.loves} {state.loves === 1 ? "love" : "loves"}
@@ -412,7 +475,7 @@ const PartyLive = ({
             {comments.map((comment: LiveComment) => (
               <p key={comment.id} className="text-sm">
                 <span className="font-semibold">{comment.name}</span>{" "}
-                <span className="text-muted-foreground">{comment.text}</span>
+                <span className={screen ? "text-white/80" : "text-muted-foreground"}>{comment.text}</span>
               </p>
             ))}
           </div>
@@ -428,19 +491,19 @@ const PartyLive = ({
               onChange={(event) => setName(event.target.value)}
               maxLength={24}
               placeholder="Your name"
-              className="w-28 rounded-full border border-border px-3 py-2 text-sm"
+              className={`w-28 rounded-full border px-3 py-2 text-sm ${screen ? "border-white/30 bg-white/10 placeholder:text-white/50" : "border-border"}`}
             />
             <input
               value={text}
               onChange={(event) => setText(event.target.value)}
               maxLength={200}
               placeholder="Say something"
-              className="min-w-0 flex-1 rounded-full border border-border px-3 py-2 text-sm"
+              className={`min-w-0 flex-1 rounded-full border px-3 py-2 text-sm ${screen ? "border-white/30 bg-white/10 placeholder:text-white/50" : "border-border"}`}
             />
             <button
               type="submit"
               disabled={busy || !text.trim()}
-              className="rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background disabled:opacity-50"
+              className={`rounded-full px-4 py-2 text-sm font-semibold disabled:opacity-50 ${screen ? "bg-white text-black" : "bg-foreground text-background"}`}
             >
               Send
             </button>
