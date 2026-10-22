@@ -1,7 +1,7 @@
-import { SaveAll, User } from "lucide-react";
+import { Pencil, SaveAll, User } from "lucide-react";
 import type React from "react";
 import PhoneInput from "../global/PhoneInput";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import LocationSelect from "../global/LocationSelect";
 import useAuth from "../../components/hooks/useAuth";
 import { adminCaller } from "../../interceptors/http";
@@ -11,9 +11,12 @@ import ProfilePageSkeleton from "../global/UserProfileSkeleton";
 import { getErrorMessage, type ApiError } from "../../lib/errors";
 import { CodeInput, emptyCode } from "../auth/CodeInput";
 import { StoryFace } from "../stories/Stories";
+import { saveProfilePhoto } from "../../lib/profilePhoto";
 
 const Profile: React.FC = () => {
   const [loading, setLoading] = useState(false);
+  const [photoBusy, setPhotoBusy] = useState(false);
+  const photoRef = useRef<HTMLInputElement>(null);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -74,6 +77,32 @@ const Profile: React.FC = () => {
     setEmail(profile?.email ?? "");
   };
 
+  const pickPhoto = () => photoRef.current?.click();
+
+  const onPhoto = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Choose a photo");
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      toast.error("That photo is too big");
+      return;
+    }
+    setPhotoBusy(true);
+    saveProfilePhoto(file)
+      .then(() => {
+        qc.invalidateQueries({ queryKey: ["profile"] });
+        toast.success("Profile photo updated");
+      })
+      .catch((err: ApiError) => {
+        toast.error(getErrorMessage(err, "Couldn't update your photo"));
+      })
+      .finally(() => setPhotoBusy(false));
+  };
+
   const handleUpdateProfile = () => {
     setLoading(true);
 
@@ -127,12 +156,31 @@ const Profile: React.FC = () => {
             alt="Profile"
             className="h-24 w-24 rounded-full object-cover border-4 border-purple-950/10"
           /> */}
-          <StoryFace
-            userId={profile?._id ? String(profile._id) : undefined}
-            mine={Boolean(profile?._id)}
-            initials={`${profile?.firstName ? profile.firstName[0].toUpperCase() : "Y"}${profile?.lastName ? profile.lastName[0].toUpperCase() : "N"}`}
-            className="flex h-14 w-14 items-center justify-center rounded-full border-4 border-purple-950/10 text-lg font-semibold"
-          />
+          <div className="relative">
+            <StoryFace
+              userId={profile?._id ? String(profile._id) : undefined}
+              mine={Boolean(profile?._id)}
+              photo={profile?.photo}
+              initials={`${profile?.firstName ? profile.firstName[0].toUpperCase() : "Y"}${profile?.lastName ? profile.lastName[0].toUpperCase() : "N"}`}
+              className="flex h-14 w-14 items-center justify-center rounded-full border-4 border-purple-950/10 text-lg font-semibold"
+            />
+            <button
+              type="button"
+              onClick={pickPhoto}
+              disabled={photoBusy}
+              aria-label="Change profile photo"
+              className="absolute -top-1 right-0 z-10 flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-white text-purple-950 shadow disabled:opacity-60"
+            >
+              <Pencil className="h-3 w-3" />
+            </button>
+            <input
+              ref={photoRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={onPhoto}
+            />
+          </div>
           <div>
             <h2 className="text-lg lg:text-xl font-semibold text-foreground tracking-tight">
               {profile?.firstName || "User"} {profile?.lastName || "Name"}

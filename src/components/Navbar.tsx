@@ -129,6 +129,7 @@ export const Navbar: React.FC = () => {
                 <StoryFace
                   userId={String(data._id)}
                   initials={avatar}
+                  photo={data.photo}
                   mine
                   className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-xs font-semibold uppercase"
                 />
@@ -268,6 +269,7 @@ export const Navbar: React.FC = () => {
               <StoryFace
                 userId={String(data._id)}
                 initials={avatar}
+                photo={data.photo}
                 mine
                 className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-xs font-semibold uppercase"
               />
@@ -283,9 +285,17 @@ export const Navbar: React.FC = () => {
                   <span className="text-xs text-muted-foreground">
                     {currency}
                   </span>
-                  <span className="text-sm lg:text-base uppercase font-semibold text-muted-foreground">
-                    {avatar}
-                  </span>
+                  {data.photo ? (
+                    <img
+                      src={data.photo}
+                      alt=""
+                      className="h-8 w-8 rounded-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-sm lg:text-base uppercase font-semibold text-muted-foreground">
+                      {avatar}
+                    </span>
+                  )}
                   {/* <img
                     src={avatar}
                     alt="Account"

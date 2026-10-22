@@ -148,22 +148,30 @@ export const StoriesProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-/** Letter circle. A pink ring means this person has a story. The plus adds one. */
+/** Letter circle. A pink ring means this person has a story. The plus adds one. A photo replaces the letters. */
 export const StoryFace = ({
   userId,
   initials,
   className,
   mine = false,
+  photo,
 }: {
   userId?: string;
   initials: string;
   className: string;
   mine?: boolean;
+  photo?: string;
 }) => {
   const stories = useContext(StoryContext);
   const hasStory = Boolean(
     userId && stories?.people.some((person) => person.userId === userId && person.items.length),
   );
+  const face = photo ? (
+    <img src={photo} alt="" className="h-full w-full object-cover" />
+  ) : (
+    initials
+  );
+  const circleClass = `${className}${photo ? " overflow-hidden" : ""}`;
   const circle = hasStory ? (
     <button
       type="button"
@@ -172,13 +180,13 @@ export const StoryFace = ({
         event.stopPropagation();
         if (userId) stories?.open(userId);
       }}
-      className={`${className} ring-2 ring-pink-500 ring-offset-2`}
+      className={`${circleClass} ring-2 ring-pink-500 ring-offset-2`}
       aria-label="Watch story"
     >
-      {initials}
+      {face}
     </button>
   ) : (
-    <div className={className}>{initials}</div>
+    <div className={circleClass}>{face}</div>
   );
 
   return (
