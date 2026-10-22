@@ -387,7 +387,7 @@ const StoryViewer = ({
             className="absolute inset-x-0 bottom-0 z-10 flex max-h-[70%] flex-col overflow-hidden bg-gradient-to-t from-black via-black/70 to-transparent px-4 pb-4 pt-16"
             onClick={(event) => event.stopPropagation()}
           >
-            <p className="mb-2 shrink-0 text-[11px] text-white/70">Gone after 24 hours</p>
+            <p className="mb-2 shrink-0 text-[11px] text-white/70">Gone after 7 days</p>
             <div ref={commentsRef} className="mb-2 min-h-0 flex-1 space-y-1 overflow-y-auto text-sm">
               {item?.comments.map((comment) => (
                 <p key={comment.id}>
