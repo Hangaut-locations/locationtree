@@ -113,7 +113,7 @@ const ListingReviews = ({ type, id }: ListingReviewsProps) => {
     mutationFn: (text: string) => addComment(type, id, text, key),
     onSuccess: () => {
       setComment("");
-      toast.success("Thanks for your review!");
+      toast.success("Your review is posted");
       refresh();
     },
     onError: (err: ApiError) =>

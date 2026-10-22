@@ -57,7 +57,7 @@ const ViewerListingBar = ({
     mutationFn: (text: string) => addComment(type, id, text, key),
     onSuccess: () => {
       setComment("");
-      toast.success("Thanks for your review!");
+      toast.success("Your review is posted");
       qc.invalidateQueries({ queryKey: reviewsQueryKey(type, id) });
     },
     onError: (err: ApiError) => toast.error(getErrorMessage(err, "Couldn't post your review, try again")),
