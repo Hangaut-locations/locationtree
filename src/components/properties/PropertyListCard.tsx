@@ -16,6 +16,14 @@ interface PropertyListCardProps {
   index?: number;
 }
 
+// Airbnb-style line under the photo: "Mansions in Lagos".
+const placeLine = (property: IProperty) => {
+  const type = property.property_type?.trim();
+  const place = property.location?.trim();
+  if (!type || !place) return "";
+  return `${type} in ${place}`;
+};
+
 export const PropertyListCard: React.FC<PropertyListCardProps> = ({
   property,
   index,
@@ -25,6 +33,7 @@ export const PropertyListCard: React.FC<PropertyListCardProps> = ({
   const { data: user } = useAuth();
   const qc = useQueryClient();
   const { setIsAuthModal, currency } = useAppContext();
+  const line = placeLine(property);
 
   const handleFavorite = () => {
     if (!user) {
@@ -86,6 +95,9 @@ export const PropertyListCard: React.FC<PropertyListCardProps> = ({
       </div>
 
       <div className="flex flex-1 flex-col py-1 gap-0.5 mt-1 pl-1">
+        {line ? (
+          <p className="text-left text-xs text-muted-foreground">{line}</p>
+        ) : null}
         <p className="font-semibold text-left text-xs">{property.title}</p>
         <div className="w-full flex justify-start gap-1 items-center text-xs text-gray-500">
           <div className="flex items-center gap-1">
