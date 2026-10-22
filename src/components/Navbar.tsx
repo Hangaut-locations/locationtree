@@ -16,6 +16,7 @@ import useAuth from "./hooks/useAuth";
 import useAppContext from "./hooks/useAppContext";
 import { AllIcon, HomeIcon, PartiesIcon } from "./svgs";
 import { SearchHeader } from "./SearchHeader";
+import LiveStrip from "./live/LiveStrip";
 import { logout } from "../lib/session";
 import { StoryFace } from "./stories/Stories";
 
@@ -85,7 +86,8 @@ export const Navbar: React.FC = () => {
   }, [location]);
 
   return (
-    <header className="sticky  top-0 z-40 w-full border-b-2 border-gray-200 bg-[#FBFBFB] backdrop-blur-md transition-colors duration-300">
+    <div className="sticky top-0 z-40">
+    <header className="w-full border-b-2 border-gray-200 bg-[#FBFBFB] backdrop-blur-md transition-colors duration-300">
       <div className="mx-auto flex flex-col lg:flex-row lg:h-20 max-w-7xl items-center justify-between px-4 lg:px-8 py-4 lg:py-0 gap-4 lg:gap-0">
         {/* Top Row for Mobile (Logo + Controls) / Left Column for Desktop */}
         <div className="flex w-full lg:w-auto items-center justify-between lg:justify-start gap-4">
@@ -398,5 +400,7 @@ export const Navbar: React.FC = () => {
 
       <SearchHeader />
     </header>
+    <LiveStrip />
+    </div>
   );
 };

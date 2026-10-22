@@ -26,6 +26,15 @@ export type LiveState = {
   signals: LiveSignal[];
 };
 
+export type LiveParty = {
+  id: string;
+  title: string;
+  image: string;
+  location: string;
+  ownerId: string;
+  hostName: string;
+};
+
 const viewerKey = "hangaut_live_viewer";
 
 export const liveViewerId = () => {
@@ -37,6 +46,9 @@ export const liveViewerId = () => {
 };
 
 const dataOf = <T>(response: { data: T }) => response.data;
+
+export const fetchLiveParties = () =>
+  adminCaller.get<{ parties: LiveParty[] }>("/live/parties").then(dataOf);
 
 export const fetchLive = (partyId: string, viewerId: string, after: number, key?: string) =>
   adminCaller
