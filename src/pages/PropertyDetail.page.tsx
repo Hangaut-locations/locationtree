@@ -40,6 +40,15 @@ const SPACE_LABELS: Record<IProperty["space_type"], string> = {
 const scrollToBooking = () =>
   document.getElementById("book")?.scrollIntoView({ behavior: "smooth" });
 
+const scrollToListing = () => {
+  const details = document.getElementById("listing-details");
+  if (!details) return;
+  const bar = document.querySelector("header")?.parentElement;
+  const offset = (bar?.getBoundingClientRect().height ?? 96) + 12;
+  const top = details.getBoundingClientRect().top + window.scrollY - offset;
+  window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+};
+
 const PropertyDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -205,7 +214,7 @@ const PropertyDetailPage = () => {
           )}
         </section>
 
-        <div className="mt-8 grid gap-12 lg:grid-cols-[1fr_360px]">
+        <div id="listing-details" className="mt-8 scroll-mt-24 grid gap-12 lg:grid-cols-[1fr_360px]">
           <div>
             <div className="border-b border-border pb-7">
               <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
@@ -315,6 +324,10 @@ const PropertyDetailPage = () => {
         open={viewerIndex !== null}
         startIndex={viewerIndex ?? 0}
         onClose={() => setViewerIndex(null)}
+        onShowListing={() => {
+          setViewerIndex(null);
+          window.setTimeout(scrollToListing, 50);
+        }}
         isSaved={isSaved}
         saving={saving}
         onToggleSaved={toggleSaved}

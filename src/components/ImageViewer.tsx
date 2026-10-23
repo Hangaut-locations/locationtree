@@ -28,6 +28,7 @@ interface IImageViewer {
   saving?: boolean;
   onToggleSaved?: () => void;
   onShare?: () => void;
+  onShowListing?: () => void;
   listing?: { type: ReviewListing; id: string; hostId?: string };
 }
 
@@ -51,6 +52,7 @@ const ImageViewer = ({
   saving = false,
   onToggleSaved,
   onShare,
+  onShowListing,
   listing,
 }: IImageViewer) => {
   const trackRef = useRef<HTMLDivElement | null>(null);
@@ -141,10 +143,15 @@ const ImageViewer = ({
 
   // One tap hides the cards and the buttons. A second tap brings them back.
   // Two quick taps zoom in, and two more zoom back out.
-  // A downward scroll on the photo closes it and shows the listing page underneath.
+  // A downward scroll leaves the photo and moves to this image's listing page.
+  const showListing = () => {
+    if (onShowListing) onShowListing();
+    else onClose();
+  };
+
   const closeForDownScroll = (dx: number, dy: number) => {
     if (zoomed) return;
-    if (dy < -56 && Math.abs(dy) > Math.abs(dx)) onClose();
+    if (dy < -56 && Math.abs(dy) > Math.abs(dx)) showListing();
   };
 
   const onPhotoTouchStart = (event: TouchEvent) => {
@@ -165,7 +172,7 @@ const ImageViewer = ({
 
   const onPhotoWheel = (event: WheelEvent) => {
     if (event.deltaY > 24 && Math.abs(event.deltaY) >= Math.abs(event.deltaX)) {
-      onClose();
+      showListing();
     }
   };
 
