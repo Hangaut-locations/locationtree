@@ -7,7 +7,7 @@ import {
   Share2,
   X,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState, type TouchEvent, type WheelEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent, type TouchEvent, type WheelEvent } from "react";
 import { videoSlide } from "../lib/media";
 import type { ReviewListing } from "../lib/reviews";
 import type { ListingVideo } from "../types/listing";
@@ -60,6 +60,8 @@ const ImageViewer = ({
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const tapTimer = useRef<number | null>(null);
   const dragStart = useRef<{ x: number; y: number } | null>(null);
+  const swallowedClick = useRef(false);
+  const barRef = useRef<HTMLDivElement | null>(null);
   const [current, setCurrent] = useState(startIndex);
   const [chromeOn, setChromeOn] = useState(true);
   const [zoomed, setZoomed] = useState(false);
@@ -174,6 +176,50 @@ const ImageViewer = ({
     if (event.deltaY > 24 && Math.abs(event.deltaY) >= Math.abs(event.deltaX)) {
       showListing();
     }
+  };
+
+  // The same upward swipe works from the buttons, the review box, and the dots.
+  // A real swipe must not also press the button under the finger.
+  // The phone will cancel that swipe unless touchmove is stopped on the bar.
+  useEffect(() => {
+    const bar = barRef.current;
+    if (!open || !bar) return;
+    const onMove = (event: TouchEvent) => {
+      const start = dragStart.current;
+      if (!start || zoomed || event.touches.length !== 1) return;
+      const touch = event.touches[0];
+      const dx = touch.clientX - start.x;
+      const dy = touch.clientY - start.y;
+      if (dy < -12 && Math.abs(dy) > Math.abs(dx)) event.preventDefault();
+    };
+    bar.addEventListener("touchmove", onMove, { passive: false });
+    return () => bar.removeEventListener("touchmove", onMove);
+  }, [open, zoomed]);
+
+  const onBarTouchEnd = (event: TouchEvent) => {
+    const start = dragStart.current;
+    dragStart.current = null;
+    if (!start) return;
+    const touch = event.changedTouches[0];
+    const dx = touch.clientX - start.x;
+    const dy = touch.clientY - start.y;
+    if (zoomed) return;
+    if (dy < -56 && Math.abs(dy) > Math.abs(dx)) {
+      swallowedClick.current = true;
+      window.setTimeout(() => {
+        swallowedClick.current = false;
+      }, 500);
+      event.preventDefault();
+      if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+      showListing();
+    }
+  };
+
+  const onBarClickCapture = (event: MouseEvent) => {
+    if (!swallowedClick.current) return;
+    swallowedClick.current = false;
+    event.preventDefault();
+    event.stopPropagation();
   };
 
   const onPhotoTap = () => {
@@ -329,7 +375,16 @@ const ImageViewer = ({
 
           </div>
 
-          <div className="flex flex-col items-center gap-4 px-4 pb-5 pt-3">
+          <div
+            ref={barRef}
+            className="flex flex-col items-center gap-4 px-4 pb-5 pt-3"
+            style={{ touchAction: "none" }}
+            onTouchStart={onPhotoTouchStart}
+            onTouchEnd={onBarTouchEnd}
+            onTouchCancel={onBarTouchEnd}
+            onWheel={onPhotoWheel}
+            onClickCapture={onBarClickCapture}
+          >
             {chromeOn && (onShare || onToggleSaved || listing) && (
               <div className="flex w-full max-w-3xl flex-wrap items-center justify-center gap-2">
                 {onShare && (
