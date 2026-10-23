@@ -7,7 +7,7 @@ import {
   Share2,
   X,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type TouchEvent, type WheelEvent } from "react";
 import { videoSlide } from "../lib/media";
 import type { ReviewListing } from "../lib/reviews";
 import type { ListingVideo } from "../types/listing";
@@ -57,6 +57,7 @@ const ImageViewer = ({
   const thumbsRef = useRef<HTMLDivElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const tapTimer = useRef<number | null>(null);
+  const dragStart = useRef<{ x: number; y: number } | null>(null);
   const [current, setCurrent] = useState(startIndex);
   const [chromeOn, setChromeOn] = useState(true);
   const [zoomed, setZoomed] = useState(false);
@@ -140,6 +141,34 @@ const ImageViewer = ({
 
   // One tap hides the cards and the buttons. A second tap brings them back.
   // Two quick taps zoom in, and two more zoom back out.
+  // A downward scroll on the photo closes it and shows the listing page underneath.
+  const closeForDownScroll = (dx: number, dy: number) => {
+    if (zoomed) return;
+    if (dy < -56 && Math.abs(dy) > Math.abs(dx)) onClose();
+  };
+
+  const onPhotoTouchStart = (event: TouchEvent) => {
+    if (event.touches.length !== 1) return;
+    dragStart.current = {
+      x: event.touches[0].clientX,
+      y: event.touches[0].clientY,
+    };
+  };
+
+  const onPhotoTouchEnd = (event: TouchEvent) => {
+    const start = dragStart.current;
+    dragStart.current = null;
+    if (!start) return;
+    const touch = event.changedTouches[0];
+    closeForDownScroll(touch.clientX - start.x, touch.clientY - start.y);
+  };
+
+  const onPhotoWheel = (event: WheelEvent) => {
+    if (event.deltaY > 24 && Math.abs(event.deltaY) >= Math.abs(event.deltaX)) {
+      onClose();
+    }
+  };
+
   const onPhotoTap = () => {
     if (tapTimer.current) {
       window.clearTimeout(tapTimer.current);
@@ -221,7 +250,12 @@ const ImageViewer = ({
             </DialogPrimitive.Close>
           </div>
 
-          <div className="relative min-h-0 flex-1">
+          <div
+            className="relative min-h-0 flex-1"
+            onTouchStart={onPhotoTouchStart}
+            onTouchEnd={onPhotoTouchEnd}
+            onWheel={onPhotoWheel}
+          >
             <div
               ref={setTrack}
               onScroll={handleScroll}
