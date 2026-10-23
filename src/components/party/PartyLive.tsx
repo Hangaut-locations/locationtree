@@ -1,7 +1,9 @@
 import { Camera, Heart, SwitchCamera, Video, VideoOff, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
+import { listingPath } from "../../lib/privateLink";
 import {
   fetchHostFeed,
   fetchLive,
@@ -115,6 +117,7 @@ const PartyLive = ({
   title?: string;
   onClose?: () => void;
 }) => {
+  const navigate = useNavigate();
   const { data: user } = useAuth();
   const isHost = sameId(user?._id, ownerId);
   const viewerId = useRef(liveViewerId());
@@ -501,6 +504,24 @@ const PartyLive = ({
     else onClose?.();
   };
 
+  const openListing = () => {
+    const path = listingPath("party", partyId);
+    if (window.location.pathname !== path) {
+      onClose?.();
+      navigate(linkKey ? `${path}?key=${encodeURIComponent(linkKey)}` : path);
+      return;
+    }
+    closeFull();
+    window.setTimeout(() => {
+      const details = document.getElementById("listing-details") ?? document.querySelector("main h1");
+      if (!details) return;
+      const bar = document.querySelector("header")?.parentElement;
+      const offset = (bar?.getBoundingClientRect().height ?? 96) + 12;
+      const top = details.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+    }, 50);
+  };
+
   useEffect(() => {
     if (full || !state?.started || window.location.hash !== "#live") return;
     document.getElementById("live")?.scrollIntoView();
@@ -551,7 +572,14 @@ const PartyLive = ({
             <X className="h-5 w-5" />
           </button>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold">{title || "Live"}</p>
+            <button
+              type="button"
+              onClick={openListing}
+              className="block w-full truncate text-left text-sm font-semibold"
+              aria-label={`Open ${title || "party"} listing`}
+            >
+              {title || "Live"}
+            </button>
             {state?.live && (
               <span className="text-[11px] font-semibold uppercase tracking-wider text-red-400">Live</span>
             )}
