@@ -38,6 +38,68 @@ const errorText = (error: unknown, fallback: string) => {
   return typeof message === "string" ? message : fallback;
 };
 
+type Facing = "environment" | "user";
+
+const otherFacing = (facing: Facing): Facing => (facing === "environment" ? "user" : "environment");
+
+const labelFacing = (label: string): Facing | "" => {
+  const text = label.toLowerCase();
+  if (text.includes("back") || text.includes("rear") || text.includes("environment")) return "environment";
+  if (text.includes("front") || text.includes("user") || text.includes("face")) return "user";
+  return "";
+};
+
+const seenFacing = (stream: MediaStream, fallback: Facing): Facing => {
+  const seen = stream.getVideoTracks()[0]?.getSettings().facingMode;
+  if (seen === "user" || seen === "environment") return seen;
+  return fallback;
+};
+
+const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
+
+// Phones ignore a soft facing hint and will not open the other camera while the first is still on.
+const openVideo = async (facing: Facing, avoidId?: string) => {
+  const tries: MediaStreamConstraints[] = [{ video: { facingMode: { exact: facing } }, audio: false }];
+  try {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const cameras = devices.filter((device) => device.kind === "videoinput" && device.deviceId);
+    const labeled = cameras.find((device) => labelFacing(device.label) === facing);
+    const other = cameras.find((device) => device.deviceId !== avoidId);
+    const chosen = labeled?.deviceId || (avoidId ? other?.deviceId : undefined);
+    if (chosen) tries.push({ video: { deviceId: { exact: chosen } }, audio: false });
+  } catch {
+    // the exact facing request still runs
+  }
+  tries.push({ video: { facingMode: facing }, audio: false });
+  let last: unknown;
+  for (const constraints of tries) {
+    try {
+      return await navigator.mediaDevices.getUserMedia(constraints);
+    } catch (error) {
+      last = error;
+    }
+  }
+  throw last instanceof Error ? last : new Error("camera");
+};
+
+const openLiveCamera = async (facing: Facing) => {
+  try {
+    return await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { exact: facing } },
+      audio: true,
+    });
+  } catch {
+    // try the camera list below
+  }
+  const videoOnly = await openVideo(facing);
+  try {
+    const audio = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    return new MediaStream([...audio.getAudioTracks(), ...videoOnly.getVideoTracks()]);
+  } catch {
+    return videoOnly;
+  }
+};
+
 const PartyLive = ({
   partyId,
   ownerId,
@@ -60,9 +122,13 @@ const PartyLive = ({
   const [name, setName] = useState("");
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
-  const [facing, setFacing] = useState<"environment" | "user">("environment");
+  const [facing, setFacing] = useState<Facing>("environment");
+  const [cameraOn, setCameraOn] = useState(false);
+  const [cameraError, setCameraError] = useState("");
+  const [pictureOn, setPictureOn] = useState(false);
   const previewRef = useRef<HTMLVideoElement>(null);
   const watchRef = useRef<HTMLVideoElement>(null);
+  const watchStream = useRef<MediaStream | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const peersRef = useRef<Map<string, RTCPeerConnection>>(new Map());
   const hostAfter = useRef(0);
@@ -71,12 +137,36 @@ const PartyLive = ({
   const viewerIce = useRef<RTCIceCandidateInit[]>([]);
   const appliedOffer = useRef("");
   const hostIce = useRef<Map<string, RTCIceCandidateInit[]>>(new Map());
+  const opening = useRef<Promise<MediaStream> | null>(null);
+  const flipping = useRef(false);
+  const mounted = useRef(true);
+
+  const attachPreview = (stream: MediaStream) => {
+    const video = previewRef.current;
+    if (!video) return;
+    if (video.srcObject !== stream) video.srcObject = stream;
+    void video.play().catch(() => undefined);
+  };
+
+  const bindPreview = (node: HTMLVideoElement | null) => {
+    previewRef.current = node;
+    if (node && streamRef.current) attachPreview(streamRef.current);
+  };
+
+  const bindWatch = (node: HTMLVideoElement | null) => {
+    watchRef.current = node;
+    if (!node || !watchStream.current) return;
+    node.srcObject = watchStream.current;
+    void node.play().catch(() => undefined);
+  };
 
   const closeViewer = () => {
     viewerPc.current?.close();
     viewerPc.current = null;
     appliedOffer.current = "";
     viewerIce.current = [];
+    watchStream.current = null;
+    if (mounted.current) setPictureOn(false);
     if (watchRef.current) watchRef.current.srcObject = null;
   };
 
@@ -90,6 +180,7 @@ const PartyLive = ({
 
   useEffect(
     () => () => {
+      mounted.current = false;
       closeViewer();
       closeHost();
     },
@@ -98,11 +189,13 @@ const PartyLive = ({
 
   useEffect(() => {
     let stopped = false;
+    let nextLive = false;
     const tick = async () => {
       if (stopped) return;
       try {
         const next = await fetchLive(partyId, viewerId.current, viewerAfter.current, linkKey);
         if (stopped) return;
+        nextLive = next.live;
         setState(next);
         const last = next.signals.at(-1);
         if (last) viewerAfter.current = last.seq;
@@ -115,7 +208,7 @@ const PartyLive = ({
       } catch {
         // the next poll tries again
       }
-      if (!stopped) window.setTimeout(tick, 1500);
+      if (!stopped) window.setTimeout(tick, nextLive ? 600 : 1500);
     };
     void tick();
     return () => {
@@ -124,7 +217,7 @@ const PartyLive = ({
   }, [partyId, linkKey, isHost]);
 
   useEffect(() => {
-    if (!isHost || !streamRef.current) return;
+    if (!isHost || !cameraOn || !state?.live) return;
     let stopped = false;
     const tick = async () => {
       if (stopped || !streamRef.current) return;
@@ -147,13 +240,13 @@ const PartyLive = ({
       } catch {
         // keep polling
       }
-      if (!stopped) window.setTimeout(tick, 1500);
+      if (!stopped) window.setTimeout(tick, 600);
     };
     void tick();
     return () => {
       stopped = true;
     };
-  }, [isHost, partyId, state?.live]);
+  }, [isHost, partyId, cameraOn, state?.live]);
 
   const offerTo = async (id: string) => {
     const stream = streamRef.current;
@@ -212,7 +305,12 @@ const PartyLive = ({
     const peer = new RTCPeerConnection({ iceServers });
     viewerPc.current = peer;
     peer.ontrack = (event) => {
-      if (watchRef.current) watchRef.current.srcObject = event.streams[0];
+      watchStream.current = event.streams[0];
+      setPictureOn(true);
+      if (watchRef.current) {
+        watchRef.current.srcObject = event.streams[0];
+        void watchRef.current.play().catch(() => undefined);
+      }
     };
     peer.onicecandidate = (event) => {
       if (!event.candidate) return;
@@ -228,32 +326,48 @@ const PartyLive = ({
     await sendViewerSignal(partyId, viewerId.current, "answer", JSON.stringify(answer), linkKey);
   };
 
-  const openCamera = async (nextFacing: "environment" | "user") => {
-    const video = { facingMode: nextFacing === "environment" ? { ideal: "environment" } : "user" };
-    try {
-      return await navigator.mediaDevices.getUserMedia({ video, audio: true });
-    } catch {
-      if (nextFacing === "user") throw new Error("camera");
-      return navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+  const ensureCamera = (wanted: Facing) => {
+    const current = streamRef.current;
+    if (current?.getVideoTracks().some((track) => track.readyState === "live")) {
+      return Promise.resolve(current);
     }
+    if (opening.current) return opening.current;
+    const pending = openLiveCamera(wanted)
+      .then((stream) => {
+        if (!mounted.current) {
+          stream.getTracks().forEach((track) => track.stop());
+          throw new Error("closed");
+        }
+        streamRef.current = stream;
+        setFacing(seenFacing(stream, wanted));
+        setCameraOn(true);
+        setCameraError("");
+        attachPreview(stream);
+        return stream;
+      })
+      .finally(() => {
+        if (opening.current === pending) opening.current = null;
+      });
+    opening.current = pending;
+    return pending;
   };
 
   const goLive = async () => {
     setBusy(true);
+    setCameraError("");
     try {
-      const stream = await openCamera(facing);
-      streamRef.current = stream;
-      if (previewRef.current) previewRef.current.srcObject = stream;
+      await ensureCamera(facing);
       hostAfter.current = 0;
       await startLive(partyId);
       setState((current) => (current ? { ...current, live: true } : current));
     } catch (error) {
-      closeHost();
-      toast.error(
-        error instanceof Error && error.message === "camera"
+      if (!streamRef.current) closeHost();
+      const message =
+        error instanceof Error && (error.message === "camera" || error.name === "NotAllowedError")
           ? "Allow the camera to go live"
-          : errorText(error, "Couldn't go live"),
-      );
+          : errorText(error, "Couldn't go live");
+      setCameraError(message);
+      toast.error(message);
     } finally {
       setBusy(false);
     }
@@ -273,29 +387,85 @@ const PartyLive = ({
   };
 
   const flipCamera = async () => {
-    const stream = streamRef.current;
-    if (!stream) return;
-    const next = facing === "environment" ? "user" : "environment";
+    if (flipping.current) return;
+    flipping.current = true;
+    const next = otherFacing(facing);
+    const current = streamRef.current;
+    const audio = (current?.getAudioTracks() ?? []).filter((track) => track.readyState === "live");
+    const previousId = current?.getVideoTracks()[0]?.getSettings().deviceId;
+    current?.getVideoTracks().forEach((track) => {
+      track.stop();
+      current.removeTrack(track);
+    });
+    await wait(200);
     try {
-      const flipped = await openCamera(next);
-      const videoTrack = flipped.getVideoTracks()[0];
-      const old = stream.getVideoTracks()[0];
-      if (old) {
-        stream.removeTrack(old);
-        old.stop();
+      let opened = await openVideo(next, previousId);
+      let videoTrack = opened.getVideoTracks()[0];
+      const openedId = videoTrack?.getSettings().deviceId;
+      const seen = videoTrack?.getSettings().facingMode;
+      const sameDevice = !!previousId && openedId === previousId;
+      const wrongFace = (seen === "user" || seen === "environment") && seen !== next;
+      if (!videoTrack || sameDevice || wrongFace) {
+        videoTrack?.stop();
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const cameras = devices.filter(
+          (device) => device.kind === "videoinput" && device.deviceId && device.deviceId !== previousId,
+        );
+        const labeled = cameras.find((device) => labelFacing(device.label) === next) ?? cameras[0];
+        if (!labeled) throw new Error("camera");
+        opened = await navigator.mediaDevices.getUserMedia({
+          video: { deviceId: { exact: labeled.deviceId } },
+          audio: false,
+        });
+        videoTrack = opened.getVideoTracks()[0];
       }
-      stream.addTrack(videoTrack);
-      flipped.getAudioTracks().forEach((track) => track.stop());
-      for (const peer of peersRef.current.values()) {
-        const sender = peer.getSenders().find((item) => item.track?.kind === "video");
-        if (sender) await sender.replaceTrack(videoTrack);
-      }
-      setFacing(next);
-      if (previewRef.current) previewRef.current.srcObject = stream;
+      if (!videoTrack) throw new Error("camera");
+      opened.getAudioTracks().forEach((track) => track.stop());
+      const mixed = new MediaStream([...audio, videoTrack]);
+      streamRef.current = mixed;
+      const reported = videoTrack.getSettings().facingMode;
+      setFacing(reported === "user" || reported === "environment" ? reported : next);
+      setCameraOn(true);
+      attachPreview(mixed);
+      await Promise.all(
+        [...peersRef.current.values()].map(async (peer) => {
+          const sender = peer.getSenders().find((item) => item.track?.kind === "video");
+          if (sender) await sender.replaceTrack(videoTrack);
+        }),
+      );
     } catch {
       toast.error("Couldn't switch the camera");
+      if (!streamRef.current?.getVideoTracks().some((track) => track.readyState === "live")) {
+        try {
+          const restored = await openVideo(facing, undefined);
+          const videoTrack = restored.getVideoTracks()[0];
+          if (videoTrack) {
+            const mixed = new MediaStream([...audio, videoTrack]);
+            streamRef.current = mixed;
+            setCameraOn(true);
+            attachPreview(mixed);
+          }
+        } catch {
+          setCameraError("Couldn't switch the camera");
+        }
+      }
+    } finally {
+      flipping.current = false;
     }
   };
+
+  useEffect(() => {
+    if (!screen || !isHost || cameraOn) return;
+    let cancelled = false;
+    void ensureCamera("environment").catch(() => {
+      if (!cancelled && mounted.current) {
+        setCameraError("Allow the camera to go live");
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [screen, isHost, cameraOn]);
 
   const postComment = async () => {
     const trimmed = text.trim();
@@ -373,12 +543,33 @@ const PartyLive = ({
           >
             <X className="h-5 w-5" />
           </button>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold">{title || "Live"}</p>
             {state?.live && (
               <span className="text-[11px] font-semibold uppercase tracking-wider text-red-400">Live</span>
             )}
           </div>
+          {isHost && (cameraOn || state?.live) && !over && (
+            <button
+              type="button"
+              onClick={() => void flipCamera()}
+              className="flex shrink-0 items-center gap-1.5 rounded-full bg-black/50 px-3 py-2 text-sm font-semibold"
+            >
+              <SwitchCamera className="h-4 w-4" />
+              Switch camera
+            </button>
+          )}
+          {isHost && state?.live && (
+            <button
+              type="button"
+              onClick={() => void endLive()}
+              disabled={busy}
+              className="flex shrink-0 items-center gap-1.5 rounded-full bg-red-600 px-3 py-2 text-sm font-semibold text-white"
+            >
+              <VideoOff className="h-4 w-4" />
+              Stop
+            </button>
+          )}
         </div>
       )}
 
@@ -398,8 +589,10 @@ const PartyLive = ({
         </>
       )}
 
-      {screen && !state && (
-        <p className="absolute inset-x-0 top-1/2 px-6 text-center text-sm">Joining the live video...</p>
+      {screen && !cameraOn && !over && (isHost || !state) && (
+        <p className="absolute inset-x-0 top-1/2 z-10 px-6 text-center text-sm">
+          {isHost ? cameraError || "Opening the camera..." : "Joining the live video..."}
+        </p>
       )}
       {screen && over && (
         <p className="absolute inset-x-0 top-1/2 px-6 text-center text-sm">This live video has ended.</p>
@@ -410,46 +603,59 @@ const PartyLive = ({
           type="button"
           onClick={() => void goLive()}
           disabled={busy}
-          className="mt-4 flex items-center gap-2 rounded-full bg-purple-950 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+          className={
+            screen
+              ? "absolute bottom-8 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 rounded-full bg-purple-950 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+              : "mt-4 flex items-center gap-2 rounded-full bg-purple-950 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+          }
         >
           <Camera className="h-4 w-4" />
           Go live
         </button>
       )}
 
-      {isHost && state?.live && (
+      {isHost && (cameraOn || state?.live) && !over && (
         <div className={screen ? "absolute inset-0" : "mt-4"}>
           <video
-            ref={previewRef}
+            ref={bindPreview}
             autoPlay
             muted
             playsInline
             className={previewClass}
           />
-          <div className={screen ? "absolute right-4 top-4 z-10 flex gap-2" : "mt-3 flex gap-2"}>
-            <button
-              type="button"
-              onClick={() => void flipCamera()}
-              className="flex items-center gap-2 rounded-full border border-border px-3 py-2 text-sm font-semibold"
-            >
-              <SwitchCamera className="h-4 w-4" />
-              Switch camera
-            </button>
-            <button
-              type="button"
-              onClick={() => void endLive()}
-              disabled={busy}
-              className="flex items-center gap-2 rounded-full bg-red-600 px-3 py-2 text-sm font-semibold text-white"
-            >
-              <VideoOff className="h-4 w-4" />
-              Stop
-            </button>
-          </div>
+          {!screen && (
+            <div className="mt-3 flex gap-2">
+              <button
+                type="button"
+                onClick={() => void flipCamera()}
+                className="flex items-center gap-2 rounded-full border border-border px-3 py-2 text-sm font-semibold"
+              >
+                <SwitchCamera className="h-4 w-4" />
+                Switch camera
+              </button>
+              {state?.live && (
+                <button
+                  type="button"
+                  onClick={() => void endLive()}
+                  disabled={busy}
+                  className="flex items-center gap-2 rounded-full bg-red-600 px-3 py-2 text-sm font-semibold text-white"
+                >
+                  <VideoOff className="h-4 w-4" />
+                  Stop
+                </button>
+              )}
+            </div>
+          )}
         </div>
       )}
 
       {!isHost && state?.live && !state.full && (
-        <video ref={watchRef} autoPlay playsInline className={watchClass} />
+        <>
+          <video ref={bindWatch} autoPlay playsInline className={watchClass} />
+          {screen && !pictureOn && (
+            <p className="absolute inset-x-0 top-1/2 z-10 px-6 text-center text-sm">Connecting to the camera...</p>
+          )}
+        </>
       )}
 
       {!isHost && state?.live && state.full && (
@@ -490,8 +696,8 @@ const PartyLive = ({
               value={name}
               onChange={(event) => setName(event.target.value)}
               maxLength={24}
-              placeholder="Your name"
-              className={`w-28 rounded-full border px-3 py-2 text-sm ${screen ? "border-white/30 bg-white/10 placeholder:text-white/50" : "border-border"}`}
+              placeholder="Your location"
+              className={`w-36 rounded-full border px-3 py-2 text-sm ${screen ? "border-white/30 bg-white/10 placeholder:text-white/50" : "border-border"}`}
             />
             <input
               value={text}
