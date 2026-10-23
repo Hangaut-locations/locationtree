@@ -6,6 +6,7 @@ import { getErrorMessage, type ApiError } from "../lib/errors";
 import { linkKey } from "../lib/privateLink";
 import {
   COMMENT_MAX_LENGTH,
+  addComment,
   addReply,
   deleteReply,
   fullName,
@@ -84,25 +85,40 @@ const ReviewSheet = ({
   const refresh = () => qc.invalidateQueries({ queryKey: reviewsQueryKey(type, id) });
 
   const post = useMutation({
-    mutationFn: () => addReply(replyTo!._id, text.trim(), key),
-    onSuccess: ({ replies }) => {
-      const commentId = replyTo!._id;
-      qc.setQueryData<ListingReviews>(queryKey, (old) =>
-        old
-          ? {
-              ...old,
-              comments: old.comments.map((item) =>
-                item._id === commentId ? { ...item, replies } : item,
-              ),
-            }
-          : old,
-      );
+    mutationFn: ({ replyId, body }: { replyId?: string; body: string }) =>
+      replyId
+        ? addReply(replyId, body, key).then((thread) => ({ kind: "reply" as const, replyId, thread }))
+        : addComment(type, id, body, key).then((saved) => ({ kind: "review" as const, saved })),
+    onSuccess: (result) => {
+      if (result.kind === "review") {
+        qc.setQueryData<ListingReviews>(queryKey, (old) =>
+          old ? { ...old, comments: [result.saved, ...old.comments] } : old,
+        );
+        toast.success("Your review is posted");
+      } else {
+        qc.setQueryData<ListingReviews>(queryKey, (old) =>
+          old
+            ? {
+                ...old,
+                comments: old.comments.map((item) =>
+                  item._id === result.replyId ? { ...item, replies: result.thread.replies } : item,
+                ),
+              }
+            : old,
+        );
+      }
       setText("");
       setReplyTo(null);
       setReplyName("");
       refresh();
     },
-    onError: (err: ApiError) => toast.error(getErrorMessage(err, "Couldn't post your reply, try again")),
+    onError: (err: ApiError) =>
+      toast.error(
+        getErrorMessage(
+          err,
+          replyTo ? "Couldn't post your reply, try again" : "Couldn't post your review, try again",
+        ),
+      ),
   });
 
   const remove = useMutation({
@@ -245,12 +261,13 @@ const ReviewSheet = ({
           className="border-t border-white/10 px-4 py-3"
           onSubmit={(event) => {
             event.preventDefault();
-            if (!text.trim() || !replyTo) return;
+            const body = text.trim();
+            if (!body) return;
             if (!user) {
               setIsAuthModal(true);
               return;
             }
-            post.mutate();
+            post.mutate({ replyId: replyTo?._id, body });
           }}
         >
           {replyTo && (
@@ -278,12 +295,12 @@ const ReviewSheet = ({
               value={text}
               onChange={(event) => setText(event.target.value.slice(0, COMMENT_MAX_LENGTH))}
               maxLength={COMMENT_MAX_LENGTH}
-              placeholder={replyTo ? `Reply to ${replyName}...` : "Tap Reply on a review"}
+              placeholder={replyTo ? `Reply to ${replyName}...` : "Tap to leave a review"}
               className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-white/40"
             />
             <button
               type="submit"
-              disabled={!replyTo || !text.trim() || post.isPending}
+              disabled={!text.trim() || post.isPending}
               className="text-sm font-bold text-purple-400 disabled:opacity-30 cursor-pointer"
             >
               {post.isPending ? "Posting" : "Post"}
