@@ -84,11 +84,19 @@ const ReviewSheet = ({
 
   const refresh = () => qc.invalidateQueries({ queryKey: reviewsQueryKey(type, id) });
 
-  const post = useMutation({
-    mutationFn: ({ replyId, body }: { replyId?: string; body: string }) =>
-      replyId
-        ? addReply(replyId, body, key).then((thread) => ({ kind: "reply" as const, replyId, thread }))
-        : addComment(type, id, body, key).then((saved) => ({ kind: "review" as const, saved })),
+  type Posted =
+    | { kind: "review"; saved: ListingComment }
+    | { kind: "reply"; replyId: string; thread: Awaited<ReturnType<typeof addReply>> };
+
+  const post = useMutation<Posted, ApiError, { replyId?: string; body: string }>({
+    mutationFn: async ({ replyId, body }) => {
+      if (replyId) {
+        const thread = await addReply(replyId, body, key);
+        return { kind: "reply" as const, replyId, thread };
+      }
+      const saved = await addComment(type, id, body, key);
+      return { kind: "review" as const, saved };
+    },
     onSuccess: (result) => {
       if (result.kind === "review") {
         qc.setQueryData<ListingReviews>(queryKey, (old) =>
