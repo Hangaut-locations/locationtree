@@ -184,7 +184,7 @@ const ImageViewer = ({
   useEffect(() => {
     const bar = barRef.current;
     if (!open || !bar) return;
-    const onMove = (event: TouchEvent) => {
+    const onMove = (event: globalThis.TouchEvent) => {
       const start = dragStart.current;
       if (!start || zoomed || event.touches.length !== 1) return;
       const touch = event.touches[0];
