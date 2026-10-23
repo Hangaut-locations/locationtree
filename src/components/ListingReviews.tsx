@@ -15,6 +15,7 @@ import {
   COMMENT_MAX_LENGTH,
   deleteComment,
   deleteReply,
+  editComment,
   editReply,
   fullName,
   getReviews,
@@ -85,6 +86,8 @@ const ListingReviews = ({ type, id }: ListingReviewsProps) => {
     replyId?: string;
   } | null>(null);
   const [replyText, setReplyText] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [commentDraft, setCommentDraft] = useState("");
   const key = linkKey();
   const queryKey = [...reviewsQueryKey(type, id), user?._id ?? "guest"];
   const listingName = type === "party" ? "party" : "place";
@@ -128,6 +131,29 @@ const ListingReviews = ({ type, id }: ListingReviewsProps) => {
     },
     onError: (err: ApiError) =>
       toast.error(getErrorMessage(err, "Couldn't delete it, try again")),
+  });
+
+  const saveComment = useMutation({
+    mutationFn: ({ commentId, text }: { commentId: string; text: string }) =>
+      editComment(commentId, text, key),
+    onSuccess: (saved) => {
+      qc.setQueryData<Reviews>(queryKey, (old) =>
+        old
+          ? {
+              ...old,
+              comments: old.comments.map((item) =>
+                item._id === saved._id ? { ...item, ...saved } : item,
+              ),
+            }
+          : old,
+      );
+      setEditingId(null);
+      setCommentDraft("");
+      toast.success("Review updated");
+      refresh();
+    },
+    onError: (err: ApiError) =>
+      toast.error(getErrorMessage(err, "Couldn't update your review, try again")),
   });
 
   const setThread = (commentId: string, replies: ReviewReply[]) =>
@@ -328,11 +354,46 @@ const ListingReviews = ({ type, id }: ListingReviewsProps) => {
                 <PersonLine person={item.user} />
                 <span className="shrink-0 text-xs text-muted-foreground">
                   {reviewDate(item.createdAt)}
+                  {item.editedAt ? " · edited" : ""}
                 </span>
               </div>
-              <p className="mt-2 whitespace-pre-line wrap-break-word text-sm leading-6">
-                {item.comment}
-              </p>
+              {editingId === item._id ? (
+                <div className="mt-2 rounded-2xl border border-border p-3">
+                  <textarea
+                    value={commentDraft}
+                    onChange={(event) =>
+                      setCommentDraft(event.target.value.slice(0, COMMENT_MAX_LENGTH))
+                    }
+                    rows={2}
+                    placeholder="Edit your review"
+                    className="w-full resize-none bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                  />
+                  <div className="mt-2 flex justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setEditingId(null)}
+                      className="rounded-xl px-4 py-2 text-sm font-semibold hover:bg-muted"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        commentDraft.trim() &&
+                        saveComment.mutate({ commentId: item._id, text: commentDraft.trim() })
+                      }
+                      disabled={!commentDraft.trim() || saveComment.isPending}
+                      className="rounded-xl bg-foreground px-4 py-2 text-sm font-semibold text-background disabled:opacity-50"
+                    >
+                      {saveComment.isPending ? "Saving" : "Save"}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <p className="mt-2 whitespace-pre-line wrap-break-word text-sm leading-6">
+                  {item.comment}
+                </p>
+              )}
               <div className="mt-2 flex gap-4">
                 {!item.mine && (
                   <MessageButton
@@ -342,14 +403,27 @@ const ListingReviews = ({ type, id }: ListingReviewsProps) => {
                   />
                 )}
                 {item.mine && (
-                  <button
-                    type="button"
-                    onClick={() => remove.mutate(item._id)}
-                    disabled={remove.isPending}
-                    className="flex items-center gap-1 text-xs font-semibold text-red-600 hover:underline disabled:opacity-50"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" /> Delete
-                  </button>
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDraft(null);
+                        setEditingId(item._id);
+                        setCommentDraft(item.comment);
+                      }}
+                      className="flex items-center gap-1 text-xs font-semibold hover:underline"
+                    >
+                      <Pencil className="h-3.5 w-3.5" /> Edit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => remove.mutate(item._id)}
+                      disabled={remove.isPending}
+                      className="flex items-center gap-1 text-xs font-semibold text-red-600 hover:underline disabled:opacity-50"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" /> Delete
+                    </button>
+                  </>
                 )}
               </div>
 

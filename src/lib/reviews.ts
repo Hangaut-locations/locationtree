@@ -15,6 +15,7 @@ export interface ListingComment {
   _id: string;
   comment: string;
   createdAt: string;
+  editedAt?: string | null;
   user: ReviewPerson;
   mine: boolean;
   replies: ReviewReply[];
@@ -73,6 +74,11 @@ export const addComment = (
 ) =>
   adminCaller
     .post<ListingComment>(`/reviews/${type}/${id}/comments`, { comment, key })
+    .then((res) => res.data);
+
+export const editComment = (commentId: string, comment: string, key?: string) =>
+  adminCaller
+    .patch<ListingComment>(`/reviews/comments/${commentId}`, { comment, key })
     .then((res) => res.data);
 
 export const deleteComment = (commentId: string) =>

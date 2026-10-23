@@ -9,6 +9,7 @@ import {
   addComment,
   addReply,
   deleteReply,
+  editComment,
   editReply,
   fullName,
   getReviews,
@@ -66,7 +67,7 @@ const ReviewSheet = ({
   const [text, setText] = useState("");
   const [replyTo, setReplyTo] = useState<ListingComment | null>(null);
   const [replyName, setReplyName] = useState("");
-  const [editing, setEditing] = useState<{ commentId: string; replyId: string } | null>(null);
+  const [editing, setEditing] = useState<{ commentId: string; replyId?: string } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const { data, isLoading } = useQuery<ListingReviews>({
@@ -175,6 +176,29 @@ const ReviewSheet = ({
       toast.error(getErrorMessage(err, "Couldn't update your reply, try again")),
   });
 
+  const editReview = useMutation({
+    mutationFn: ({ commentId, body }: { commentId: string; body: string }) =>
+      editComment(commentId, body, key),
+    onSuccess: (saved) => {
+      qc.setQueryData<ListingReviews>(queryKey, (old) =>
+        old
+          ? {
+              ...old,
+              comments: old.comments.map((item) =>
+                item._id === saved._id ? { ...item, ...saved } : item,
+              ),
+            }
+          : old,
+      );
+      setEditing(null);
+      setText("");
+      toast.success("Review updated");
+      refresh();
+    },
+    onError: (err: ApiError) =>
+      toast.error(getErrorMessage(err, "Couldn't update your review, try again")),
+  });
+
   const comments = data?.comments ?? [];
 
   const beginReply = (comment: ListingComment, name: string) => {
@@ -195,6 +219,14 @@ const ReviewSheet = ({
     setReplyName("");
     setEditing({ commentId, replyId });
     setText(current);
+    inputRef.current?.focus();
+  };
+
+  const beginEditReview = (item: ListingComment) => {
+    setReplyTo(null);
+    setReplyName("");
+    setEditing({ commentId: item._id });
+    setText(item.comment);
     inputRef.current?.focus();
   };
 
@@ -240,7 +272,10 @@ const ReviewSheet = ({
                     <span className="whitespace-pre-line wrap-break-word">{item.comment}</span>
                   </p>
                   <p className="mt-1 flex items-center gap-3 text-xs font-semibold text-white/50">
-                    <span className="font-normal">{ago(item.createdAt)}</span>
+                    <span className="font-normal">
+                      {ago(item.createdAt)}
+                      {item.editedAt ? " · edited" : ""}
+                    </span>
                     <button
                       type="button"
                       onClick={() => beginReply(item, item.user.firstName)}
@@ -248,6 +283,15 @@ const ReviewSheet = ({
                     >
                       Reply
                     </button>
+                    {item.mine && (
+                      <button
+                        type="button"
+                        onClick={() => beginEditReview(item)}
+                        className="cursor-pointer hover:text-white"
+                      >
+                        Edit
+                      </button>
+                    )}
                   </p>
                 </div>
               </div>
@@ -320,13 +364,19 @@ const ReviewSheet = ({
               setIsAuthModal(true);
               return;
             }
-            if (editing) edit.mutate({ ...editing, body });
+            if (editing?.replyId) {
+              edit.mutate({ commentId: editing.commentId, replyId: editing.replyId, body });
+            } else if (editing) editReview.mutate({ commentId: editing.commentId, body });
             else post.mutate({ replyId: replyTo?._id, body });
           }}
         >
           {(replyTo || editing) && (
             <p className="mb-2 flex items-center justify-between text-xs text-white/60">
-              {editing ? "Editing your reply" : `Replying to ${replyName}`}
+              {editing?.replyId
+                ? "Editing your reply"
+                : editing
+                  ? "Editing your review"
+                  : `Replying to ${replyName}`}
               <button
                 type="button"
                 onClick={() => {
@@ -351,16 +401,28 @@ const ReviewSheet = ({
               onChange={(event) => setText(event.target.value.slice(0, COMMENT_MAX_LENGTH))}
               maxLength={COMMENT_MAX_LENGTH}
               placeholder={
-                editing ? "Edit your reply" : replyTo ? `Reply to ${replyName}...` : "Tap to leave a review"
+                editing?.replyId
+                  ? "Edit your reply"
+                  : editing
+                    ? "Edit your review"
+                    : replyTo
+                      ? `Reply to ${replyName}...`
+                      : "Tap to leave a review"
               }
               className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-white/40"
             />
             <button
               type="submit"
-              disabled={!text.trim() || post.isPending || edit.isPending}
+              disabled={!text.trim() || post.isPending || edit.isPending || editReview.isPending}
               className="text-sm font-bold text-purple-400 disabled:opacity-30 cursor-pointer"
             >
-              {editing ? (edit.isPending ? "Saving" : "Save") : post.isPending ? "Posting" : "Post"}
+              {editing
+                ? edit.isPending || editReview.isPending
+                  ? "Saving"
+                  : "Save"
+                : post.isPending
+                  ? "Posting"
+                  : "Post"}
             </button>
           </div>
         </form>
