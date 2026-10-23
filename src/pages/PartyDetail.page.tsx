@@ -195,7 +195,7 @@ const PartyDetailPage = () => {
         </section>
 
         {partyIsOn(data) && (
-          <PartyLive partyId={data._id} ownerId={String(data.ownerId)} linkKey={key} />
+          <PartyLive partyId={data._id} ownerId={String(data.ownerId)} linkKey={key} title={data.title} />
         )}
 
         <div className="mt-8 grid gap-12 lg:grid-cols-[1fr_360px]">

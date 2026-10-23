@@ -124,6 +124,7 @@ const PartyLive = ({
   const [busy, setBusy] = useState(false);
   const [facing, setFacing] = useState<Facing>("environment");
   const [cameraOn, setCameraOn] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [cameraError, setCameraError] = useState("");
   const [pictureOn, setPictureOn] = useState(false);
   const previewRef = useRef<HTMLVideoElement>(null);
@@ -178,14 +179,14 @@ const PartyLive = ({
     if (previewRef.current) previewRef.current.srcObject = null;
   };
 
-  useEffect(
-    () => () => {
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
       mounted.current = false;
       closeViewer();
       closeHost();
-    },
-    [],
-  );
+    };
+  }, []);
 
   useEffect(() => {
     let stopped = false;
@@ -455,7 +456,7 @@ const PartyLive = ({
   };
 
   useEffect(() => {
-    if (!screen || !isHost || cameraOn) return;
+    if ((!screen && !expanded) || !isHost || cameraOn) return;
     let cancelled = false;
     void ensureCamera("environment").catch(() => {
       if (!cancelled && mounted.current) {
@@ -465,7 +466,7 @@ const PartyLive = ({
     return () => {
       cancelled = true;
     };
-  }, [screen, isHost, cameraOn]);
+  }, [screen, expanded, isHost, cameraOn]);
 
   const postComment = async () => {
     const trimmed = text.trim();
@@ -494,50 +495,56 @@ const PartyLive = ({
     }
   };
 
-  useEffect(() => {
-    if (screen || !state?.started || window.location.hash !== "#live") return;
-    document.getElementById("live")?.scrollIntoView();
-  }, [screen, state?.started]);
+  const full = screen || expanded;
+  const closeFull = () => {
+    if (expanded) setExpanded(false);
+    else onClose?.();
+  };
 
   useEffect(() => {
-    if (!screen) return;
+    if (full || !state?.started || window.location.hash !== "#live") return;
+    document.getElementById("live")?.scrollIntoView();
+  }, [full, state?.started]);
+
+  useEffect(() => {
+    if (!full) return;
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose?.();
+      if (event.key === "Escape") closeFull();
     };
     window.addEventListener("keydown", onKey);
     return () => {
       document.body.style.overflow = previous;
       window.removeEventListener("keydown", onKey);
     };
-  }, [screen, onClose]);
+  }, [full, expanded, onClose]);
 
-  if (!screen && (!state?.started || state.ended)) return null;
+  if (!full && (!state?.started || state.ended)) return null;
 
   const comments = state?.comments ?? [];
   const over = !!state && (!state.started || state.ended);
-  const previewClass = screen
+  const previewClass = full
     ? `absolute inset-0 h-full w-full object-cover ${facing === "user" ? "-scale-x-100" : ""}`
     : `aspect-video w-full rounded-2xl bg-black object-cover ${facing === "user" ? "-scale-x-100" : ""}`;
-  const watchClass = screen
+  const watchClass = full
     ? "absolute inset-0 h-full w-full object-cover"
     : "mt-4 aspect-video w-full rounded-2xl bg-black object-cover";
 
   return (
     <section
-      id={screen ? undefined : "live"}
+      id={full ? undefined : "live"}
       className={
-        screen
+        full
           ? "fixed inset-0 z-[90] bg-black text-white"
           : "scroll-mt-24 border-b border-border py-7"
       }
     >
-      {screen && (
+      {full && (
         <div className="absolute left-0 right-0 top-0 z-10 flex items-center gap-3 bg-gradient-to-b from-black/70 to-transparent px-4 pb-10 pt-4">
           <button
             type="button"
-            onClick={onClose}
+            onClick={closeFull}
             className="flex h-10 w-10 items-center justify-center rounded-full bg-black/40"
             aria-label="Close"
           >
@@ -573,7 +580,7 @@ const PartyLive = ({
         </div>
       )}
 
-      {!screen && (
+      {!full && (
         <>
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-xl font-semibold">Live</h2>
@@ -589,12 +596,12 @@ const PartyLive = ({
         </>
       )}
 
-      {screen && !cameraOn && !over && (isHost || !state) && (
+      {full && !cameraOn && !over && (isHost || !state) && (
         <p className="absolute inset-x-0 top-1/2 z-10 px-6 text-center text-sm">
           {isHost ? cameraError || "Opening the camera..." : "Joining the live video..."}
         </p>
       )}
-      {screen && over && (
+      {full && over && (
         <p className="absolute inset-x-0 top-1/2 px-6 text-center text-sm">This live video has ended.</p>
       )}
 
@@ -604,7 +611,7 @@ const PartyLive = ({
           onClick={() => void goLive()}
           disabled={busy}
           className={
-            screen
+            full
               ? "absolute bottom-8 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 rounded-full bg-purple-950 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
               : "mt-4 flex items-center gap-2 rounded-full bg-purple-950 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
           }
@@ -615,15 +622,25 @@ const PartyLive = ({
       )}
 
       {isHost && (cameraOn || state?.live) && !over && (
-        <div className={screen ? "absolute inset-0" : "mt-4"}>
-          <video
-            ref={bindPreview}
-            autoPlay
-            muted
-            playsInline
-            className={previewClass}
-          />
-          {!screen && (
+        <div className={full ? "absolute inset-0" : "mt-4"}>
+          <div className={full ? "absolute inset-0" : "relative"}>
+            <video
+              ref={bindPreview}
+              autoPlay
+              muted
+              playsInline
+              className={previewClass}
+            />
+            {!full && (
+              <button
+                type="button"
+                onClick={() => setExpanded(true)}
+                className="absolute inset-0 rounded-2xl"
+                aria-label="Open live full screen"
+              />
+            )}
+          </div>
+          {!full && (
             <div className="mt-3 flex gap-2">
               <button
                 type="button"
@@ -652,36 +669,36 @@ const PartyLive = ({
       {!isHost && state?.live && !state.full && (
         <>
           <video ref={bindWatch} autoPlay playsInline className={watchClass} />
-          {screen && !pictureOn && (
+          {full && !pictureOn && (
             <p className="absolute inset-x-0 top-1/2 z-10 px-6 text-center text-sm">Connecting to the camera...</p>
           )}
         </>
       )}
 
       {!isHost && state?.live && state.full && (
-        <p className={screen ? "absolute inset-x-4 bottom-36 z-10 rounded-2xl bg-white/10 px-4 py-3 text-sm" : "mt-4 rounded-2xl bg-muted px-4 py-3 text-sm"}>
+        <p className={full ? "absolute inset-x-4 bottom-36 z-10 rounded-2xl bg-white/10 px-4 py-3 text-sm" : "mt-4 rounded-2xl bg-muted px-4 py-3 text-sm"}>
           Too many people are watching the video right now. You can still comment and leave a love.
         </p>
       )}
 
       {state && !state.live && !isHost && !over && (
-        <p className={screen ? "absolute inset-x-0 top-1/2 flex items-center justify-center gap-2 px-6 text-sm" : "mt-4 flex items-center gap-2 text-sm text-muted-foreground"}>
+        <p className={full ? "absolute inset-x-0 top-1/2 flex items-center justify-center gap-2 px-6 text-sm" : "mt-4 flex items-center gap-2 text-sm text-muted-foreground"}>
           <Video className="h-4 w-4" />
           The host hasn't turned the camera on yet.
         </p>
       )}
 
       {state?.live && (
-        <div className={screen ? "absolute inset-x-0 bottom-0 z-10 max-h-[46%] overflow-y-auto bg-gradient-to-t from-black via-black/80 to-transparent px-4 pb-4 pt-16" : "mt-4"}>
+        <div className={full ? "absolute inset-x-0 bottom-0 z-10 flex max-h-[75%] flex-col bg-gradient-to-t from-black via-black/90 to-transparent px-4 pb-4 pt-10" : "mt-4"}>
           <button type="button" onClick={() => void tapLove()} className="flex items-center gap-2 text-sm font-semibold">
             <Heart className={`h-5 w-5 ${state.loved ? "fill-red-500 text-red-500" : ""}`} />
             {state.loves} {state.loves === 1 ? "love" : "loves"}
           </button>
-          <div className="mt-3 max-h-56 space-y-2 overflow-y-auto">
+          <div className={full ? "mt-3 min-h-0 flex-1 space-y-2 overflow-y-auto" : "mt-3 max-h-56 space-y-2 overflow-y-auto"}>
             {comments.map((comment: LiveComment) => (
               <p key={comment.id} className="text-sm">
                 <span className="font-semibold">{comment.name}</span>{" "}
-                <span className={screen ? "text-white/80" : "text-muted-foreground"}>{comment.text}</span>
+                <span className={full ? "text-white/80" : "text-muted-foreground"}>{comment.text}</span>
               </p>
             ))}
           </div>
@@ -697,19 +714,19 @@ const PartyLive = ({
               onChange={(event) => setName(event.target.value)}
               maxLength={24}
               placeholder="Your location"
-              className={`w-36 rounded-full border px-3 py-2 text-sm ${screen ? "border-white/30 bg-white/10 placeholder:text-white/50" : "border-border"}`}
+              className={`w-36 rounded-full border px-3 py-2 text-sm ${full ? "border-white/30 bg-white/10 placeholder:text-white/50" : "border-border"}`}
             />
             <input
               value={text}
               onChange={(event) => setText(event.target.value)}
               maxLength={200}
               placeholder="Say something"
-              className={`min-w-0 flex-1 rounded-full border px-3 py-2 text-sm ${screen ? "border-white/30 bg-white/10 placeholder:text-white/50" : "border-border"}`}
+              className={`min-w-0 flex-1 rounded-full border px-3 py-2 text-sm ${full ? "border-white/30 bg-white/10 placeholder:text-white/50" : "border-border"}`}
             />
             <button
               type="submit"
               disabled={busy || !text.trim()}
-              className={`rounded-full px-4 py-2 text-sm font-semibold disabled:opacity-50 ${screen ? "bg-white text-black" : "bg-foreground text-background"}`}
+              className={`rounded-full px-4 py-2 text-sm font-semibold disabled:opacity-50 ${full ? "bg-white text-black" : "bg-foreground text-background"}`}
             >
               Send
             </button>
