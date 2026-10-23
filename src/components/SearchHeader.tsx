@@ -114,14 +114,14 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
         !headerRef.current.contains(event.target as Node)
       ) {
         setActiveBtn(0);
+        setExpanded(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // on phones the full search takes half the screen, so it shrinks to a small bar once you scroll down
-  const [scrolled, setScrolled] = useState(false);
+  // On a phone the full search starts closed. A tap opens it. Scrolling away closes it again.
   const [expanded, setExpanded] = useState(false);
   const expandedAt = useRef(0);
   const activeRef = useRef(activeBtn);
@@ -129,19 +129,15 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
 
   useEffect(() => {
     const onScroll = () => {
-      const y = window.scrollY;
-      // different thresholds so the header changing height doesn't make it flicker
-      setScrolled((was) => (was ? y > 20 : y > 120));
-      if (activeRef.current === 0 && Math.abs(y - expandedAt.current) > 150) {
+      if (activeRef.current === 0 && Math.abs(window.scrollY - expandedAt.current) > 150) {
         setExpanded(false);
       }
     };
-    onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const collapsed = scrolled && !expanded && activeBtn === 0;
+  const collapsed = !expanded && activeBtn === 0;
   const summary =
     [
       destination,
