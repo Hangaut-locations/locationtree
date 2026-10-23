@@ -9,6 +9,7 @@ import {
   addComment,
   addReply,
   deleteReply,
+  editReply,
   fullName,
   getReviews,
   type ListingComment,
@@ -65,6 +66,7 @@ const ReviewSheet = ({
   const [text, setText] = useState("");
   const [replyTo, setReplyTo] = useState<ListingComment | null>(null);
   const [replyName, setReplyName] = useState("");
+  const [editing, setEditing] = useState<{ commentId: string; replyId: string } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const { data, isLoading } = useQuery<ListingReviews>({
@@ -129,23 +131,48 @@ const ReviewSheet = ({
       ),
   });
 
+  const replaceReplies = (commentId: string, replies: ListingComment["replies"]) => {
+    qc.setQueryData<ListingReviews>(queryKey, (old) =>
+      old
+        ? {
+            ...old,
+            comments: old.comments.map((item) =>
+              item._id === commentId ? { ...item, replies } : item,
+            ),
+          }
+        : old,
+    );
+  };
+
   const remove = useMutation({
     mutationFn: ({ commentId, replyId }: { commentId: string; replyId: string }) =>
       deleteReply(commentId, replyId, key),
     onSuccess: ({ replies }, { commentId }) => {
-      qc.setQueryData<ListingReviews>(queryKey, (old) =>
-        old
-          ? {
-              ...old,
-              comments: old.comments.map((item) =>
-                item._id === commentId ? { ...item, replies } : item,
-              ),
-            }
-          : old,
-      );
+      replaceReplies(commentId, replies);
       refresh();
     },
     onError: (err: ApiError) => toast.error(getErrorMessage(err, "Couldn't delete it, try again")),
+  });
+
+  const edit = useMutation({
+    mutationFn: ({
+      commentId,
+      replyId,
+      body,
+    }: {
+      commentId: string;
+      replyId: string;
+      body: string;
+    }) => editReply(commentId, replyId, body, key),
+    onSuccess: ({ replies }, { commentId }) => {
+      replaceReplies(commentId, replies);
+      setEditing(null);
+      setText("");
+      toast.success("Reply updated");
+      refresh();
+    },
+    onError: (err: ApiError) =>
+      toast.error(getErrorMessage(err, "Couldn't update your reply, try again")),
   });
 
   const comments = data?.comments ?? [];
@@ -155,10 +182,19 @@ const ReviewSheet = ({
       setIsAuthModal(true);
       return;
     }
+    setEditing(null);
     setReplyTo(comment);
     setReplyName(name);
     setText("");
     // Focus during the tap. A later focus does not open the phone keyboard.
+    inputRef.current?.focus();
+  };
+
+  const beginEdit = (commentId: string, replyId: string, current: string) => {
+    setReplyTo(null);
+    setReplyName("");
+    setEditing({ commentId, replyId });
+    setText(current);
     inputRef.current?.focus();
   };
 
@@ -244,16 +280,25 @@ const ReviewSheet = ({
                             Reply
                           </button>
                           {reply.mine && (
-                            <button
-                              type="button"
-                              onClick={() =>
-                                remove.mutate({ commentId: item._id, replyId: reply._id })
-                              }
-                              disabled={remove.isPending}
-                              className="cursor-pointer hover:text-white disabled:opacity-50"
-                            >
-                              Delete
-                            </button>
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => beginEdit(item._id, reply._id, reply.text)}
+                                className="cursor-pointer hover:text-white"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  remove.mutate({ commentId: item._id, replyId: reply._id })
+                                }
+                                disabled={remove.isPending}
+                                className="cursor-pointer hover:text-white disabled:opacity-50"
+                              >
+                                Delete
+                              </button>
+                            </>
                           )}
                         </p>
                       </div>
@@ -275,17 +320,19 @@ const ReviewSheet = ({
               setIsAuthModal(true);
               return;
             }
-            post.mutate({ replyId: replyTo?._id, body });
+            if (editing) edit.mutate({ ...editing, body });
+            else post.mutate({ replyId: replyTo?._id, body });
           }}
         >
-          {replyTo && (
+          {(replyTo || editing) && (
             <p className="mb-2 flex items-center justify-between text-xs text-white/60">
-              Replying to {replyName}
+              {editing ? "Editing your reply" : `Replying to ${replyName}`}
               <button
                 type="button"
                 onClick={() => {
                   setReplyTo(null);
                   setReplyName("");
+                  setEditing(null);
                   setText("");
                 }}
                 className="font-semibold text-white cursor-pointer"
@@ -303,15 +350,17 @@ const ReviewSheet = ({
               value={text}
               onChange={(event) => setText(event.target.value.slice(0, COMMENT_MAX_LENGTH))}
               maxLength={COMMENT_MAX_LENGTH}
-              placeholder={replyTo ? `Reply to ${replyName}...` : "Tap to leave a review"}
+              placeholder={
+                editing ? "Edit your reply" : replyTo ? `Reply to ${replyName}...` : "Tap to leave a review"
+              }
               className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-white/40"
             />
             <button
               type="submit"
-              disabled={!text.trim() || post.isPending}
+              disabled={!text.trim() || post.isPending || edit.isPending}
               className="text-sm font-bold text-purple-400 disabled:opacity-30 cursor-pointer"
             >
-              {post.isPending ? "Posting" : "Post"}
+              {editing ? (edit.isPending ? "Saving" : "Save") : post.isPending ? "Posting" : "Post"}
             </button>
           </div>
         </form>
