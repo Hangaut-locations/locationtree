@@ -8,7 +8,7 @@ import { copyText } from "../lib/clipboard";
 type ShareModalProps = {
   open: boolean;
   onClose: () => void;
-  kind: "party" | "place";
+  kind: "party" | "place" | "story" | "live";
   title: string;
   image?: string;
   details?: string;
@@ -18,7 +18,13 @@ type ShareModalProps = {
 const ShareModal = ({ open, onClose, kind, title, image, details, url = window.location.href }: ShareModalProps) => {
   const [copied, setCopied] = useState(false);
   const message =
-    kind === "party" ? `Join me at ${title} on Hangaut` : `Check out ${title} on Hangaut`;
+    kind === "party"
+      ? `Join me at ${title} on Hangaut`
+      : kind === "live"
+        ? `Watch ${title} live on Hangaut`
+        : kind === "story"
+          ? `Watch ${title}'s story on Hangaut`
+          : `Check out ${title} on Hangaut`;
   const text = encodeURIComponent(message);
   const link = encodeURIComponent(url);
   const canUseShareSheet = typeof navigator.share === "function";
@@ -47,7 +53,10 @@ const ShareModal = ({ open, onClose, kind, title, image, details, url = window.l
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent className="max-w-[calc(100%-2rem)] grid-cols-[minmax(0,1fr)] gap-0 rounded-3xl bg-card p-6 sm:max-w-lg sm:p-8">
+      <DialogContent
+        overlayClassName="z-[120]"
+        className="z-[120] max-w-[calc(100%-2rem)] grid-cols-[minmax(0,1fr)] gap-0 rounded-3xl bg-card p-6 sm:max-w-lg sm:p-8"
+      >
         <DialogTitle className="text-xl font-bold">
           Share this {kind}
         </DialogTitle>

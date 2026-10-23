@@ -1,8 +1,9 @@
-import { Camera, Heart, SwitchCamera, Video, VideoOff, X } from "lucide-react";
+import { Camera, Heart, Share2, SwitchCamera, Video, VideoOff, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
+import ShareModal from "../ShareModal";
 import { listingPath } from "../../lib/privateLink";
 import {
   fetchHostFeed,
@@ -128,6 +129,7 @@ const PartyLive = ({
   const [facing, setFacing] = useState<Facing>("environment");
   const [cameraOn, setCameraOn] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
   const [cameraError, setCameraError] = useState("");
   const [pictureOn, setPictureOn] = useState(false);
   const previewRef = useRef<HTMLVideoElement>(null);
@@ -575,7 +577,7 @@ const PartyLive = ({
             <button
               type="button"
               onClick={openListing}
-              className="block w-full truncate text-left text-sm font-semibold"
+              className="block w-full cursor-pointer truncate text-left text-sm font-semibold underline-offset-4 hover:underline"
               aria-label={`Open ${title || "party"} listing`}
             >
               {title || "Live"}
@@ -584,6 +586,15 @@ const PartyLive = ({
               <span className="text-[11px] font-semibold uppercase tracking-wider text-red-400">Live</span>
             )}
           </div>
+          <button
+            type="button"
+            onClick={() => setShareOpen(true)}
+            className="flex shrink-0 items-center gap-1.5 rounded-full bg-black/50 px-3 py-2 text-sm font-semibold"
+            aria-label="Share live"
+          >
+            <Share2 className="h-4 w-4" />
+            Share
+          </button>
           {isHost && (cameraOn || state?.live) && !over && (
             <button
               type="button"
@@ -761,6 +772,16 @@ const PartyLive = ({
           </form>
         </div>
       )}
+      <ShareModal
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        kind="live"
+        title={title || "Live"}
+        details="Live"
+        url={`${window.location.origin}${listingPath("party", partyId)}${
+          linkKey ? `?key=${encodeURIComponent(linkKey)}` : ""
+        }#live`}
+      />
     </section>
   );
 };
