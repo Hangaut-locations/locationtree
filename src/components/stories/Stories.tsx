@@ -1,4 +1,4 @@
-import { Heart, Plus, X } from "lucide-react";
+import { Heart, Plus, Share2, X } from "lucide-react";
 import {
   createContext,
   useContext,
@@ -8,6 +8,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import useAuth from "../hooks/useAuth";
@@ -24,6 +25,7 @@ import {
   uploadStory,
   type StoryPerson,
 } from "../../lib/stories";
+import ShareModal from "../ShareModal";
 import { StoryCamera } from "./StoryCamera";
 import { rememberShot } from "../../lib/storyGallery";
 
@@ -66,12 +68,26 @@ export const StoriesProvider = ({ children }: { children: ReactNode }) => {
   const [adding, setAdding] = useState(false);
   const [cameraOpen, setCameraOpen] = useState(false);
   const [openId, setOpenId] = useState<string | null>(null);
+  const [params, setParams] = useSearchParams();
+  const linkedStory = params.get("story");
   const { data } = useQuery({
     queryKey: ["stories", viewerId],
     queryFn: () => storyList(viewerId),
     refetchInterval: openId ? 4000 : 20000,
   });
   const people = data?.people ?? [];
+
+  useEffect(() => {
+    if (linkedStory) setOpenId(linkedStory);
+  }, [linkedStory]);
+
+  const closeStory = () => {
+    setOpenId(null);
+    if (!params.get("story")) return;
+    const next = new URLSearchParams(params);
+    next.delete("story");
+    setParams(next, { replace: true });
+  };
 
   const pick = async (file: File) => {
     const video = file.type.startsWith("video/");
@@ -134,13 +150,13 @@ export const StoriesProvider = ({ children }: { children: ReactNode }) => {
         onFile={(file) => void pick(file)}
         onLibrary={() => fileRef.current?.click()}
       />
-      {openId && (
+      {openId && (!linkedStory || data) && (
         <StoryViewer
           key={openId}
           userId={openId}
           people={people}
           viewerId={viewerId}
-          onClose={() => setOpenId(null)}
+          onClose={closeStory}
           onNext={setOpenId}
         />
       )}
@@ -234,6 +250,7 @@ const StoryViewer = ({
   );
   const [text, setText] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
   const commentsRef = useRef<HTMLDivElement>(null);
   const item = person?.items[index];
   const mine = Boolean(me?._id && String(me._id) === userId);
@@ -356,9 +373,20 @@ const StoryViewer = ({
               <p className="shrink-0 text-[11px] text-white/70">{postedLabel(item?.createdAt)}</p>
             )}
           </div>
-          <button type="button" onClick={onClose} aria-label="Close story" className="p-1">
-            <X className="h-5 w-5" />
-          </button>
+          <div className="flex shrink-0 items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShareOpen(true)}
+              aria-label="Share story"
+              className="flex items-center gap-1 text-sm font-semibold"
+            >
+              <Share2 className="h-4 w-4" />
+              Share
+            </button>
+            <button type="button" onClick={onClose} aria-label="Close story" className="p-1">
+              <X className="h-5 w-5" />
+            </button>
+          </div>
         </div>
 
         <div className="relative min-h-0 flex-1">
@@ -471,6 +499,16 @@ const StoryViewer = ({
           </div>
         </div>
       </div>
+      <ShareModal
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        kind="story"
+        title={
+          person ? `${person.firstName} ${person.lastName}`.trim() || "Story" : "Story"
+        }
+        image={item?.kind === "video" ? item.poster : item?.url}
+        url={`${window.location.origin}/?story=${encodeURIComponent(userId)}`}
+      />
       {confirmDelete && (
         <div
           className="fixed inset-0 z-[90] flex items-center justify-center bg-black/70 px-6"
