@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import { toast } from "react-hot-toast";
@@ -64,6 +64,7 @@ const ReviewSheet = ({
   const [text, setText] = useState("");
   const [replyTo, setReplyTo] = useState<ListingComment | null>(null);
   const [replyName, setReplyName] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const { data, isLoading } = useQuery<ListingReviews>({
     queryKey,
@@ -133,6 +134,8 @@ const ReviewSheet = ({
     setReplyTo(comment);
     setReplyName(name);
     setText("");
+    // Focus during the tap. A later focus does not open the phone keyboard.
+    inputRef.current?.focus();
   };
 
   return (
@@ -271,12 +274,12 @@ const ReviewSheet = ({
               {user ? initials(user) : "?"}
             </span>
             <input
+              ref={inputRef}
               value={text}
               onChange={(event) => setText(event.target.value.slice(0, COMMENT_MAX_LENGTH))}
               maxLength={COMMENT_MAX_LENGTH}
-              disabled={!replyTo}
               placeholder={replyTo ? `Reply to ${replyName}...` : "Tap Reply on a review"}
-              className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-white/40 disabled:cursor-default"
+              className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-white/40"
             />
             <button
               type="submit"
