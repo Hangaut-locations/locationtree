@@ -1,7 +1,27 @@
 import { DollarSign, Globe } from "lucide-react";
 import type React from "react";
+import { Link } from "react-router-dom";
 import { SiFacebook, SiInstagram, SiX } from "react-icons/si";
 import type { CurrencyCode } from "../lib/currency";
+
+const itemClass =
+  "hover:text-foreground hover:underline transition-colors text-xs";
+
+const PageLink = ({ to, children }: { to: string; children: string }) => (
+  <li>
+    <Link to={to} className={itemClass}>
+      {children}
+    </Link>
+  </li>
+);
+
+const MailLink = ({ email, children }: { email: string; children: string }) => (
+  <li>
+    <a href={`mailto:${email}`} className={itemClass}>
+      {children}
+    </a>
+  </li>
+);
 
 interface FooterProps {
   currency: CurrencyCode;
@@ -23,54 +43,11 @@ export const Footer: React.FC<FooterProps> = ({
               Support
             </h3>
             <ul className="space-y-2.5 text-sm  text-muted-foreground">
-              <li>
-                <a
-                  href="#"
-                  className="hover:text-foreground hover:underline transition-colors text-xs"
-                >
-                  Help Center
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="hover:text-foreground hover:underline transition-colors text-xs"
-                >
-                  Safety information
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="hover:text-foreground hover:underline transition-colors text-xs"
-                >
-                  Cancellation options
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="hover:text-foreground hover:underline transition-colors text-xs"
-                >
-                  Our COVID-19 Response
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="hover:text-foreground hover:underline transition-colors text-xs"
-                >
-                  Supporting people with disabilities
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="hover:text-foreground hover:underline transition-colors text-xs"
-                >
-                  Report a neighborhood concern
-                </a>
-              </li>
+              <PageLink to="/support">Help Center</PageLink>
+              <PageLink to="/support">Safety information</PageLink>
+              <PageLink to="/support">Cancellation options</PageLink>
+              <PageLink to="/support">Supporting people with disabilities</PageLink>
+              <PageLink to="/support">Report a neighborhood concern</PageLink>
             </ul>
           </div>
 
@@ -80,38 +57,12 @@ export const Footer: React.FC<FooterProps> = ({
               Community
             </h3>
             <ul className="space-y-2.5 text-sm  text-muted-foreground">
-              <li>
-                <a
-                  href="#"
-                  className="hover:text-foreground hover:underline transition-colors text-xs"
-                >
-                  Hangout.org: disaster relief housing
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="hover:text-foreground hover:underline transition-colors text-xs"
-                >
-                  Support Afghan refugees
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="hover:text-foreground hover:underline transition-colors text-xs"
-                >
-                  Celebrating diversity & belonging
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="hover:text-foreground hover:underline transition-colors text-xs"
-                >
-                  Combating discrimination
-                </a>
-              </li>
+              <MailLink email="hangautbooking@pedxo.com">
+                Celebrating diversity & belonging
+              </MailLink>
+              <MailLink email="hangautbooking@pedxo.com">
+                Combating discrimination
+              </MailLink>
             </ul>
           </div>
 
@@ -121,22 +72,7 @@ export const Footer: React.FC<FooterProps> = ({
               Hosting
             </h3>
             <ul className="space-y-2.5 text-sm  text-muted-foreground">
-              <li>
-                <a
-                  href="#"
-                  className="hover:text-foreground hover:underline transition-colors text-xs"
-                >
-                  Try hosting
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="hover:text-foreground hover:underline transition-colors text-xs"
-                >
-                  AirCover for Hosts
-                </a>
-              </li>
+              <PageLink to="/host">Try hosting</PageLink>
               <li>
                 <a
                   href="#"
@@ -186,30 +122,9 @@ export const Footer: React.FC<FooterProps> = ({
                   Learn about new features
                 </a>
               </li>
-              <li>
-                <a
-                  href="#"
-                  className="hover:text-foreground hover:underline transition-colors text-xs"
-                >
-                  Letter from our founders
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="hover:text-foreground hover:underline transition-colors text-xs"
-                >
-                  Careers
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="hover:text-foreground hover:underline transition-colors text-xs"
-                >
-                  Investors
-                </a>
-              </li>
+              <PageLink to="/support">Letter from our founders</PageLink>
+              <MailLink email="jobs@pedxo.com">Careers</MailLink>
+              <MailLink email="victor@pedxo.com">Investors</MailLink>
               <li>
                 <a
                   href="#"
