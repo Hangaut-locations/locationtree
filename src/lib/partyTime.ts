@@ -20,12 +20,15 @@ export const formatPartyWhen = (party: {
   start_date?: Date | string;
   end_date?: Date | string;
   start_time?: string;
+  end_time?: string;
 }) => {
   if (!party.start_date) return "";
   const start = formatDay(party.start_date);
   const end = party.end_date ? formatDay(party.end_date) : start;
   const days = start === end ? start : `${start} – ${end}`;
-  return party.start_time ? `${days} · starts ${formatStartTime(party.start_time)}` : days;
+  const starts = party.start_time ? ` · starts ${formatStartTime(party.start_time)}` : "";
+  const ends = party.end_time ? ` · ends ${formatStartTime(party.end_time)}` : "";
+  return `${days}${starts}${ends}`;
 };
 
 /** Start and end date both count, so a one-day party is 1. Same rule as the API. */
@@ -44,28 +47,37 @@ export const partyLengthInDays = (
 const NIGERIA_OFFSET_MS = 60 * 60 * 1000;
 
 /** True once the party start time has passed and the last day is not over yet. Drafts stay off. */
-export const partyIsOn = (party: {
-  start_date?: Date | string;
-  end_date?: Date | string;
-  start_time?: string;
-  status?: string;
-}) => {
-  if (party.status === "draft" || !party.start_date) return false;
-  const day = new Date(party.start_date);
-  const [hours, minutes] = (party.start_time || "00:00").split(":").map(Number);
-  const startsAt =
+const clockOnDay = (day: Date, time: string) => {
+  const [hours, minutes] = time.split(":").map(Number);
+  return (
     Date.UTC(
       day.getUTCFullYear(),
       day.getUTCMonth(),
       day.getUTCDate(),
       hours || 0,
       minutes || 0,
-    ) - NIGERIA_OFFSET_MS;
+    ) - NIGERIA_OFFSET_MS
+  );
+};
+
+export const partyIsOn = (party: {
+  start_date?: Date | string;
+  end_date?: Date | string;
+  start_time?: string;
+  end_time?: string;
+  status?: string;
+}) => {
+  if (party.status === "draft" || !party.start_date) return false;
+  const day = new Date(party.start_date);
+  const startsAt = clockOnDay(day, party.start_time || "00:00");
   const end = party.end_date ? new Date(party.end_date) : null;
-  const endsAt = end
-    ? Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate() + 1) -
-      NIGERIA_OFFSET_MS
-    : startsAt + 86_400_000;
+  const endsAt =
+    party.end_time && (end || day)
+      ? clockOnDay(end ?? day, party.end_time)
+      : end
+        ? Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate() + 1) -
+          NIGERIA_OFFSET_MS
+        : startsAt + 86_400_000;
   const now = Date.now();
   return now >= startsAt && now < endsAt;
 };
