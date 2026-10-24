@@ -1,7 +1,7 @@
 import { HeartIcon } from "lucide-react";
 import type React from "react";
 import { displayPrice, formatPrice } from "../../lib/currency";
-import { formatPartyWhen } from "../../lib/partyTime";
+import { formatPartyWhen, formatStartTime } from "../../lib/partyTime";
 import type { TParty } from "../../types/parties";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
@@ -91,6 +91,11 @@ export const PartyListCard: React.FC<PartyListCardProps> = ({
 
         {/* Card Details */}
         <div className="flex flex-1 flex-col py-1 gap-0.5 mt-1 pl-1">
+          {party.end_time?.trim() ? (
+            <p className="text-left text-xs text-muted-foreground">
+              Ends {formatStartTime(party.end_time)}
+            </p>
+          ) : null}
           {/* Title */}
           <p className="font-semibold text-left text-xs">{party.title}</p>
 
@@ -107,7 +112,11 @@ export const PartyListCard: React.FC<PartyListCardProps> = ({
 
           {party.start_date && (
             <p className="text-left text-xs text-muted-foreground">
-              {formatPartyWhen(party)}
+              {formatPartyWhen({
+                start_date: party.start_date,
+                end_date: party.end_date,
+                start_time: party.start_time,
+              })}
             </p>
           )}
 
