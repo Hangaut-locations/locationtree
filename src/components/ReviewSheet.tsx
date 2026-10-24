@@ -67,7 +67,11 @@ const ReviewSheet = ({
   const [text, setText] = useState("");
   const [replyTo, setReplyTo] = useState<ListingComment | null>(null);
   const [replyName, setReplyName] = useState("");
-  const [editing, setEditing] = useState<{ commentId: string; replyId?: string } | null>(null);
+  const [editing, setEditing] = useState<{
+    commentId: string;
+    replyId?: string;
+    original: string;
+  } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const { data, isLoading } = useQuery<ListingReviews>({
@@ -217,7 +221,7 @@ const ReviewSheet = ({
   const beginEdit = (commentId: string, replyId: string, current: string) => {
     setReplyTo(null);
     setReplyName("");
-    setEditing({ commentId, replyId });
+    setEditing({ commentId, replyId, original: current });
     setText(current);
     inputRef.current?.focus();
   };
@@ -225,7 +229,7 @@ const ReviewSheet = ({
   const beginEditReview = (item: ListingComment) => {
     setReplyTo(null);
     setReplyName("");
-    setEditing({ commentId: item._id });
+    setEditing({ commentId: item._id, original: item.comment });
     setText(item.comment);
     inputRef.current?.focus();
   };
@@ -359,7 +363,7 @@ const ReviewSheet = ({
           onSubmit={(event) => {
             event.preventDefault();
             const body = text.trim();
-            if (!body) return;
+            if (!body || (editing && body === editing.original.trim())) return;
             if (!user) {
               setIsAuthModal(true);
               return;
@@ -413,7 +417,13 @@ const ReviewSheet = ({
             />
             <button
               type="submit"
-              disabled={!text.trim() || post.isPending || edit.isPending || editReview.isPending}
+              disabled={
+                !text.trim() ||
+                (!!editing && text.trim() === editing.original.trim()) ||
+                post.isPending ||
+                edit.isPending ||
+                editReview.isPending
+              }
               className="text-sm font-bold text-purple-400 disabled:opacity-30 cursor-pointer"
             >
               {editing
