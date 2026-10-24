@@ -18,6 +18,7 @@ export type TParty = {
     name: string;
     price: number;
     available: number;
+    details?: string;
     left?: number;
   }[];
   beds: string;

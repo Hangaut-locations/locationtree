@@ -180,7 +180,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
   const [rules, setRules] = useState<string>("");
   const [is_ticket_sales, setIsTicketsales] = useState<boolean>(true);
   const [ticketOptions, setTicketOptions] = useState<
-    { name: string; price: number; available: number }[]
+    { name: string; price: number; available: number; details: string }[]
   >([]);
   const [visibility, setVisibility] = useState<Visibility>("public");
   const searchParams = new URLSearchParams(window.location.search);
@@ -225,6 +225,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
             name: option.name.trim(),
             price: priceToUSD(option.price, currency),
             available: option.available,
+            details: option.details.trim(),
           }))
       : [];
     const sendTickets =
@@ -338,6 +339,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
           name: option.name,
           price: priceForInput(Number(option.price) || 0, currency),
           available: option.available,
+          details: option.details ?? "",
         })),
       );
       setVisibility(partyData.visibility === "private" ? "private" : "public");
@@ -763,7 +765,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
                       onClick={() =>
                         setTicketOptions((current) => [
                           ...current,
-                          { name: "", price, available: Math.min(10, capacity) },
+                          { name: "", price, available: Math.min(10, capacity), details: "" },
                         ])
                       }
                       className="flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs font-semibold disabled:opacity-40"
@@ -772,8 +774,8 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
                     </button>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Name it, set a price, and how many you want to sell. Guests
-                    can still buy the main ticket above.
+                    Name it, set a price, how many you want to sell, and what it
+                    includes. Guests can still buy the main ticket above.
                   </p>
                   {ticketOptions.some((option) => option.name.trim()) &&
                     (() => {
@@ -827,6 +829,21 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
                           <Minus className="h-4 w-4" />
                         </button>
                       </div>
+                      <textarea
+                        maxLength={280}
+                        rows={3}
+                        value={option.details}
+                        placeholder="What this ticket includes"
+                        aria-label="What this ticket includes"
+                        onChange={(e) =>
+                          setTicketOptions((current) =>
+                            current.map((row, i) =>
+                              i === index ? { ...row, details: e.target.value } : row,
+                            ),
+                          )
+                        }
+                        className="mt-2 w-full resize-none rounded-xl border border-border px-3 py-2 text-sm outline-none"
+                      />
                       <div className="mt-2 grid grid-cols-2 gap-2">
                         <TicketPriceField
                           value={option.price}
@@ -877,17 +894,19 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
                 {ticketOptions
                   .filter((option) => option.name.trim())
                   .map((option, index) => (
-                    <div
-                      key={`${option.name}-${index}`}
-                      className="flex justify-between gap-3 text-xs font-semibold text-muted-foreground"
-                    >
-                      <span className="min-w-0 truncate text-foreground">
-                        {option.name.trim()}
-                      </span>
-                      <span className="shrink-0 text-foreground">
-                        {symbolFor(currency)}
-                        {option.price} · {option.available}
-                      </span>
+                    <div key={`${option.name}-${index}`} className="text-xs font-semibold text-muted-foreground">
+                      <div className="flex justify-between gap-3">
+                        <span className="min-w-0 truncate text-foreground">
+                          {option.name.trim()}
+                        </span>
+                        <span className="shrink-0 text-foreground">
+                          {symbolFor(currency)}
+                          {option.price} · {option.available}
+                        </span>
+                      </div>
+                      {option.details.trim() && (
+                        <p className="mt-0.5 font-normal">{option.details.trim()}</p>
+                      )}
                     </div>
                   ))}
                 <div className="flex justify-between text-xs font-semibold text-muted-foreground">
