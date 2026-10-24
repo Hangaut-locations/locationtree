@@ -625,58 +625,61 @@ const PartyLive = ({
       }
     >
       {full && (
-        <div className="absolute left-0 right-0 top-0 z-10 flex items-center gap-3 bg-gradient-to-b from-black/70 to-transparent px-4 pb-10 pt-4">
-          <button
-            type="button"
-            onClick={closeFull}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-black/40"
-            aria-label="Close"
-          >
-            <X className="h-5 w-5" />
-          </button>
-          <div className="min-w-0 flex-1">
+        <div className="absolute inset-x-0 top-0 z-10 bg-gradient-to-b from-black/70 to-transparent px-3 pb-8 pt-[max(0.75rem,env(safe-area-inset-top))]">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={closeFull}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-black/40"
+              aria-label="Close"
+            >
+              <X className="h-5 w-5" />
+            </button>
             <button
               type="button"
               onClick={openListing}
-              className="block w-full cursor-pointer truncate text-left text-sm font-semibold underline-offset-4 hover:underline"
+              className="min-w-0 flex-1 cursor-pointer truncate text-left text-sm font-semibold underline-offset-4 hover:underline"
               aria-label={`Open ${title || "party"} listing`}
             >
               {title || "Live"}
             </button>
             {state?.live && (
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-red-400">Live</span>
+              <span className="shrink-0 text-[11px] font-semibold uppercase tracking-wider text-red-400">Live</span>
             )}
           </div>
-          <button
-            type="button"
-            onClick={() => setShareOpen(true)}
-            className="flex shrink-0 items-center gap-1.5 rounded-full bg-black/50 px-3 py-2 text-sm font-semibold"
-            aria-label="Share live"
-          >
-            <Share2 className="h-4 w-4" />
-            Share
-          </button>
-          {isHost && (cameraOn || state?.live) && !over && (
+          <div className="mt-2 flex flex-wrap gap-2">
             <button
               type="button"
-              onClick={() => void flipCamera()}
-              className="flex shrink-0 items-center gap-1.5 rounded-full bg-black/50 px-3 py-2 text-sm font-semibold"
+              onClick={() => setShareOpen(true)}
+              className="flex items-center gap-1.5 rounded-full bg-black/50 px-3 py-2 text-sm font-semibold"
+              aria-label="Share live"
             >
-              <SwitchCamera className="h-4 w-4" />
-              Switch camera
+              <Share2 className="h-4 w-4" />
+              Share
             </button>
-          )}
-          {isHost && state?.live && (
-            <button
-              type="button"
-              onClick={() => void endLive()}
-              disabled={busy}
-              className="flex shrink-0 items-center gap-1.5 rounded-full bg-red-600 px-3 py-2 text-sm font-semibold text-white"
-            >
-              <VideoOff className="h-4 w-4" />
-              Stop
-            </button>
-          )}
+            {isHost && (cameraOn || state?.live) && !over && (
+              <button
+                type="button"
+                onClick={() => void flipCamera()}
+                className="flex items-center gap-1.5 rounded-full bg-black/50 px-3 py-2 text-sm font-semibold"
+                aria-label="Switch camera"
+              >
+                <SwitchCamera className="h-4 w-4" />
+                Switch camera
+              </button>
+            )}
+            {isHost && state?.live && (
+              <button
+                type="button"
+                onClick={() => void endLive()}
+                disabled={busy}
+                className="flex items-center gap-1.5 rounded-full bg-red-600 px-3 py-2 text-sm font-semibold text-white"
+              >
+                <VideoOff className="h-4 w-4" />
+                Stop
+              </button>
+            )}
+          </div>
         </div>
       )}
 
