@@ -168,6 +168,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
   const [startTime, setStartTime] = useState<string>("");
+  const [endTime, setEndTime] = useState<string>("");
   const [location, setLocation] = useState<string>("");
   const [capacity, setCapacity] = useState<number>(10);
   const [priceMode, setPriceMode] = useState<PriceMode>("person");
@@ -197,8 +198,10 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
 
   // console.log("partyData", partyData);
 
+  const endTimeOk =
+    !endTime || endDate > startDate || (!!startTime && endTime > startTime);
   const isDateValid =
-    !!startDate && !!endDate && endDate >= startDate && !!startTime;
+    !!startDate && !!endDate && endDate >= startDate && !!startTime && endTimeOk;
 
   const handleNext = () => {
     if (step < 9) {
@@ -239,6 +242,11 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
       ...(startDate && { start_date: startDate }),
       ...(endDate && { end_date: endDate }),
       ...(startTime && { start_time: startTime }),
+      ...(endTime
+        ? { end_time: endTime }
+        : partyData?.end_time
+          ? { end_time: "" }
+          : {}),
       ...(rules && { party_rules: rules.trim() }),
       is_ticket_sales: is_ticket_sales ? "true" : "false",
       ...(sendTickets && { ticket_options: JSON.stringify(namedTickets) }),
@@ -316,6 +324,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
       setStartDate(toDateInput(partyData.start_date));
       setEndDate(toDateInput(partyData.end_date));
       setStartTime(partyData.start_time ?? "");
+      setEndTime(partyData.end_time ?? "");
       setPartyType(partyData.party_type ?? "");
       setLocation(partyData.location ?? "");
       setPhotos(partyData.images ?? []);
@@ -457,9 +466,11 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
               endDate={endDate}
               startDate={startDate}
               startTime={startTime}
+              endTime={endTime}
               setEndDate={setEndDate}
               setStartDate={setStartDate}
               setStartTime={setStartTime}
+              setEndTime={setEndTime}
             />
           )}
 
@@ -703,6 +714,7 @@ export const PartyWizard: React.FC<PartyWizardProps> = () => {
                     start_date: startDate,
                     end_date: endDate,
                     start_time: startTime,
+                    end_time: endTime,
                   })}{" "}
                   · {capacity} guests
                 </p>

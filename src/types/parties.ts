@@ -25,6 +25,7 @@ export type TParty = {
   start_date: Date;
   end_date: Date;
   start_time?: string;
+  end_time?: string;
   status?: "published" | "draft";
   visibility?: Visibility;
   private_key?: string;
