@@ -86,6 +86,7 @@ const ListingReviews = ({ type, id }: ListingReviewsProps) => {
     replyId?: string;
   } | null>(null);
   const [replyText, setReplyText] = useState("");
+  const [replyOriginal, setReplyOriginal] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [commentDraft, setCommentDraft] = useState("");
   const key = linkKey();
@@ -220,11 +221,14 @@ const ListingReviews = ({ type, id }: ListingReviewsProps) => {
   const startReply = (commentId: string, reply?: ReviewReply) => {
     setDraft({ commentId, replyId: reply?._id });
     setReplyText(reply?.text ?? "");
+    setReplyOriginal(reply?.text ?? "");
   };
 
   const handleReply = () => {
     const text = replyText.trim();
-    if (draft && text) saveReply.mutate({ ...draft, text });
+    if (!draft || !text) return;
+    if (draft.replyId && text === replyOriginal.trim()) return;
+    saveReply.mutate({ ...draft, text });
   };
 
   const replyEditor = (placeholder: string) => (
@@ -253,7 +257,11 @@ const ListingReviews = ({ type, id }: ListingReviewsProps) => {
           <button
             type="button"
             onClick={handleReply}
-            disabled={!replyText.trim() || saveReply.isPending}
+            disabled={
+              !replyText.trim() ||
+              (!!draft?.replyId && replyText.trim() === replyOriginal.trim()) ||
+              saveReply.isPending
+            }
             className="rounded-xl bg-purple-500 px-4 py-2 text-sm font-bold text-white transition hover:bg-purple-600 disabled:opacity-50"
           >
             {saveReply.isPending
@@ -378,11 +386,16 @@ const ListingReviews = ({ type, id }: ListingReviewsProps) => {
                     </button>
                     <button
                       type="button"
-                      onClick={() =>
-                        commentDraft.trim() &&
-                        saveComment.mutate({ commentId: item._id, text: commentDraft.trim() })
+                      onClick={() => {
+                        const text = commentDraft.trim();
+                        if (!text || text === item.comment.trim()) return;
+                        saveComment.mutate({ commentId: item._id, text });
+                      }}
+                      disabled={
+                        !commentDraft.trim() ||
+                        commentDraft.trim() === item.comment.trim() ||
+                        saveComment.isPending
                       }
-                      disabled={!commentDraft.trim() || saveComment.isPending}
                       className="rounded-xl bg-foreground px-4 py-2 text-sm font-semibold text-background disabled:opacity-50"
                     >
                       {saveComment.isPending ? "Saving" : "Save"}
