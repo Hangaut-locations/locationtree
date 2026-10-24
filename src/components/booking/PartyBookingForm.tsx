@@ -188,6 +188,11 @@ const PartyBookingForm = ({ party }: { party: TParty }) => {
                     {formatPrice(displayPrice(Number(option.price) || 0, currency), currency)}{" "}
                     · {left} left
                   </span>
+                  {option.details && (
+                    <span className="mt-1 block text-xs leading-5 text-foreground">
+                      {option.details}
+                    </span>
+                  )}
                 </button>
               );
             })}
