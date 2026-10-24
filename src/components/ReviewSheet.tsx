@@ -39,15 +39,23 @@ const ago = (date: string) => {
   return new Date(date).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 };
 
-const Face = ({ person, small }: { person: ReviewPerson; small?: boolean }) => (
-  <span
-    className={`flex shrink-0 items-center justify-center rounded-full bg-white/15 font-semibold ${
-      small ? "h-7 w-7 text-[10px]" : "h-8 w-8 text-xs"
-    }`}
-  >
-    {initials(person)}
-  </span>
-);
+const Face = ({ person, small }: { person: ReviewPerson; small?: boolean }) => {
+  const { data: me } = useAuth();
+  const photo =
+    person.photo ||
+    (me?._id && String(person._id) === String(me._id) ? me.photo : undefined);
+  const size = small ? "h-7 w-7 text-[10px]" : "h-8 w-8 text-xs";
+  if (photo) {
+    return <img src={photo} alt="" className={`${size} shrink-0 rounded-full object-cover`} />;
+  }
+  return (
+    <span
+      className={`flex shrink-0 items-center justify-center rounded-full bg-white/15 font-semibold ${size}`}
+    >
+      {initials(person)}
+    </span>
+  );
+};
 
 /** Reviews for one listing, read like Instagram comments. A reply sits under that review. */
 const ReviewSheet = ({
@@ -396,9 +404,17 @@ const ReviewSheet = ({
             </p>
           )}
           <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/15 text-xs font-semibold">
-              {user ? initials(user) : "?"}
-            </span>
+            {user?.photo ? (
+              <img
+                src={user.photo}
+                alt=""
+                className="h-8 w-8 shrink-0 rounded-full object-cover"
+              />
+            ) : (
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/15 text-xs font-semibold">
+                {user ? initials(user) : "?"}
+              </span>
+            )}
             <input
               ref={inputRef}
               value={text}

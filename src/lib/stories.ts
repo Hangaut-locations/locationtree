@@ -25,6 +25,7 @@ export type StoryPerson = {
   userId: string;
   firstName: string;
   lastName: string;
+  photo?: string;
   items: StoryItem[];
 };
 

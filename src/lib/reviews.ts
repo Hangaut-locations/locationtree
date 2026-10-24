@@ -9,6 +9,7 @@ export interface ReviewPerson {
   city?: string;
   state?: string;
   country?: string;
+  photo?: string;
 }
 
 export interface ListingComment {

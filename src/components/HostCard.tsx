@@ -1,6 +1,7 @@
 import { CalendarDays, Mail, MapPin, Phone } from "lucide-react";
 import type { ListingHost } from "../types/listing";
 import MessageButton from "./chat/MessageButton";
+import useAuth from "./hooks/useAuth";
 import { StoryFace } from "./stories/Stories";
 
 const HostCard = ({
@@ -10,7 +11,11 @@ const HostCard = ({
   host?: ListingHost | null;
   listing?: { type: "party" | "property"; id: string };
 }) => {
+  const { data: me } = useAuth();
   if (!host) return null;
+  const photo =
+    host.photo ||
+    (me?._id && String(host._id) === String(me._id) ? me.photo : undefined);
 
   const name = `${host.firstName ?? ""} ${host.lastName ?? ""}`.trim() || "Host";
   const initials = name
@@ -35,6 +40,7 @@ const HostCard = ({
         <StoryFace
           userId={host._id}
           initials={initials}
+          photo={photo}
           className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-purple-100 text-lg font-semibold text-purple-700"
         />
         <div className="min-w-0 flex-1">

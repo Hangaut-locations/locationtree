@@ -70,6 +70,12 @@ const MessagesPage = () => {
                     userId={chat.person?._id}
                     mine={Boolean(user?._id && chat.person?._id === String(user._id))}
                     initials={letters(chatName(chat.person))}
+                    photo={
+                      chat.person?.photo ||
+                      (user?._id && chat.person?._id === String(user._id)
+                        ? user.photo
+                        : undefined)
+                    }
                     className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-purple-100 text-sm font-bold text-purple-800"
                   />
                   <span className="min-w-0 flex-1">

@@ -504,6 +504,10 @@ const ChatThread = ({ conversationId }: { conversationId: string }) => {
           userId={chat?.person?._id}
           mine={Boolean(me?._id && chat?.person?._id === String(me._id))}
           initials={initials(name)}
+          photo={
+            chat?.person?.photo ||
+            (me?._id && chat?.person?._id === String(me._id) ? me.photo : undefined)
+          }
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-purple-100 text-sm font-bold text-purple-800"
         />
         <div className="min-w-0 flex-1">

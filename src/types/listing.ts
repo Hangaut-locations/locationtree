@@ -54,6 +54,7 @@ export interface ListingHost {
   country?: string;
   bio?: string;
   createdAt?: string;
+  photo?: string;
 }
 
 export interface Wallet {
