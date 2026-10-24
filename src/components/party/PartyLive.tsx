@@ -14,6 +14,7 @@ import {
   sendViewerSignal,
   startLive,
   stopLive,
+  stopLiveNow,
   toggleLiveLove,
   type LiveComment,
   type LiveSignal,
@@ -146,6 +147,8 @@ const PartyLive = ({
   const opening = useRef<Promise<MediaStream> | null>(null);
   const flipping = useRef(false);
   const mounted = useRef(true);
+  const liveOn = useRef(false);
+  const ending = useRef(false);
 
   const attachPreview = (stream: MediaStream) => {
     const video = previewRef.current;
@@ -188,10 +191,27 @@ const PartyLive = ({
     mounted.current = true;
     return () => {
       mounted.current = false;
+      if (liveOn.current) stopLiveNow(partyId);
       closeViewer();
       closeHost();
     };
-  }, []);
+  }, [partyId]);
+
+  useEffect(() => {
+    if (!isHost) return;
+    let timer = 0;
+    const onHide = () => {
+      window.clearTimeout(timer);
+      if (document.visibilityState === "hidden") timer = window.setTimeout(leaveLive, 8000);
+    };
+    window.addEventListener("pagehide", leaveLive);
+    document.addEventListener("visibilitychange", onHide);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("pagehide", leaveLive);
+      document.removeEventListener("visibilitychange", onHide);
+    };
+  }, [isHost, partyId]);
 
   useEffect(() => {
     let stopped = false;
@@ -210,7 +230,14 @@ const PartyLive = ({
             await applyViewerSignal(signal);
           }
         }
-        if (!next.live) closeViewer();
+        if (!next.live) {
+          closeViewer();
+          if (isHost && liveOn.current) {
+            liveOn.current = false;
+            closeHost();
+            setCameraOn(false);
+          }
+        }
       } catch {
         // the next poll tries again
       }
@@ -349,6 +376,12 @@ const PartyLive = ({
         setCameraOn(true);
         setCameraError("");
         attachPreview(stream);
+        stream.getVideoTracks().forEach((track) => {
+          track.onended = () => {
+            if (flipping.current || ending.current) return;
+            leaveLive();
+          };
+        });
         return stream;
       })
       .finally(() => {
@@ -365,6 +398,8 @@ const PartyLive = ({
       await ensureCamera(facing);
       hostAfter.current = 0;
       await startLive(partyId);
+      liveOn.current = true;
+      ending.current = false;
       setState((current) => (current ? { ...current, live: true } : current));
     } catch (error) {
       if (!streamRef.current) closeHost();
@@ -379,13 +414,31 @@ const PartyLive = ({
     }
   };
 
+  const leaveLive = () => {
+    if (!liveOn.current || ending.current) return;
+    ending.current = true;
+    liveOn.current = false;
+    stopLiveNow(partyId);
+    closeHost();
+    if (mounted.current) {
+      setCameraOn(false);
+      setState((current) => (current ? { ...current, live: false } : current));
+    }
+  };
+
   const endLive = async () => {
+    if (ending.current) return;
+    ending.current = true;
+    liveOn.current = false;
     setBusy(true);
     try {
       await stopLive(partyId);
       closeHost();
+      setCameraOn(false);
       setState((current) => (current ? { ...current, live: false } : current));
     } catch (error) {
+      ending.current = false;
+      liveOn.current = true;
       toast.error(errorText(error, "Couldn't stop the live video"));
     } finally {
       setBusy(false);
@@ -426,6 +479,10 @@ const PartyLive = ({
         videoTrack = opened.getVideoTracks()[0];
       }
       if (!videoTrack) throw new Error("camera");
+      videoTrack.onended = () => {
+        if (flipping.current || ending.current) return;
+        leaveLive();
+      };
       opened.getAudioTracks().forEach((track) => track.stop());
       const mixed = new MediaStream([...audio, videoTrack]);
       streamRef.current = mixed;
@@ -446,6 +503,10 @@ const PartyLive = ({
           const restored = await openVideo(facing, undefined);
           const videoTrack = restored.getVideoTracks()[0];
           if (videoTrack) {
+            videoTrack.onended = () => {
+              if (flipping.current || ending.current) return;
+              leaveLive();
+            };
             const mixed = new MediaStream([...audio, videoTrack]);
             streamRef.current = mixed;
             setCameraOn(true);
