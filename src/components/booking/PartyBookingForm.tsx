@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import { ChevronDown } from "lucide-react";
 import useAuth from "../hooks/useAuth";
 import useAppContext from "../hooks/useAppContext";
 import CountInput from "../CountInput";
@@ -54,6 +55,7 @@ const PartyBookingForm = ({ party }: { party: TParty }) => {
   const partyDays = partyLengthInDays(party.start_date, party.end_date);
   const options = party.ticket_options ?? [];
   const [ticketName, setTicketName] = useState("");
+  const [openDetails, setOpenDetails] = useState<Record<number, boolean>>({});
   const picked = options.find((option) => option.name === ticketName);
   const optionLeft = picked ? (picked.left ?? picked.available) : null;
   const soldOut = optionLeft === 0;
@@ -169,31 +171,63 @@ const PartyBookingForm = ({ party }: { party: TParty }) => {
                 per {perHour ? "hour" : perDay ? "day" : "guest"}
               </span>
             </button>
-            {options.map((option) => {
+            {options.map((option, index) => {
               const left = option.left ?? option.available;
+              const open = !!openDetails[index];
+              const detailsId = `ticket-details-${index}`;
               return (
-                <button
+                <div
                   key={option.name}
-                  type="button"
-                  onClick={() => setTicketName(option.name)}
-                  aria-pressed={ticketName === option.name}
                   className={`rounded-xl border px-3 py-2 text-left text-sm ${
                     ticketName === option.name
                       ? "border-purple-500 bg-purple-500/10"
                       : "border-border"
                   }`}
                 >
-                  <span className="font-semibold">{option.name}</span>
-                  <span className="mt-0.5 block text-xs text-muted-foreground">
-                    {formatPrice(displayPrice(Number(option.price) || 0, currency), currency)}{" "}
-                    · {left} left
-                  </span>
-                  {option.details && (
-                    <span className="mt-1 block text-xs leading-5 text-foreground">
-                      {option.details}
+                  <button
+                    type="button"
+                    onClick={() => setTicketName(option.name)}
+                    aria-pressed={ticketName === option.name}
+                    className="w-full text-left"
+                  >
+                    <span className="font-semibold">{option.name}</span>
+                    <span className="mt-0.5 block text-xs text-muted-foreground">
+                      {formatPrice(displayPrice(Number(option.price) || 0, currency), currency)}{" "}
+                      · {left} left
                     </span>
+                  </button>
+                  {option.details && (
+                    <div className="mt-1 flex items-start gap-2">
+                      <p
+                        id={detailsId}
+                        className={`min-w-0 flex-1 text-xs leading-5 text-foreground ${
+                          open ? "" : "line-clamp-2"
+                        }`}
+                      >
+                        {option.details}
+                      </p>
+                      <button
+                        type="button"
+                        aria-expanded={open}
+                        aria-controls={detailsId}
+                        aria-label={open ? "Collapse" : "Read more"}
+                        onClick={() =>
+                          setOpenDetails((current) => ({
+                            ...current,
+                            [index]: !current[index],
+                          }))
+                        }
+                        className="mt-0.5 shrink-0 rounded-full border border-border p-1 text-muted-foreground"
+                      >
+                        <ChevronDown
+                          className={`h-3.5 w-3.5 transition-transform ${
+                            open ? "rotate-180" : ""
+                          }`}
+                        />
+                      </button>
+                    </div>
                   )}
-                </button>
+                </div>
               );
             })}
           </div>
