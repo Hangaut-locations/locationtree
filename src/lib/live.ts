@@ -70,6 +70,20 @@ export const startLive = (partyId: string) =>
 export const stopLive = (partyId: string) =>
   adminCaller.post(`/parties/${partyId}/live/stop`).then(dataOf);
 
+/** Still goes out if the phone is closing the page. */
+export const stopLiveNow = (partyId: string) => {
+  const base = import.meta.env.VITE_BASE_URL ?? "";
+  const token = sessionStorage.getItem("user_token");
+  void fetch(`${base}/parties/${partyId}/live/stop`, {
+    method: "POST",
+    keepalive: true,
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  }).catch(() => undefined);
+};
+
 export const sendHostSignal = (
   partyId: string,
   viewerId: string,
