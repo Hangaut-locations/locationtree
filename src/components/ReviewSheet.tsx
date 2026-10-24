@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import { toast } from "react-hot-toast";
@@ -21,6 +22,18 @@ import {
 } from "../lib/reviews";
 import useAppContext from "./hooks/useAppContext";
 import useAuth from "./hooks/useAuth";
+
+const sheetGestures = ["touchstart", "touchmove", "touchend", "touchcancel", "wheel"] as const;
+
+const stopSheetGesture = (event: Event) => {
+  event.stopPropagation();
+  if (!(event instanceof WheelEvent)) return;
+  const list = (event.currentTarget as HTMLElement).querySelector("ul");
+  const atStart = !list || list.scrollTop <= 0;
+  const atEnd = !list || list.scrollTop + list.clientHeight >= list.scrollHeight - 1;
+  const goingDown = event.deltaY > 0;
+  if ((goingDown && atEnd) || (!goingDown && atStart)) event.preventDefault();
+};
 
 const initials = (person: { firstName?: string; lastName?: string }) =>
   `${person.firstName?.[0] ?? ""}${person.lastName?.[0] ?? ""}`.toUpperCase() || "?";
@@ -62,10 +75,12 @@ const ReviewSheet = ({
   type,
   id,
   onClose,
+  slot,
 }: {
   type: ReviewListing;
   id: string;
   onClose: () => void;
+  slot?: HTMLElement | null;
 }) => {
   const { data: user } = useAuth();
   const { setIsAuthModal } = useAppContext();
@@ -81,6 +96,18 @@ const ReviewSheet = ({
     original: string;
   } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const sheetRef = useRef<HTMLDivElement | null>(null);
+  const setSheet = useCallback((node: HTMLDivElement | null) => {
+    if (sheetRef.current) {
+      sheetGestures.forEach((name) => sheetRef.current?.removeEventListener(name, stopSheetGesture));
+    }
+    sheetRef.current = node;
+    if (node) {
+      sheetGestures.forEach((name) =>
+        node.addEventListener(name, stopSheetGesture, name === "wheel" ? { passive: false } : undefined),
+      );
+    }
+  }, []);
 
   const { data, isLoading } = useQuery<ListingReviews>({
     queryKey,
@@ -242,9 +269,12 @@ const ReviewSheet = ({
     inputRef.current?.focus();
   };
 
-  return (
+  const sheet = (
     <div
-      className="absolute inset-0 z-20 flex items-end bg-black/55"
+      ref={setSheet}
+      data-review-sheet=""
+      className="pointer-events-auto absolute inset-0 z-20 flex items-end overscroll-contain bg-black/55"
+      style={{ touchAction: "pan-y" }}
       onClick={onClose}
       role="presentation"
     >
@@ -269,7 +299,7 @@ const ReviewSheet = ({
           </button>
         </div>
 
-        <ul className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 pb-4">
+        <ul className="min-h-0 flex-1 touch-pan-y space-y-4 overflow-y-auto overscroll-contain px-4 pb-4">
           {isLoading && <li className="text-sm text-white/60">Loading...</li>}
           {!isLoading && comments.length === 0 && (
             <li className="py-10 text-center text-sm text-white/60">No reviews yet.</li>
@@ -455,6 +485,9 @@ const ReviewSheet = ({
       </div>
     </div>
   );
+
+  // Drawn outside the photo bar, so a scroll here is not the swipe that opens the listing.
+  return slot ? createPortal(sheet, slot) : sheet;
 };
 
 export default ReviewSheet;

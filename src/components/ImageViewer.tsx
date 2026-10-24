@@ -65,6 +65,7 @@ const ImageViewer = ({
   const [current, setCurrent] = useState(startIndex);
   const [chromeOn, setChromeOn] = useState(true);
   const [zoomed, setZoomed] = useState(false);
+  const [reviewSlot, setReviewSlot] = useState<HTMLDivElement | null>(null);
 
   const slides = useMemo<Slide[]>(() => {
     const list: Slide[] = images.map((src) => ({ kind: "photo", src }));
@@ -416,7 +417,12 @@ const ImageViewer = ({
                   </button>
                 )}
                 {listing && (
-                  <ViewerListingBar type={listing.type} id={listing.id} hostId={listing.hostId} />
+                  <ViewerListingBar
+                    type={listing.type}
+                    id={listing.id}
+                    hostId={listing.hostId}
+                    reviewSlot={reviewSlot}
+                  />
                 )}
               </div>
             )}
@@ -439,6 +445,7 @@ const ImageViewer = ({
               </div>
             )}
           </div>
+          <div ref={setReviewSlot} className="pointer-events-none absolute inset-0 z-30" />
         </DialogPrimitive.Popup>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>

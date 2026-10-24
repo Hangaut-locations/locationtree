@@ -27,10 +27,12 @@ const ViewerListingBar = ({
   type,
   id,
   hostId,
+  reviewSlot,
 }: {
   type: ReviewListing;
   id: string;
   hostId?: string;
+  reviewSlot?: HTMLElement | null;
 }) => {
   const { data: user } = useAuth();
   const { setIsAuthModal } = useAppContext();
@@ -81,7 +83,7 @@ const ViewerListingBar = ({
         See reviews{reviewCount > 0 ? ` ${reviewCount}` : ""}
       </button>
       {reviewsOpen && (
-        <ReviewSheet type={type} id={id} onClose={() => setReviewsOpen(false)} />
+        <ReviewSheet type={type} id={id} slot={reviewSlot} onClose={() => setReviewsOpen(false)} />
       )}
     </>
   );
@@ -131,7 +133,7 @@ const ViewerListingBar = ({
         </button>
       )}
       {reviewsOpen && (
-        <ReviewSheet type={type} id={id} onClose={() => setReviewsOpen(false)} />
+        <ReviewSheet type={type} id={id} slot={reviewSlot} onClose={() => setReviewsOpen(false)} />
       )}
       <form
         className="flex min-w-48 flex-1 items-center gap-2"
