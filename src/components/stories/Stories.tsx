@@ -254,6 +254,7 @@ const StoryViewer = ({
   const commentsRef = useRef<HTMLDivElement>(null);
   const item = person?.items[index];
   const mine = Boolean(me?._id && String(me._id) === userId);
+  const facePhoto = (mine ? me?.photo : undefined) || person?.photo;
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -363,7 +364,14 @@ const StoryViewer = ({
           ))}
         </div>
         <div className="flex items-center justify-between gap-3 px-3 py-2">
-          <div className="flex min-w-0 items-baseline gap-2">
+          <div className="flex min-w-0 items-center gap-2">
+            {facePhoto ? (
+              <img src={facePhoto} alt="" className="h-8 w-8 shrink-0 rounded-full object-cover" />
+            ) : (
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/15 text-xs font-semibold">
+                {`${person?.firstName?.[0] ?? ""}${person?.lastName?.[0] ?? ""}`.toUpperCase() || "?"}
+              </span>
+            )}
             <p className="truncate text-sm font-semibold">
               {person
                 ? `${person.firstName} ${person.lastName}`.trim() || "Story"

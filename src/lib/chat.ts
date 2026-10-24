@@ -9,6 +9,7 @@ export interface ChatPerson {
   city?: string;
   state?: string;
   country?: string;
+  photo?: string;
 }
 
 export interface ChatListing {
