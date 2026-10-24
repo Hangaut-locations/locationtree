@@ -27,7 +27,6 @@ import {
 import { displayPrice, formatPrice } from "../lib/currency";
 import { getErrorMessage, type ApiError } from "../lib/errors";
 import { formatPartyWhen } from "../lib/partyTime";
-import DoorCodeQr from "../components/checkin/DoorCodeQr";
 import type {
   BookingGuest,
   BookingLists,
@@ -260,7 +259,6 @@ const ReservationsPage = () => {
                       key={ticket.code}
                       className="flex items-center gap-2 rounded-lg border border-dashed border-purple-400 bg-purple-50 px-2 py-1 text-xs"
                     >
-                      {ticket.code && <DoorCodeQr code={ticket.code} />}
                       <span className="text-muted-foreground">{ticket.name}</span>
                       <span className="font-mono font-bold tracking-wider text-purple-900">
                         {ticket.code}
