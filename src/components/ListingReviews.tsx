@@ -266,7 +266,7 @@ const ListingReviews = ({ type, id }: ListingReviewsProps) => {
               (!!draft?.replyId && replyText.trim() === replyOriginal.trim()) ||
               saveReply.isPending
             }
-            className="rounded-xl bg-purple-500 px-4 py-2 text-sm font-bold text-white transition hover:bg-purple-600 disabled:opacity-50"
+            className="rounded-xl bg-black px-4 py-2 text-sm font-bold text-white transition hover:bg-neutral-800 disabled:opacity-50"
           >
             {saveReply.isPending
               ? "Saving..."
