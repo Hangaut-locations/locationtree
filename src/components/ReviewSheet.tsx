@@ -274,7 +274,7 @@ const ReviewSheet = ({
       ref={setSheet}
       data-review-sheet=""
       className="pointer-events-auto absolute inset-0 z-20 flex items-end overscroll-contain bg-black/55"
-      style={{ touchAction: "pan-y" }}
+      style={{ touchAction: "pan-x pan-y" }}
       onClick={onClose}
       role="presentation"
     >
@@ -449,6 +449,8 @@ const ReviewSheet = ({
               ref={inputRef}
               value={text}
               onChange={(event) => setText(event.target.value.slice(0, COMMENT_MAX_LENGTH))}
+              onTouchStart={(event) => event.stopPropagation()}
+              onTouchMove={(event) => event.stopPropagation()}
               maxLength={COMMENT_MAX_LENGTH}
               placeholder={
                 editing?.replyId
@@ -459,7 +461,7 @@ const ReviewSheet = ({
                       ? `Reply to ${replyName}...`
                       : "Tap to leave a review"
               }
-              className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-white/40"
+              className="min-w-0 flex-1 touch-pan-x overflow-x-auto overscroll-x-contain bg-transparent text-sm outline-none placeholder:text-white/40"
             />
             <button
               type="submit"
