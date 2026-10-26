@@ -296,7 +296,8 @@ const ChatThread = ({ conversationId }: { conversationId: string }) => {
 
   const saveEdit = async (id: string) => {
     const body = draft.trim();
-    if (!body || sending) return;
+    const current = messages.find((message) => message._id === id);
+    if (!body || sending || body === (current?.text ?? "").trim()) return;
     setSending(true);
     try {
       const message = await editMessage(id, body);
@@ -652,7 +653,12 @@ const ChatThread = ({ conversationId }: { conversationId: string }) => {
                     className="w-full resize-none rounded-xl bg-white/15 px-2 py-1 text-sm text-white outline-none"
                   />
                   <p className="mt-1 text-[10px] text-white/80">
-                    <button type="button" onClick={() => saveEdit(message._id)} className="underline">
+                    <button
+                      type="button"
+                      onClick={() => saveEdit(message._id)}
+                      disabled={!draft.trim() || draft.trim() === message.text.trim() || sending}
+                      className="underline disabled:cursor-not-allowed disabled:no-underline disabled:opacity-40"
+                    >
                       Save
                     </button>
                     <button type="button" onClick={() => setEditingId(null)} className="ml-2 underline">
