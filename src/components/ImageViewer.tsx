@@ -137,6 +137,10 @@ const ImageViewer = ({
     setZoomed(false);
   }, [current, open]);
 
+  useEffect(() => {
+    if (open) setChromeOn(true);
+  }, [open]);
+
   useEffect(
     () => () => {
       if (tapTimer.current) window.clearTimeout(tapTimer.current);
@@ -248,12 +252,13 @@ const ImageViewer = ({
             {title} photos
           </DialogPrimitive.Title>
 
+          {chromeOn && (
           <div className="flex items-center gap-3 px-4 py-3">
             <span className="shrink-0 text-sm font-semibold">
               {current + 1} / {slides.length}
             </span>
             <div className="min-w-0 flex-1">
-              {chromeOn && slides.length > 1 && (
+              {slides.length > 1 && (
                 <div
                   ref={thumbsRef}
                   className="relative flex gap-2 overflow-x-auto p-0.5 [scrollbar-width:none] sm:justify-center-safe [&::-webkit-scrollbar]:hidden"
@@ -303,6 +308,7 @@ const ImageViewer = ({
               <X className="h-6 w-6" />
             </DialogPrimitive.Close>
           </div>
+          )}
 
           <div
             className="relative min-h-0 flex-1"
