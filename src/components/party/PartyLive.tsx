@@ -625,29 +625,34 @@ const PartyLive = ({
       }
     >
       {full && (
-        <div className="absolute inset-x-0 top-0 z-10 bg-gradient-to-b from-black/70 to-transparent px-3 pb-8 pt-[max(0.75rem,env(safe-area-inset-top))]">
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={closeFull}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-black/40"
-              aria-label="Close"
-            >
-              <X className="h-5 w-5" />
-            </button>
-            <button
-              type="button"
-              onClick={openListing}
-              className="min-w-0 flex-1 cursor-pointer truncate text-left text-sm font-semibold underline-offset-4 hover:underline"
-              aria-label={`Open ${title || "party"} listing`}
-            >
-              {title || "Live"}
-            </button>
-            {state?.live && (
-              <span className="shrink-0 text-[11px] font-semibold uppercase tracking-wider text-red-400">Live</span>
-            )}
-          </div>
-          <div className="mt-2 flex flex-wrap gap-2">
+        <div className="absolute inset-x-0 top-0 z-10 overflow-x-hidden bg-gradient-to-b from-black/70 to-transparent px-3 pb-8 pt-[max(0.75rem,env(safe-area-inset-top))]">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+            <div className="flex min-w-0 flex-1 items-start gap-2">
+              <button
+                type="button"
+                onClick={closeFull}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-black/40"
+                aria-label="Close"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              <div className="min-w-0 flex-1">
+                <button
+                  type="button"
+                  onClick={openListing}
+                  className="block w-full cursor-pointer text-left text-sm font-semibold leading-5 break-words underline-offset-4 hover:underline lg:truncate"
+                  aria-label={`Open ${title || "party"} listing`}
+                >
+                  {title || "Live"}
+                </button>
+                {state?.live && (
+                  <span className="mt-0.5 block text-[11px] font-semibold uppercase tracking-wider text-red-400">
+                    Live
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
             <button
               type="button"
               onClick={() => setShareOpen(true)}
@@ -675,10 +680,11 @@ const PartyLive = ({
                 disabled={busy}
                 className="flex items-center gap-1.5 rounded-full bg-red-600 px-3 py-2 text-sm font-semibold text-white"
               >
-                <VideoOff className="h-4 w-4" />
-                Stop
-              </button>
+              <VideoOff className="h-4 w-4" />
+              Stop
+            </button>
             )}
+            </div>
           </div>
         </div>
       )}
@@ -817,19 +823,19 @@ const PartyLive = ({
               onChange={(event) => setName(event.target.value)}
               maxLength={24}
               placeholder="Your location"
-              className={`w-36 rounded-full border px-3 py-2 text-sm ${full ? "border-white/30 bg-white/10 placeholder:text-white/50" : "border-border"}`}
+              className={`w-28 shrink-0 rounded-full border px-3 py-2 text-sm sm:w-36 ${full ? "border-white/30 bg-white/10 placeholder:text-white/50" : "border-border"}`}
             />
             <input
               value={text}
               onChange={(event) => setText(event.target.value)}
               maxLength={200}
               placeholder="Say something"
-              className={`min-w-0 flex-1 rounded-full border px-3 py-2 text-sm ${full ? "border-white/30 bg-white/10 placeholder:text-white/50" : "border-border"}`}
+              className={`min-w-[9rem] flex-1 rounded-full border px-3 py-2 text-sm ${full ? "border-white/30 bg-white/10 placeholder:text-white/50" : "border-border"}`}
             />
             <button
               type="submit"
               disabled={busy || !text.trim()}
-              className={`rounded-full px-4 py-2 text-sm font-semibold disabled:opacity-50 ${full ? "bg-white text-black" : "bg-foreground text-background"}`}
+              className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold disabled:opacity-50 ${full ? "bg-white text-black" : "bg-foreground text-background"}`}
             >
               Send
             </button>
