@@ -151,9 +151,12 @@ const ViewerListingBar = ({
         <input
           value={comment}
           onChange={(event) => setComment(event.target.value.slice(0, COMMENT_MAX_LENGTH))}
+          onTouchStart={(event) => event.stopPropagation()}
+          onTouchMove={(event) => event.stopPropagation()}
           maxLength={COMMENT_MAX_LENGTH}
           placeholder="Leave a review"
-          className="min-w-0 flex-1 rounded-full bg-white/10 px-4 py-2 text-sm text-white outline-none placeholder:text-white/60"
+          className="min-w-0 flex-1 touch-pan-x overflow-x-auto overscroll-x-contain rounded-full bg-white/10 px-4 py-2 text-sm text-white outline-none placeholder:text-white/60"
+          style={{ touchAction: "pan-x" }}
         />
         <button type="submit" disabled={!comment.trim() || post.isPending} className={buttonClass}>
           {post.isPending ? "Posting..." : "Post"}
