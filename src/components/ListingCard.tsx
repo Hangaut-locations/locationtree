@@ -7,9 +7,11 @@ import {
 } from "framer-motion";
 import { ChevronLeft, ChevronRight, Heart, Star } from "lucide-react";
 import type React from "react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { type CurrencyCode, displayPrice, formatPrice } from "../lib/currency";
 import type { Listing } from "../types/listing";
+
+const SWIPE_PX = 40;
 
 interface ListingCardProps {
   listing: Listing;
@@ -30,6 +32,9 @@ export const ListingCard: React.FC<ListingCardProps> = ({
 }) => {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const startX = useRef<number | null>(null);
+  const swiped = useRef(false);
+  const hasMany = listing.images.length > 1;
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -82,9 +87,48 @@ export const ListingCard: React.FC<ListingCardProps> = ({
     );
   };
 
+  const onPhotoTouchStart = (event: React.TouchEvent) => {
+    if (!hasMany) return;
+    startX.current = event.touches[0]?.clientX ?? null;
+    swiped.current = false;
+  };
+
+  const onPhotoTouchMove = (event: React.TouchEvent) => {
+    if (startX.current == null || !hasMany) return;
+    const touchX = event.touches[0]?.clientX;
+    if (touchX == null) return;
+    if (Math.abs(touchX - startX.current) > 10) {
+      swiped.current = true;
+      event.stopPropagation();
+    }
+  };
+
+  const onPhotoTouchEnd = (event: React.TouchEvent) => {
+    if (startX.current == null || !hasMany) return;
+    const endX = event.changedTouches[0]?.clientX;
+    const dx = endX == null ? 0 : endX - startX.current;
+    startX.current = null;
+    if (Math.abs(dx) < SWIPE_PX) return;
+    swiped.current = true;
+    event.stopPropagation();
+    if (dx < 0) {
+      setCurrentIdx((prev) =>
+        prev === listing.images.length - 1 ? prev : prev + 1,
+      );
+    } else {
+      setCurrentIdx((prev) => (prev === 0 ? prev : prev - 1));
+    }
+  };
+
   return (
     <div
-      onClick={() => onListingClick?.(listing)}
+      onClick={() => {
+        if (swiped.current) {
+          swiped.current = false;
+          return;
+        }
+        onListingClick?.(listing);
+      }}
       className="group relative flex flex-col rounded-3xl border border-border/50 bg-card overflow-hidden shadow-sm cursor-pointer card-interactive animate-listing-entrance"
       style={{
         animationDelay:
@@ -102,7 +146,16 @@ export const ListingCard: React.FC<ListingCardProps> = ({
         }}
       >
         {/* Image Carousel Container */}
-        <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
+        <div
+          className="relative aspect-[4/3] w-full overflow-hidden bg-muted"
+          onTouchStart={onPhotoTouchStart}
+          onTouchMove={onPhotoTouchMove}
+          onTouchEnd={onPhotoTouchEnd}
+          onTouchCancel={() => {
+            startX.current = null;
+          }}
+          style={hasMany ? { touchAction: "pan-y" } : undefined}
+        >
           {/* Images */}
           <div
             className="absolute inset-0 flex transition-transform duration-300 ease-in-out"
@@ -113,8 +166,9 @@ export const ListingCard: React.FC<ListingCardProps> = ({
                 key={index}
                 src={img}
                 alt={`${listing.title} - view ${index + 1}`}
-                className="h-full w-full object-cover select-none card-image-zoom"
+                className="h-full w-full min-w-full shrink-0 object-cover select-none card-image-zoom"
                 loading="lazy"
+                draggable={false}
               />
             ))}
           </div>
