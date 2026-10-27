@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type TouchEvent } from "react";
 import { MapPin, Pencil, Reply, ThumbsUp, Trash2 } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
@@ -235,6 +235,13 @@ const ListingReviews = ({ type, id }: ListingReviewsProps) => {
     saveReply.mutate({ ...draft, text });
   };
 
+  const stopTouchBubble = {
+    onTouchStart: (event: TouchEvent) => event.stopPropagation(),
+    onTouchMove: (event: TouchEvent) => event.stopPropagation(),
+  };
+  const reviewFieldClass =
+    "w-full touch-pan-x overflow-x-auto overscroll-x-contain resize-none bg-transparent text-sm outline-none placeholder:text-muted-foreground";
+
   const replyEditor = (placeholder: string) => (
     <div className="mt-3 rounded-2xl border border-border p-3">
       <textarea
@@ -242,9 +249,11 @@ const ListingReviews = ({ type, id }: ListingReviewsProps) => {
         onChange={(e) =>
           setReplyText(e.target.value.slice(0, COMMENT_MAX_LENGTH))
         }
+        {...stopTouchBubble}
         rows={2}
         placeholder={placeholder}
-        className="w-full resize-none bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+        className={reviewFieldClass}
+        style={{ touchAction: "pan-x pan-y" }}
       />
       <div className="mt-2 flex items-center justify-between gap-2">
         <span className="text-xs text-muted-foreground">
@@ -320,9 +329,11 @@ const ListingReviews = ({ type, id }: ListingReviewsProps) => {
             onChange={(e) =>
               setComment(e.target.value.slice(0, COMMENT_MAX_LENGTH))
             }
+            {...stopTouchBubble}
             rows={3}
             placeholder={`How was this ${listingName}? Share it with others`}
-            className="w-full resize-none bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            className={reviewFieldClass}
+            style={{ touchAction: "pan-x pan-y" }}
           />
           <div className="mt-2 flex items-center justify-between">
             <span className="text-xs text-muted-foreground">
@@ -376,9 +387,11 @@ const ListingReviews = ({ type, id }: ListingReviewsProps) => {
                     onChange={(event) =>
                       setCommentDraft(event.target.value.slice(0, COMMENT_MAX_LENGTH))
                     }
+                    {...stopTouchBubble}
                     rows={2}
                     placeholder="Edit your review"
-                    className="w-full resize-none bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                    className={reviewFieldClass}
+                    style={{ touchAction: "pan-x pan-y" }}
                   />
                   <div className="mt-2 flex justify-end gap-2">
                     <button
