@@ -191,9 +191,11 @@ export const Footer: React.FC<FooterProps> = ({
             {/* Social Icons */}
             <div className="flex items-center gap-4">
               <a
-                href="#"
+                href="https://www.facebook.com/share/1D58m8LhbW/"
                 className="hover:text-foreground social-icon-link"
                 aria-label="Facebook"
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 <SiFacebook className="h-4 w-4" />
               </a>
@@ -202,13 +204,16 @@ export const Footer: React.FC<FooterProps> = ({
                 className="hover:text-foreground social-icon-link"
                 aria-label="Twitter"
                 target="_blank"
+                rel="noopener noreferrer"
               >
                 <SiX className="h-4 w-4" />
               </a>
               <a
-                href="#"
+                href="https://www.instagram.com/usepedxo?psln=MTBtdmoxaHVwZGU5ZQ=="
                 className="hover:text-foreground social-icon-link"
                 aria-label="Instagram"
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 <SiInstagram className="h-4 w-4" />
               </a>
