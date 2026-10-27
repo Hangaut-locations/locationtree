@@ -25,6 +25,7 @@ import ImageViewer from "../components/ImageViewer";
 import WatchVideoButton from "../components/listing-media/WatchVideoButton";
 import useAppContext from "../components/hooks/useAppContext";
 import useFavorite from "../components/hooks/useFavorite";
+import useGallerySwipe from "../components/hooks/useGallerySwipe";
 import { adminCaller } from "../interceptors/http";
 import { displayPrice, formatPrice } from "../lib/currency";
 import { photoSlide, videoSlide } from "../lib/media";
@@ -70,6 +71,18 @@ const PropertyDetailPage = () => {
 
   const { isSaved, saving, toggleSaved } = useFavorite("property", id);
 
+  const images = data?.images?.filter(Boolean) ?? [];
+  const goToImage = (direction: number) => {
+    setActiveImage((current) => {
+      const len = data?.images?.filter(Boolean).length ?? 0;
+      return len ? (current + direction + len) % len : 0;
+    });
+  };
+  const { swipeProps, consumeSwipe } = useGallerySwipe(
+    images.length > 1,
+    goToImage,
+  );
+
   if (isLoading) {
     return (
       <AppLayout>
@@ -108,14 +121,8 @@ const PropertyDetailPage = () => {
     );
   }
 
-  const images = data.images?.filter(Boolean) ?? [];
   const hasVideo = !!data.video;
   const price = Number(data.price) || 0;
-  const goToImage = (direction: number) => {
-    setActiveImage((current) =>
-      images.length ? (current + direction + images.length) % images.length : 0,
-    );
-  };
 
   return (
     <AppLayout>
@@ -158,10 +165,16 @@ const PropertyDetailPage = () => {
           </div>
         </div>
 
-        <section className="relative grid h-72 grid-cols-1 gap-2 overflow-hidden rounded-3xl sm:h-96 md:h-107.5 md:grid-cols-[1.5fr_1fr_1fr] md:rounded-[28px]">
+        <section
+          className="relative grid h-72 grid-cols-1 gap-2 overflow-hidden rounded-3xl sm:h-96 md:h-107.5 md:grid-cols-[1.5fr_1fr_1fr] md:rounded-[28px]"
+          {...swipeProps}
+        >
           <button
             type="button"
-            onClick={() => setViewerIndex(photoSlide(activeImage, hasVideo))}
+            onClick={() => {
+              if (consumeSwipe()) return;
+              setViewerIndex(photoSlide(activeImage, hasVideo));
+            }}
             className="relative min-h-70 cursor-zoom-in md:row-span-2"
             aria-label="Open photos full screen"
           >
