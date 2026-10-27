@@ -233,7 +233,7 @@ const PartyBookingForm = ({ party }: { party: TParty }) => {
           </div>
         </div>
       )}
-      <div className="mt-6 grid grid-cols-2 overflow-hidden rounded-xl border border-border">
+      <div className="mt-6 grid grid-cols-2 overflow-hidden rounded-xl border border-gray-200 bg-card shadow-md">
         <div className="col-span-2 border-b border-border p-3">
           <span className={labelClass}>Date</span>
           <p className="mt-1 text-sm">

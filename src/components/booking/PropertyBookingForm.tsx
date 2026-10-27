@@ -244,7 +244,7 @@ const PropertyBookingForm = ({ property }: { property: IProperty }) => {
 
   return (
     <>
-      <div className="mt-6 grid grid-cols-2 overflow-hidden rounded-xl border border-border">
+      <div className="mt-6 grid grid-cols-2 overflow-hidden rounded-xl border border-gray-200 bg-card shadow-md">
         <Popover open={isPickingDate} onOpenChange={setIsPickingDate}>
           <PopoverTrigger className="col-span-2 grid grid-cols-2 text-left">
             <span className="border-b border-r border-border p-3">
