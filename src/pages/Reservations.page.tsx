@@ -215,8 +215,15 @@ const ReservationsPage = () => {
               <span className="flex items-center gap-1">
                 <Users className="h-3.5 w-3.5" /> {booking.guests} guest
                 {booking.guests === 1 ? "" : "s"}
-                {row.kind === "parties" && row.booking.ticket_name
-                  ? ` · ${row.booking.ticket_name}`
+                {row.kind === "parties" &&
+                (row.booking.ticket_names?.length || row.booking.ticket_name)
+                  ? ` · ${(
+                      row.booking.ticket_names?.length
+                        ? row.booking.ticket_names
+                        : [row.booking.ticket_name!]
+                    )
+                      .map((name) => (name ? name : "Regular"))
+                      .join(" + ")}`
                   : ""}
                 {hours ? ` · ${hours} hr${hours === 1 ? "" : "s"}` : ""}
                 {days ? ` · ${days} day${days === 1 ? "" : "s"}` : ""}
