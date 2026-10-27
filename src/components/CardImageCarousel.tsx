@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useRef, useState, type MouseEvent } from "react";
+import { useRef, useState, type MouseEvent, type TouchEvent } from "react";
 
 interface CardImageCarouselProps {
   images?: string[];
@@ -7,26 +7,62 @@ interface CardImageCarouselProps {
 }
 
 const MAX_DOTS = 5;
+const SWIPE_PX = 40;
 
 const CardImageCarousel = ({ images = [], title }: CardImageCarouselProps) => {
-  const trackRef = useRef<HTMLDivElement>(null);
   const [current, setCurrent] = useState(0);
+  const startX = useRef<number | null>(null);
+  const swiped = useRef(false);
   const photos = images.filter(Boolean);
   const hasMany = photos.length > 1;
+  const safeIndex = Math.min(current, Math.max(photos.length - 1, 0));
 
   const goTo = (e: MouseEvent, index: number) => {
     // The card itself is a link; arrows must not open the listing.
     e.stopPropagation();
     e.preventDefault();
-    const track = trackRef.current;
-    if (!track) return;
-    track.scrollTo({ left: index * track.clientWidth, behavior: "smooth" });
+    if (!photos.length) return;
+    setCurrent((index + photos.length) % photos.length);
   };
 
-  const handleScroll = () => {
-    const track = trackRef.current;
-    if (!track || !track.clientWidth) return;
-    setCurrent(Math.round(track.scrollLeft / track.clientWidth));
+  const onTouchStart = (event: TouchEvent) => {
+    if (!hasMany) return;
+    startX.current = event.touches[0]?.clientX ?? null;
+    swiped.current = false;
+  };
+
+  const onTouchMove = (event: TouchEvent) => {
+    if (startX.current == null || !hasMany) return;
+    const x = event.touches[0]?.clientX;
+    if (x == null) return;
+    if (Math.abs(x - startX.current) > 10) {
+      swiped.current = true;
+      // Keep the page from treating this as a vertical scroll or a card tap.
+      event.stopPropagation();
+    }
+  };
+
+  const onTouchEnd = (event: TouchEvent) => {
+    if (startX.current == null || !hasMany) return;
+    const endX = event.changedTouches[0]?.clientX;
+    const dx = endX == null ? 0 : endX - startX.current;
+    startX.current = null;
+    if (Math.abs(dx) < SWIPE_PX) return;
+    swiped.current = true;
+    event.stopPropagation();
+    if (dx < 0 && safeIndex < photos.length - 1) {
+      setCurrent(safeIndex + 1);
+    } else if (dx > 0 && safeIndex > 0) {
+      setCurrent(safeIndex - 1);
+    }
+  };
+
+  const onClickCapture = (event: MouseEvent) => {
+    if (!swiped.current) return;
+    // A swipe just finished — do not open the listing under the finger.
+    event.stopPropagation();
+    event.preventDefault();
+    swiped.current = false;
   };
 
   const arrowClass =
@@ -34,24 +70,33 @@ const CardImageCarousel = ({ images = [], title }: CardImageCarouselProps) => {
 
   // Long galleries show a window of dots around the current photo.
   const dotStart = Math.min(
-    Math.max(current - Math.floor(MAX_DOTS / 2), 0),
+    Math.max(safeIndex - Math.floor(MAX_DOTS / 2), 0),
     Math.max(photos.length - MAX_DOTS, 0),
   );
   const dots = photos.slice(dotStart, dotStart + MAX_DOTS);
 
   return (
-    <div className="relative h-40 w-full overflow-hidden rounded-3xl bg-muted">
+    <div
+      className="relative h-40 w-full overflow-hidden rounded-3xl bg-muted"
+      onClickCapture={onClickCapture}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+      onTouchCancel={() => {
+        startX.current = null;
+      }}
+      style={hasMany ? { touchAction: "pan-y" } : undefined}
+    >
       <div
-        ref={trackRef}
-        onScroll={handleScroll}
-        className="flex h-full w-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex h-full w-full transition-transform duration-300 ease-out"
+        style={{ transform: `translateX(-${safeIndex * 100}%)` }}
       >
         {photos.map((src, i) => (
           <img
             key={`${src}-${i}`}
             src={src}
             alt={`${title} - photo ${i + 1}`}
-            className="h-full w-full shrink-0 snap-center object-cover select-none"
+            className="h-full w-full min-w-full shrink-0 object-cover select-none"
             loading="lazy"
             draggable={false}
           />
@@ -60,20 +105,20 @@ const CardImageCarousel = ({ images = [], title }: CardImageCarouselProps) => {
 
       <div className="pointer-events-none absolute inset-0 bg-black opacity-10" />
 
-      {hasMany && current > 0 && (
+      {hasMany && safeIndex > 0 && (
         <button
           type="button"
-          onClick={(e) => goTo(e, current - 1)}
+          onClick={(e) => goTo(e, safeIndex - 1)}
           className={`${arrowClass} left-2`}
           aria-label="Previous photo"
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
       )}
-      {hasMany && current < photos.length - 1 && (
+      {hasMany && safeIndex < photos.length - 1 && (
         <button
           type="button"
-          onClick={(e) => goTo(e, current + 1)}
+          onClick={(e) => goTo(e, safeIndex + 1)}
           className={`${arrowClass} right-2`}
           aria-label="Next photo"
         >
@@ -87,7 +132,7 @@ const CardImageCarousel = ({ images = [], title }: CardImageCarouselProps) => {
             <span
               key={dotStart + i}
               className={`h-1.5 w-1.5 rounded-full transition-colors ${
-                dotStart + i === current ? "bg-white" : "bg-white/50"
+                dotStart + i === safeIndex ? "bg-white" : "bg-white/50"
               }`}
             />
           ))}
