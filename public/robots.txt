@@ -1,0 +1,32 @@
+# robots.txt - Hangaut
+User-agent: *
+
+# Public pages
+Allow: /
+Allow: /parties
+Allow: /parties/
+Allow: /homes
+Allow: /homes/
+Allow: /become-a-host
+Allow: /support
+
+# Private
+Disallow: /host
+Disallow: /host/
+Disallow: /messages
+Disallow: /messages/
+Disallow: /wallet
+Disallow: /profile
+Disallow: /trips
+Disallow: /reservations
+Disallow: /favorites
+Disallow: /wishlist
+Disallow: /check-in/
+Disallow: /become-a-host/party
+Disallow: /become-a-host/property
+Disallow: /*.json$
+
+User-agent: GPTBot
+Disallow: /
+
+Sitemap: https://hangaut.pedxo.com/sitemap.xml
