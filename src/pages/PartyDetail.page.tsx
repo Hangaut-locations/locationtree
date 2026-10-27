@@ -52,6 +52,7 @@ const PartyDetailPage = () => {
   const { isSaved, saving, toggleSaved } = useFavorite("party", id);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [viewerIndex, setViewerIndex] = useState<number | null>(null);
+  const [checkoutPrice, setCheckoutPrice] = useState<number | null>(null);
 
   const key = linkKey();
   const { data, isLoading, isError, error } = useQuery<TParty>({
@@ -107,6 +108,7 @@ const PartyDetailPage = () => {
   const images = data.images?.filter(Boolean) ?? [];
   const hasVideo = !!data.video;
   const price = Number(data.price) || 0;
+  const shownPrice = checkoutPrice ?? price;
   const goToImage = (direction: number) => {
     setActiveImage((current) =>
       images.length ? (current + direction + images.length) % images.length : 0,
@@ -280,13 +282,16 @@ const PartyDetailPage = () => {
             <div className="sticky top-24 rounded-2xl border border-border bg-card p-6 shadow-xl shadow-black/5">
               <div className="flex items-baseline justify-between">
                 <span className="text-2xl font-semibold">
-                  {formatPrice(displayPrice(price, currency), currency)}
+                  {formatPrice(displayPrice(shownPrice, currency), currency)}
                 </span>
                 <span className="text-sm text-muted-foreground">
                   per {data.charge_type}
                 </span>
               </div>
-              <PartyBookingForm party={data} />
+              <PartyBookingForm
+                party={data}
+                onUnitPriceChange={setCheckoutPrice}
+              />
               <p className="mt-3 text-center text-xs text-muted-foreground">
                 You won't be charged yet
               </p>
@@ -303,7 +308,7 @@ const PartyDetailPage = () => {
         </div>
       </main>
       <MobileBookingBar
-        price={formatPrice(displayPrice(price, currency), currency)}
+        price={formatPrice(displayPrice(shownPrice, currency), currency)}
         unit={data.charge_type}
         label={data.visibility === "private" ? "Request to book" : "Book now"}
         onBook={scrollToBooking}
