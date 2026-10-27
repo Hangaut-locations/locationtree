@@ -61,20 +61,40 @@ const seenFacing = (stream: MediaStream, fallback: Facing): Facing => {
 
 const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
 
-// Phones ignore a soft facing hint and will not open the other camera while the first is still on.
+const listCameras = async () => {
+  const devices = await navigator.mediaDevices.enumerateDevices();
+  return devices.filter((device) => device.kind === "videoinput" && device.deviceId);
+};
+
+const openVideoDevice = (deviceId: string) =>
+  navigator.mediaDevices.getUserMedia({
+    video: { deviceId: { exact: deviceId } },
+    audio: false,
+  });
+
+// Stop the old camera first — phones will not open the other lens while the first is still on.
 const openVideo = async (facing: Facing, avoidId?: string) => {
-  const tries: MediaStreamConstraints[] = [{ video: { facingMode: { exact: facing } }, audio: false }];
+  const tries: MediaStreamConstraints[] = [];
   try {
-    const devices = await navigator.mediaDevices.enumerateDevices();
-    const cameras = devices.filter((device) => device.kind === "videoinput" && device.deviceId);
+    const cameras = await listCameras();
     const labeled = cameras.find((device) => labelFacing(device.label) === facing);
     const other = cameras.find((device) => device.deviceId !== avoidId);
     const chosen = labeled?.deviceId || (avoidId ? other?.deviceId : undefined);
     if (chosen) tries.push({ video: { deviceId: { exact: chosen } }, audio: false });
+    for (const camera of cameras) {
+      if (camera.deviceId === avoidId || camera.deviceId === chosen) continue;
+      if (labelFacing(camera.label) === facing || !labelFacing(camera.label)) {
+        tries.push({ video: { deviceId: { exact: camera.deviceId } }, audio: false });
+      }
+    }
   } catch {
-    // the exact facing request still runs
+    // facingMode tries still run
   }
-  tries.push({ video: { facingMode: facing }, audio: false });
+  tries.push(
+    { video: { facingMode: { exact: facing } }, audio: false },
+    { video: { facingMode: { ideal: facing } }, audio: false },
+    { video: { facingMode: facing }, audio: false },
+  );
   let last: unknown;
   for (const constraints of tries) {
     try {
@@ -446,78 +466,133 @@ const PartyLive = ({
   };
 
   const flipCamera = async () => {
-    if (flipping.current) return;
+    if (flipping.current || busy) return;
     flipping.current = true;
+    setBusy(true);
     const next = otherFacing(facing);
     const current = streamRef.current;
     const audio = (current?.getAudioTracks() ?? []).filter((track) => track.readyState === "live");
     const previousId = current?.getVideoTracks()[0]?.getSettings().deviceId;
+
+    let cameras: MediaDeviceInfo[] = [];
+    try {
+      cameras = await listCameras();
+    } catch {
+      cameras = [];
+    }
+
     current?.getVideoTracks().forEach((track) => {
       track.stop();
       current.removeTrack(track);
     });
-    await wait(200);
-    try {
-      let opened = await openVideo(next, previousId);
-      let videoTrack = opened.getVideoTracks()[0];
-      const openedId = videoTrack?.getSettings().deviceId;
-      const seen = videoTrack?.getSettings().facingMode;
-      const sameDevice = !!previousId && openedId === previousId;
-      const wrongFace = (seen === "user" || seen === "environment") && seen !== next;
-      if (!videoTrack || sameDevice || wrongFace) {
-        videoTrack?.stop();
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        const cameras = devices.filter(
-          (device) => device.kind === "videoinput" && device.deviceId && device.deviceId !== previousId,
-        );
-        const labeled = cameras.find((device) => labelFacing(device.label) === next) ?? cameras[0];
-        if (!labeled) throw new Error("camera");
-        opened = await navigator.mediaDevices.getUserMedia({
-          video: { deviceId: { exact: labeled.deviceId } },
-          audio: false,
-        });
-        videoTrack = opened.getVideoTracks()[0];
-      }
-      if (!videoTrack) throw new Error("camera");
+    // Android and some iPhones need a short gap before the other lens will open.
+    await wait(350);
+
+    const applyVideo = async (videoTrack: MediaStreamTrack) => {
       videoTrack.onended = () => {
         if (flipping.current || ending.current) return;
         leaveLive();
       };
-      opened.getAudioTracks().forEach((track) => track.stop());
       const mixed = new MediaStream([...audio, videoTrack]);
       streamRef.current = mixed;
       const reported = videoTrack.getSettings().facingMode;
       setFacing(reported === "user" || reported === "environment" ? reported : next);
       setCameraOn(true);
+      setCameraError("");
       attachPreview(mixed);
       await Promise.all(
         [...peersRef.current.values()].map(async (peer) => {
           const sender = peer.getSenders().find((item) => item.track?.kind === "video");
-          if (sender) await sender.replaceTrack(videoTrack);
+          if (sender) await sender.replaceTrack(videoTrack).catch(() => undefined);
         }),
       );
-    } catch {
-      toast.error("Couldn't switch the camera");
-      if (!streamRef.current?.getVideoTracks().some((track) => track.readyState === "live")) {
-        try {
-          const restored = await openVideo(facing, undefined);
-          const videoTrack = restored.getVideoTracks()[0];
-          if (videoTrack) {
-            videoTrack.onended = () => {
-              if (flipping.current || ending.current) return;
-              leaveLive();
-            };
-            const mixed = new MediaStream([...audio, videoTrack]);
-            streamRef.current = mixed;
-            setCameraOn(true);
-            attachPreview(mixed);
+    };
+
+    const restoreVideo = async () => {
+      if (streamRef.current?.getVideoTracks().some((track) => track.readyState === "live")) return;
+      const restored = await openVideo(facing, undefined);
+      const videoTrack = restored.getVideoTracks()[0];
+      if (!videoTrack) throw new Error("camera");
+      restored.getAudioTracks().forEach((track) => track.stop());
+      await applyVideo(videoTrack);
+    };
+
+    try {
+      let videoTrack: MediaStreamTrack | undefined;
+
+      // Prefer the next camera in the phone's device list (front <-> back).
+      if (cameras.length > 1) {
+        const index = previousId
+          ? cameras.findIndex((camera) => camera.deviceId === previousId)
+          : -1;
+        const order =
+          index >= 0
+            ? [...cameras.slice(index + 1), ...cameras.slice(0, index)]
+            : [
+                ...cameras.filter((camera) => labelFacing(camera.label) === next),
+                ...cameras.filter((camera) => camera.deviceId !== previousId),
+              ];
+        for (const camera of order) {
+          if (camera.deviceId === previousId) continue;
+          try {
+            const opened = await openVideoDevice(camera.deviceId);
+            opened.getAudioTracks().forEach((track) => track.stop());
+            videoTrack = opened.getVideoTracks()[0];
+            if (videoTrack) break;
+          } catch {
+            // try the next lens
           }
-        } catch {
-          setCameraError("Couldn't switch the camera");
         }
+      }
+
+      if (!videoTrack) {
+        const opened = await openVideo(next, previousId);
+        opened.getAudioTracks().forEach((track) => track.stop());
+        videoTrack = opened.getVideoTracks()[0];
+      }
+
+      if (!videoTrack) throw new Error("camera");
+
+      const openedId = videoTrack.getSettings().deviceId;
+      const seen = videoTrack.getSettings().facingMode;
+      const sameDevice = !!previousId && openedId === previousId;
+      const wrongFace = (seen === "user" || seen === "environment") && seen !== next;
+
+      // Still the same lens — walk every other deviceId once more.
+      if (sameDevice || wrongFace) {
+        videoTrack.stop();
+        videoTrack = undefined;
+        const others = cameras.filter((camera) => camera.deviceId !== previousId);
+        for (const camera of others) {
+          try {
+            const opened = await openVideoDevice(camera.deviceId);
+            opened.getAudioTracks().forEach((track) => track.stop());
+            videoTrack = opened.getVideoTracks()[0];
+            if (videoTrack && videoTrack.getSettings().deviceId !== previousId) break;
+            videoTrack?.stop();
+            videoTrack = undefined;
+          } catch {
+            // try the next lens
+          }
+        }
+      }
+
+      if (!videoTrack) {
+        throw new Error(cameras.length <= 1 ? "one-camera" : "camera");
+      }
+
+      await applyVideo(videoTrack);
+    } catch (error) {
+      const oneCamera = error instanceof Error && error.message === "one-camera";
+      toast.error(oneCamera ? "This device only has one camera" : "Couldn't switch the camera");
+      try {
+        await restoreVideo();
+      } catch {
+        setCameraError("Couldn't switch the camera");
       }
     } finally {
       flipping.current = false;
+      setBusy(false);
     }
   };
 
@@ -666,7 +741,8 @@ const PartyLive = ({
               <button
                 type="button"
                 onClick={() => void flipCamera()}
-                className="flex items-center gap-1.5 rounded-full bg-black/50 px-3 py-2 text-sm font-semibold"
+                disabled={busy}
+                className="flex items-center gap-1.5 rounded-full bg-black/50 px-3 py-2 text-sm font-semibold disabled:opacity-60"
                 aria-label="Switch camera"
               >
                 <SwitchCamera className="h-4 w-4" />
@@ -754,7 +830,8 @@ const PartyLive = ({
               <button
                 type="button"
                 onClick={() => void flipCamera()}
-                className="flex items-center gap-2 rounded-full border border-border px-3 py-2 text-sm font-semibold"
+                disabled={busy}
+                className="flex items-center gap-2 rounded-full border border-border px-3 py-2 text-sm font-semibold disabled:opacity-60"
               >
                 <SwitchCamera className="h-4 w-4" />
                 Switch camera
