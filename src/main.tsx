@@ -6,10 +6,12 @@ import ReactQueryProvider from "./components/provider/ReactQueryProvider.tsx";
 import { Toaster } from "react-hot-toast";
 import "./index.css";
 import AppProvider from "./components/provider/AppProvider.tsx";
+import ScrollToTop from "./components/ScrollToTop.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
+      <ScrollToTop />
       <AppProvider>
         <ReactQueryProvider>
           <App />
