@@ -31,6 +31,11 @@ import {
 } from "../../lib/bookings";
 import { displayPrice, formatPrice } from "../../lib/currency";
 import { getErrorMessage, type ApiError } from "../../lib/errors";
+import {
+  checkoutAmount,
+  newCheckoutOrderId,
+  startPedxoCheckout,
+} from "../../lib/pedxoCheckout";
 import { linkKey } from "../../lib/privateLink";
 import type { IProperty } from "../../types/listing";
 
@@ -151,6 +156,33 @@ const PropertyBookingForm = ({ property }: { property: IProperty }) => {
     },
   });
 
+  const payOrBook = (choices: Choices) => {
+    const charge =
+      property.charge_type === "hour"
+        ? price * choices.hours
+        : perDay
+          ? price * (choices.days && choices.days > 0 ? choices.days : 1)
+          : price * choices.guests;
+    if (charge > 0) {
+      startPedxoCheckout({
+        kind: "property",
+        listingId: property._id,
+        orderId: newCheckoutOrderId(),
+        amount: checkoutAmount(charge, currency),
+        currency,
+        choices: {
+          date: choices.date,
+          start_time: perDay ? undefined : choices.startTime,
+          hours: perDay ? undefined : choices.hours,
+          days: choices.days,
+          guests: choices.guests,
+        },
+      });
+      return;
+    }
+    mutate(choices);
+  };
+
   useEffect(() => {
     if (!user) return;
     const saved = takePendingBooking<Choices>(property._id);
@@ -161,8 +193,10 @@ const PropertyBookingForm = ({ property }: { property: IProperty }) => {
     setHours(saved.hours);
     setGuests(saved.guests);
     document.getElementById("book")?.scrollIntoView({ behavior: "smooth" });
-    mutate(saved);
-  }, [user, property._id, mutate]);
+    payOrBook(saved);
+    // Resume once after login; payOrBook closes over the latest price/currency.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, property._id]);
 
   const handleBook = () => {
     const choices = { date: arrival, startTime, hours, days: nights, guests };
@@ -171,7 +205,7 @@ const PropertyBookingForm = ({ property }: { property: IProperty }) => {
       setIsAuthModal(true);
       return;
     }
-    mutate(choices);
+    payOrBook(choices);
   };
 
   const pickRange = (range: DateRange | undefined, triggerDate: Date) => {

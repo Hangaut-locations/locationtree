@@ -28,6 +28,7 @@ import ReservationsPage from "./pages/Reservations.page";
 import MessagesPage from "./pages/Messages.page";
 import CheckInPage from "./pages/CheckIn.page";
 import NotFoundPage from "./pages/NotFound.page";
+import PayReturnPage from "./pages/PayReturn.page";
 import AppLayout from "./components/layout/AppLayout";
 import "./App.css";
 
@@ -217,6 +218,7 @@ function App() {
       <Route path="/messages" element={<MessagesPage />} />
       <Route path="/messages/:id" element={<MessagesPage />} />
       <Route path="/check-in/:partyId" element={<CheckInPage />} />
+      <Route path="/pay/return" element={<PayReturnPage />} />
       <Route
         path="/trips"
         element={

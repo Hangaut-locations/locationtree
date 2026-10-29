@@ -14,6 +14,11 @@ import {
 } from "../../lib/bookings";
 import { displayPrice, formatPrice } from "../../lib/currency";
 import { getErrorMessage, type ApiError } from "../../lib/errors";
+import {
+  checkoutAmount,
+  newCheckoutOrderId,
+  startPedxoCheckout,
+} from "../../lib/pedxoCheckout";
 import { formatPartyWhen, partyLengthInDays } from "../../lib/partyTime";
 import { linkKey } from "../../lib/privateLink";
 import type { PartyFriend } from "../../types/booking";
@@ -173,8 +178,45 @@ const PartyBookingForm = ({
     setFriends(saved.friends ?? []);
     setTicketNames(saved.ticketNames ?? [MAIN_TICKET]);
     document.getElementById("book")?.scrollIntoView({ behavior: "smooth" });
+    const savedExtras = options.filter((option) =>
+      (saved.ticketNames ?? []).includes(option.name),
+    );
+    const savedIncludesMain = (saved.ticketNames ?? []).includes(MAIN_TICKET);
+    const savedUnit =
+      options.length === 0
+        ? Number(party.price) || 0
+        : (savedIncludesMain ? Number(party.price) || 0 : 0) +
+          savedExtras.reduce(
+            (sum, option) => sum + (Number(option.price) || 0),
+            0,
+          );
+    const savedTotal = saved.withoutTicket
+      ? 0
+      : perHour
+        ? savedUnit * saved.hours
+        : perDay
+          ? savedUnit * (saved.days ?? 1)
+          : savedUnit * saved.guests;
+    if (savedTotal > 0) {
+      startPedxoCheckout({
+        kind: "party",
+        listingId: party._id,
+        orderId: newCheckoutOrderId(),
+        amount: checkoutAmount(savedTotal, currency),
+        currency,
+        choices: {
+          guests: saved.guests,
+          hours: saved.hours,
+          days: saved.days,
+          friends: filledFriends(saved.friends ?? []).slice(0, saved.guests - 1),
+          withoutTicket: false,
+          ticketNames: saved.ticketNames,
+        },
+      });
+      return;
+    }
     mutate(saved);
-  }, [user, party._id, mutate]);
+  }, [user, party._id, mutate, options, party.price, perHour, perDay, currency]);
 
   const handleBook = (withoutTicket = false) => {
     const choices = {
@@ -188,6 +230,27 @@ const PartyBookingForm = ({
     if (!user) {
       savePendingBooking<Choices>(party._id, choices);
       setIsAuthModal(true);
+      return;
+    }
+    const chargeTotal = withoutTicket ? 0 : total;
+    // Paid bookings settle on Pedxo wallet (Sexyyo), then return here to create the booking.
+    if (chargeTotal > 0) {
+      const orderId = newCheckoutOrderId();
+      startPedxoCheckout({
+        kind: "party",
+        listingId: party._id,
+        orderId,
+        amount: checkoutAmount(chargeTotal, currency),
+        currency,
+        choices: {
+          guests: choices.guests,
+          hours: choices.hours,
+          days: choices.days,
+          friends: filledFriends(choices.friends ?? []).slice(0, choices.guests - 1),
+          withoutTicket: false,
+          ticketNames: choices.ticketNames,
+        },
+      });
       return;
     }
     mutate(choices);
